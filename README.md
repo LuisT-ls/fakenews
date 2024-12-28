@@ -78,15 +78,3 @@ Este projeto está licenciado sob a [MIT License](LICENSE).
 Evite compartilhar informações sem verificar fontes confiáveis. Este verificador não é perfeito, mas pode ser uma ferramenta útil para conscientização sobre fake news.
 
 Desenvolvido com ❤️ para ajudar a combater a desinformação.
-```
-
-### O que inclui:
-1. **Descrição do Projeto**: Explica brevemente o objetivo do projeto.
-2. **Funcionalidades**: Lista o que a aplicação faz.
-3. **Tecnologias**: Indica as ferramentas e APIs utilizadas.
-4. **Instruções de Uso**: Explica como configurar e rodar o projeto.
-5. **Interface**: Explica o layout do sistema.
-6. **Contribuições**: Orienta como outros podem ajudar a melhorar o projeto.
-7. **Licença**: Inclui a licença MIT.
-
-Se precisar de algum ajuste ou inclusão específica, avise! 😊
