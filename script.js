@@ -117,11 +117,17 @@ async function checkFactChecking(text) {
 }
 
 async function analyzeNews(text) {
-  const query = encodeURIComponent(text)
+  // Resumo de texto para evitar URLs muito longas
+  const shortenedText =
+    text.length > 100 ? text.substring(0, 100) + '...' : text
+  const query = encodeURIComponent(shortenedText)
   const url = `https://newsapi.org/v2/everything?q=${query}&apiKey=${NEWS_API_KEY}&language=pt&sortBy=relevancy`
 
   try {
     const response = await fetch(url)
+    if (!response.ok) {
+      throw new Error(`Erro na API NewsAPI: ${response.statusText}`)
+    }
     return await response.json()
   } catch (error) {
     console.error('Erro na análise de notícias:', error)
