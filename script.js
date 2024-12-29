@@ -1,328 +1,380 @@
-document.addEventListener('DOMContentLoaded', function () {
-  const userInput = document.getElementById('userInput')
-  const verifyButton = document.getElementById('verifyButton')
-  const resultSection = document.getElementById('result-section')
-  const resultDiv = document.getElementById('result')
+// Configuração das APIs
+const GOOGLE_FACT_CHECK_API_KEY = 'AIzaSyD59PUUAWUxhDD1x-2maOAmdJCANoM06hQ'
+const NEWS_API_KEY = 'dd9ac3ec04284a2eab2a972b11919579'
 
-  // Configuração das APIs
-  const GOOGLE_FACT_CHECK_API_KEY = 'AIzaSyD59PUUAWUxhDD1x-2maOAmdJCANoM06hQ'
-  const NEWS_API_KEY = 'dd9ac3ec04284a2eab2a972b11919579'
+// Estado global da aplicação
+let currentVerification = null
+let verificationHistory = []
 
-  async function checkFactualAccuracy(text) {
-    try {
-      // 1. Google Fact Check API
-      const googleFactCheckUrl = `https://factchecktools.googleapis.com/v1alpha1/claims:search?key=${GOOGLE_FACT_CHECK_API_KEY}&query=${encodeURIComponent(
-        text
-      )}`
-      const factCheckResponse = await fetch(googleFactCheckUrl)
-      const factCheckData = await factCheckResponse.json()
+// Elementos do DOM
+const elements = {
+  userInput: document.getElementById('userInput'),
+  verifyButton: document.getElementById('verifyButton'),
+  resultSection: document.getElementById('result-section'),
+  result: document.getElementById('result'),
+  verificationsHistory: document.getElementById('verificationsHistory'),
+  themeSwitcher: document.getElementById('themeSwitcher'),
+  spinner: document.querySelector('.spinner-border'),
+  notificationToast: document.getElementById('notificationToast')
+}
 
-      // 2. NewsAPI para verificar fontes confiáveis
-      const newsApiUrl = `https://newsapi.org/v2/everything?q=${encodeURIComponent(
-        text
-      )}&apiKey=${NEWS_API_KEY}&language=pt`
-      const newsResponse = await fetch(newsApiUrl)
-      const newsData = await newsResponse.json()
+// Inicialização
+document.addEventListener('DOMContentLoaded', () => {
+  loadVerificationHistory()
+  initThemeSwitch()
+  setupEventListeners()
+})
 
-      return {
-        factCheckResults: factCheckData,
-        newsResults: newsData
-      }
-    } catch (error) {
-      console.error('Error during fact checking:', error)
-      return null
-    }
-  }
+// Configuração dos event listeners
+function setupEventListeners() {
+  elements.verifyButton.addEventListener('click', handleVerification)
+  elements.userInput.addEventListener('input', handleInputChange)
+  window.addEventListener('offline', () =>
+    showNotification(
+      'Você está offline. Algumas funcionalidades podem estar indisponíveis.'
+    )
+  )
+  window.addEventListener('online', () =>
+    showNotification('Conexão restabelecida!')
+  )
+}
 
-  async function analyzeContent(text) {
-    // Análise básica de padrões suspeitos
-    const basicAnalysis = analyzeBasicPatterns(text)
+// Gerenciamento do tema
+function initThemeSwitch() {
+  const currentTheme = localStorage.getItem('theme') || 'light'
+  document.documentElement.setAttribute('data-theme', currentTheme)
+  updateThemeIcon(currentTheme)
 
-    // Análise factual usando APIs
-    const factualAnalysis = await checkFactualAccuracy(text)
+  elements.themeSwitcher.addEventListener('click', () => {
+    const newTheme =
+      document.documentElement.getAttribute('data-theme') === 'dark'
+        ? 'light'
+        : 'dark'
+    document.documentElement.setAttribute('data-theme', newTheme)
+    localStorage.setItem('theme', newTheme)
+    updateThemeIcon(newTheme)
+  })
+}
 
-    return combineAnalysis(basicAnalysis, factualAnalysis)
-  }
+function updateThemeIcon(theme) {
+  const icon = elements.themeSwitcher.querySelector('i')
+  icon.className = theme === 'dark' ? 'fas fa-sun' : 'fas fa-moon'
+}
 
-  function analyzeBasicPatterns(text) {
-    const textLower = text.toLowerCase()
-    let suspectPatterns = 0
-    const patterns = {
-      clickbait: [
-        'você não vai acreditar',
-        'impressionante',
-        'chocante',
-        'inacreditável',
-        'surreal'
-      ],
-      urgency: [
-        'urgente',
-        'compartilhe agora',
-        'precisa ver isso',
-        'antes que apaguem'
-      ],
-      vagueSources: [
-        'dizem que',
-        'estudos dizem',
-        'cientistas descobriram',
-        'médicos afirmam',
-        'fonte confiável'
-      ],
-      exaggeration: [
-        'revolucionário',
-        'milagroso',
-        'cura tudo',
-        '100% garantido',
-        'segredo revelado'
-      ]
-    }
+// Manipulação do input
+function handleInputChange() {
+  elements.verifyButton.disabled = !elements.userInput.value.trim()
+}
 
-    let matchedPatterns = []
-    Object.entries(patterns).forEach(([category, patternList]) => {
-      patternList.forEach(pattern => {
-        if (textLower.includes(pattern)) {
-          suspectPatterns++
-          matchedPatterns.push({ category, pattern })
-        }
-      })
-    })
+// Processo de verificação
+async function handleVerification() {
+  const text = elements.userInput.value.trim()
+  if (!text) return
 
-    return {
-      patternScore: suspectPatterns / 15, // Ajustado para novo peso
-      matchedPatterns
-    }
-  }
+  showLoadingState(true)
 
-  function combineAnalysis(basicAnalysis, factualAnalysis) {
-    if (!factualAnalysis) {
-      return {
-        riskLevel: 'Indeterminado',
-        confidence: 0,
-        explanation:
-          'Não foi possível realizar uma verificação completa. Por favor, tente novamente.'
-      }
-    }
+  try {
+    const results = await Promise.all([
+      checkFactChecking(text),
+      analyzeNews(text),
+      performContentAnalysis(text)
+    ])
 
-    // Análise de fact-checking
-    const factCheckScore = calculateFactCheckScore(
-      factualAnalysis.factCheckResults
+    const [factCheckResult, newsResult, contentAnalysis] = results
+    const verification = createVerificationResult(
+      text,
+      factCheckResult,
+      newsResult,
+      contentAnalysis
     )
 
-    // Análise de notícias
-    const newsScore = calculateNewsScore(factualAnalysis.newsResults)
-
-    // Pesos ajustados sem OpenAI
-    const finalScore =
-      factCheckScore * 0.5 +
-      newsScore * 0.3 +
-      (1 - basicAnalysis.patternScore) * 0.2
-
-    return generateResult(finalScore, {
-      factualAnalysis,
-      basicAnalysis
-    })
-  }
-
-  function calculateFactCheckScore(factCheckResults) {
-    if (!factCheckResults || !factCheckResults.claims) return 0.5
-
-    // Implementa lógica de pontuação baseada nos resultados do fact-check
-    let score = 0.5 // Pontuação neutra padrão
-    const claims = factCheckResults.claims
-
-    if (claims.length > 0) {
-      const ratings = claims.map(claim => {
-        // Converte o rating textual em valor numérico
-        switch (claim.rating?.toLowerCase()) {
-          case 'true':
-            return 1
-          case 'mostly true':
-            return 0.75
-          case 'mixed':
-            return 0.5
-          case 'mostly false':
-            return 0.25
-          case 'false':
-            return 0
-          default:
-            return 0.5
-        }
-      })
-
-      score = ratings.reduce((a, b) => a + b, 0) / ratings.length
-    }
-
-    return score
-  }
-
-  function calculateNewsScore(newsResults) {
-    if (!newsResults || !newsResults.articles) return 0.5
-
-    const articles = newsResults.articles
-    if (articles.length === 0) return 0.5
-
-    // Lista de fontes confiáveis
-    const trustedSources = [
-      'g1.globo.com',
-      'bbc',
-      'reuters',
-      'folha.uol.com.br',
-      'estadao.com.br',
-      'oglobo.globo.com'
-    ]
-
-    // Calcula pontuação baseada em fontes confiáveis
-    const trustedArticles = articles.filter(article =>
-      trustedSources.some(source => article.url.toLowerCase().includes(source))
+    displayResults(verification)
+    saveVerification(verification)
+    showFeedbackModal()
+  } catch (error) {
+    console.error('Erro durante a verificação:', error)
+    showNotification(
+      'Ocorreu um erro durante a verificação. Tente novamente.',
+      'danger'
     )
+  } finally {
+    showLoadingState(false)
+  }
+}
 
-    return 0.5 + (trustedArticles.length / articles.length) * 0.5
+// Chamadas às APIs
+async function checkFactChecking(text) {
+  const query = encodeURIComponent(text)
+  const url = `https://factchecktools.googleapis.com/v1alpha1/claims:search?key=${GOOGLE_FACT_CHECK_API_KEY}&query=${query}`
+
+  try {
+    const response = await fetch(url)
+    return await response.json()
+  } catch (error) {
+    console.error('Erro na verificação de fatos:', error)
+    return null
+  }
+}
+
+async function analyzeNews(text) {
+  const query = encodeURIComponent(text)
+  const url = `https://newsapi.org/v2/everything?q=${query}&apiKey=${NEWS_API_KEY}&language=pt&sortBy=relevancy`
+
+  try {
+    const response = await fetch(url)
+    return await response.json()
+  } catch (error) {
+    console.error('Erro na análise de notícias:', error)
+    return null
+  }
+}
+
+async function performContentAnalysis(text) {
+  // Implementação básica de análise de conteúdo
+  const redFlags = [
+    { pattern: /URGENTE|IMPORTANTE|ATENÇÃO/i, weight: 0.3 },
+    { pattern: /\b(?:100%|GARANTIDO)\b/i, weight: 0.4 },
+    { pattern: /(?:não divulgam|mídia esconde)/i, weight: 0.5 },
+    { pattern: /\b(?:cura milagrosa|segredo revelado)\b/i, weight: 0.6 }
+  ]
+
+  let suspiciousScore = 0
+  redFlags.forEach(flag => {
+    if (flag.pattern.test(text)) {
+      suspiciousScore += flag.weight
+    }
+  })
+
+  return {
+    suspiciousScore: Math.min(suspiciousScore, 1),
+    textLength: text.length,
+    hasLinks: /https?:\/\/[^\s]+/g.test(text),
+    hasNumbers: /\d+/g.test(text)
+  }
+}
+
+// Criação e exibição dos resultados
+function createVerificationResult(text, factCheck, news, analysis) {
+  return {
+    id: Date.now(),
+    timestamp: new Date().toISOString(),
+    text: text.substring(0, 200) + (text.length > 200 ? '...' : ''),
+    factCheckResults: factCheck,
+    newsResults: news,
+    contentAnalysis: analysis,
+    overallScore: calculateOverallScore(factCheck, news, analysis)
+  }
+}
+
+function calculateOverallScore(factCheck, news, analysis) {
+  let score = 0.5 // Score inicial neutro
+
+  // Ajuste baseado na análise de conteúdo
+  score -= analysis.suspiciousScore * 0.3
+
+  // Ajuste baseado nos fact checks encontrados
+  if (factCheck?.claims?.length > 0) {
+    const factCheckScore =
+      factCheck.claims.reduce((acc, claim) => {
+        return acc + (claim.ratingValue ? claim.ratingValue / 5 : 0)
+      }, 0) / factCheck.claims.length
+    score += factCheckScore * 0.4
   }
 
-  function generateResult(score, analysisData) {
-    let riskLevel, confidence
-
-    if (score >= 0.8) {
-      riskLevel = 'Baixo risco de Fake News'
-      confidence = 'Alta'
-    } else if (score >= 0.6) {
-      riskLevel = 'Risco moderado - Verificação adicional recomendada'
-      confidence = 'Média'
-    } else {
-      riskLevel = 'Alto risco de Fake News'
-      confidence = 'Alta'
-    }
-
-    return {
-      riskLevel,
-      confidence,
-      score,
-      analysis: analysisData
-    }
+  // Ajuste baseado nas notícias relacionadas
+  if (news?.articles?.length > 0) {
+    score += 0.3 // Bonus por ter cobertura de mídia
   }
 
-  function generateFactCheckList(factCheckResults) {
-    if (
-      !factCheckResults ||
-      !factCheckResults.claims ||
-      factCheckResults.claims.length === 0
-    ) {
-      return '<li class="list-group-item">Nenhuma verificação de fatos encontrada para esta informação específica.</li>'
-    }
+  return Math.max(0, Math.min(1, score)) // Normaliza entre 0 e 1
+}
 
-    return factCheckResults.claims
-      .map(
-        claim => `
-          <li class="list-group-item">
-              <strong>Verificado por:</strong> ${claim.claimReview[0].publisher.name}<br>
-              <strong>Conclusão:</strong> ${claim.claimReview[0].textualRating}
-          </li>
-      `
-      )
-      .join('')
-  }
+function displayResults(verification) {
+  const scoreClass =
+    verification.overallScore > 0.7
+      ? 'text-success'
+      : verification.overallScore > 0.4
+      ? 'text-warning'
+      : 'text-danger'
 
-  function generateNewsSourcesList(newsResults) {
-    if (
-      !newsResults ||
-      !newsResults.articles ||
-      newsResults.articles.length === 0
-    ) {
-      return '<li class="list-group-item">Nenhuma fonte de notícia relacionada encontrada.</li>'
-    }
+  const resultHTML = `
+    <div class="result-card p-4 border rounded">
+      <h3 class="h5 mb-3">Resultado da Análise</h3>
+      <div class="d-flex align-items-center mb-4">
+        <div class="progress flex-grow-1 me-3" style="height: 25px;">
+          <div class="progress-bar ${scoreClass}" role="progressbar" 
+               style="width: ${verification.overallScore * 100}%" 
+               aria-valuenow="${verification.overallScore * 100}" 
+               aria-valuemin="0" aria-valuemax="100">
+            ${Math.round(verification.overallScore * 100)}%
+          </div>
+        </div>
+        <span class="${scoreClass} fw-bold">
+          ${getScoreLabel(verification.overallScore)}
+        </span>
+      </div>
+      
+      <div class="analysis-details">
+        ${generateAnalysisDetails(verification)}
+      </div>
+    </div>
+  `
 
-    return newsResults.articles
-      .slice(0, 5)
-      .map(
-        article => `
-          <li class="list-group-item">
-              <strong>${article.source.name}</strong><br>
-              <a href="${article.url}" target="_blank" rel="noopener noreferrer">
-                  ${article.title}
-              </a>
-          </li>
-      `
-      )
-      .join('')
-  }
+  elements.result.innerHTML = resultHTML
+  elements.resultSection.classList.remove('d-none')
+}
 
-  function displayResults(analysis) {
-    const {
-      riskLevel,
-      confidence,
-      score,
-      analysis: { factualAnalysis, basicAnalysis }
-    } = analysis
+function getScoreLabel(score) {
+  if (score > 0.7) return 'Provavelmente Verdadeiro'
+  if (score > 0.4) return 'Verificação Necessária'
+  return 'Possível Fake News'
+}
 
-    resultDiv.innerHTML = `
-      <h4 class="text-${
-        riskLevel === 'Alto'
-          ? 'danger'
-          : riskLevel === 'Moderado'
-          ? 'warning'
-          : 'success'
-      }">
-        ${riskLevel}
-      </h4>
-      <p><strong>Confiança:</strong> ${confidence}</p>
-      <p><strong>Score de veracidade:</strong> ${(score * 100).toFixed(2)}%</p>
-      <h5>Análise de padrões suspeitos:</h5>
-      <ul class="list-group">
-        ${
-          basicAnalysis.matchedPatterns.length > 0
-            ? basicAnalysis.matchedPatterns
-                .map(
-                  pattern => `
-            <li class="list-group-item">
-                <strong>Categoria:</strong> ${pattern.category}<br>
-                <strong>Padrão encontrado:</strong> ${pattern.pattern}
-            </li>`
-                )
-                .join('')
-            : '<li class="list-group-item">Nenhum padrão suspeito identificado.</li>'
-        }
-      </ul>
-      <h5>Verificações de fatos:</h5>
-      <ul class="list-group">
-        ${generateFactCheckList(factualAnalysis.factCheckResults)}
-      </ul>
-      <h5>Fontes de notícias confiáveis:</h5>
-      <ul class="list-group">
-        ${generateNewsSourcesList(factualAnalysis.newsResults)}
-      </ul>
+function generateAnalysisDetails(verification) {
+  let details =
+    '<h4 class="h6 mb-3">Detalhes da Análise:</h4><ul class="list-group">'
+
+  // Adiciona resultados do fact-checking
+  if (verification.factCheckResults?.claims?.length > 0) {
+    details += `
+      <li class="list-group-item">
+        <strong>Fact-Checks Encontrados:</strong> ${verification.factCheckResults.claims.length}
+      </li>
     `
   }
 
-  // Event Listeners
-  verifyButton.addEventListener('click', async function () {
-    const text = userInput.value.trim()
+  // Adiciona resultados da análise de conteúdo
+  details += `
+    <li class="list-group-item">
+      <strong>Indicadores de Alerta:</strong>
+      ${
+        verification.contentAnalysis.suspiciousScore > 0
+          ? `<span class="text-warning">Encontrados alguns padrões suspeitos</span>`
+          : `<span class="text-success">Nenhum padrão suspeito significativo</span>`
+      }
+    </li>
+  `
 
-    if (text.length < 10) {
-      alert('Por favor, insira um texto mais longo para análise.')
-      return
-    }
+  // Adiciona cobertura de notícias
+  if (verification.newsResults?.articles?.length > 0) {
+    details += `
+      <li class="list-group-item">
+        <strong>Cobertura na Mídia:</strong> 
+        Encontradas ${verification.newsResults.articles.length} notícias relacionadas
+      </li>
+    `
+  }
 
-    // Mostra loading
-    resultDiv.innerHTML = `
-          <div class="text-center">
-              <div class="spinner-border text-primary" role="status">
-                  <span class="visually-hidden">Analisando...</span>
-              </div>
-              <p class="mt-2">Verificando a veracidade da informação...</p>
-          </div>
-      `
-    resultSection.classList.remove('d-none')
+  details += '</ul>'
+  return details
+}
 
-    try {
-      const analysis = await analyzeContent(text)
-      displayResults(analysis)
-    } catch (error) {
-      console.error('Error:', error)
-      resultDiv.innerHTML = `
-              <div class="alert alert-danger">
-                  Ocorreu um erro durante a análise. Por favor, tente novamente.
-              </div>
-          `
-    }
-  })
-})
+// Gerenciamento do histórico
+function saveVerification(verification) {
+  verificationHistory.unshift(verification)
+  if (verificationHistory.length > 10) {
+    verificationHistory.pop()
+  }
+  localStorage.setItem(
+    'verificationHistory',
+    JSON.stringify(verificationHistory)
+  )
+  updateHistoryDisplay()
+}
+
+function loadVerificationHistory() {
+  try {
+    const saved = localStorage.getItem('verificationHistory')
+    verificationHistory = saved ? JSON.parse(saved) : []
+    updateHistoryDisplay()
+  } catch (error) {
+    console.error('Erro ao carregar histórico:', error)
+    verificationHistory = []
+  }
+}
+
+function updateHistoryDisplay() {
+  const historyHTML = verificationHistory
+    .map(
+      verification => `
+    <div class="list-group-item">
+      <div class="d-flex justify-content-between align-items-center">
+        <small class="text-muted">
+          ${new Date(verification.timestamp).toLocaleString()}
+        </small>
+        <span class="badge bg-${getScoreBadgeColor(verification.overallScore)}">
+          ${Math.round(verification.overallScore * 100)}%
+        </span>
+      </div>
+      <p class="mb-1 text-truncate">${verification.text}</p>
+    </div>
+  `
+    )
+    .join('')
+
+  elements.verificationsHistory.innerHTML =
+    historyHTML ||
+    '<p class="text-center text-muted">Nenhuma verificação realizada</p>'
+}
+
+function getScoreBadgeColor(score) {
+  if (score > 0.7) return 'success'
+  if (score > 0.4) return 'warning'
+  return 'danger'
+}
+
+// Funções de UI
+function showLoadingState(loading) {
+  elements.verifyButton.disabled = loading
+  elements.spinner.classList.toggle('d-none', !loading)
+  elements.verifyButton.querySelector('span').textContent = loading
+    ? 'Verificando...'
+    : 'Verificar Agora'
+}
+
+function showNotification(message, type = 'info') {
+  const toast = new bootstrap.Toast(elements.notificationToast)
+  elements.notificationToast.querySelector('.toast-body').textContent = message
+  elements.notificationToast.classList.add(`bg-${type}`)
+  toast.show()
+}
+
+// Compartilhamento
+function shareOnTwitter() {
+  const text = encodeURIComponent(
+    'Verifiquei esta informação usando o Verificador de Fake News!'
+  )
+  const url = encodeURIComponent(window.location.href)
+  window.open(
+    `https://twitter.com/intent/tweet?text=${text}&url=${url}`,
+    '_blank'
+  )
+}
+
+function shareOnWhatsApp() {
+  const text = encodeURIComponent(
+    'Verifiquei esta informação usando o Verificador de Fake News!'
+  )
+  const url = encodeURIComponent(window.location.href)
+  window.open(`https://wa.me/?text=${text} ${url}`, '_blank')
+}
+
+function shareOnTelegram() {
+  const text = encodeURIComponent(
+    'Verifiquei esta informação usando o Verificador de Fake News!'
+  )
+  const url = encodeURIComponent(window.location.href)
+  window.open(`https://t.me/share/url?url=${url}&text=${text}`, '_blank')
+}
+
+// Feedback
+function showFeedbackModal() {
+  const modal = new bootstrap.Modal(document.getElementById('feedbackModal'))
+  modal.show()
+}
+
+function submitFeedback(type) {
+  // Falta implementar a lógica para salvar o feedback
+  showNotification('Obrigado pelo seu feedback!', 'success')
+  bootstrap.Modal.getInstance(document.getElementById('feedbackModal')).hide()
+}
