@@ -115,20 +115,33 @@
     <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
       <div class="container">
         <a class="navbar-brand" href="/">
-          <i class="fas fa-shield-alt me-2"></i>
-          Verificador de Fake News
+          <i class="fas fa-shield-alt"></i>
+          <span class="ms-2">Verificador de Fake News</span>
         </a>
-        <button
-          class="navbar-toggler"
-          type="button"
-          data-bs-toggle="collapse"
-          data-bs-target="#navbarNav"
-          aria-controls="navbarNav"
-          aria-expanded="false"
-          aria-label="Toggle navigation"
-        >
-          <span class="navbar-toggler-icon"></span>
-        </button>
+
+        <!-- Dark Mode Toggle (visível em mobile) -->
+        <div class="d-flex align-items-center order-lg-last">
+          <button
+            id="themeSwitcher"
+            class="btn btn-icon btn-outline-light me-2"
+            aria-label="Alternar modo escuro"
+          >
+            <i class="fas fa-moon"></i>
+          </button>
+
+          <button
+            class="navbar-toggler"
+            type="button"
+            data-bs-toggle="collapse"
+            data-bs-target="#navbarNav"
+            aria-controls="navbarNav"
+            aria-expanded="false"
+            aria-label="Toggle navigation"
+          >
+            <span class="navbar-toggler-icon"></span>
+          </button>
+        </div>
+
         <div class="collapse navbar-collapse" id="navbarNav">
           <ul class="navbar-nav ms-auto">
             <li class="nav-item">
@@ -140,27 +153,16 @@
             <li class="nav-item">
               <a class="nav-link" href="/pages/sobre.html">Sobre</a>
             </li>
-            <li class="nav-item">
-              <button
-                id="themeSwitcher"
-                class="btn btn-outline-light ms-2"
-                aria-label="Alternar modo escuro"
-              >
-                <i class="fas fa-moon"></i>
-              </button>
-            </li>
           </ul>
         </div>
       </div>
     </nav>
 
-    <!-- Header Principal -->
-    <header class="py-5 text-center header-gradient">
+    <!-- Header Principal (mais compacto) -->
+    <header class="py-4 text-center header-gradient">
       <div class="container">
-        <h1 class="display-4 fw-bold text-white mb-3">
-          Detecte Fake News com Inteligência Artificial
-        </h1>
-        <p class="lead text-white mb-0">
+        <h1 class="h2 fw-bold text-white mb-2">Detecte Fake News com IA</h1>
+        <p class="lead text-white-50 mb-0 small">
           Verifique a credibilidade de notícias em segundos
         </p>
       </div>
