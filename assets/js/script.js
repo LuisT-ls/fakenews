@@ -1,6 +1,7 @@
 // Configuração das APIs
 const GOOGLE_FACT_CHECK_API_KEY = 'AIzaSyD59PUUAWUxhDD1x-2maOAmdJCANoM06hQ'
 const NEWS_API_KEY = 'dd9ac3ec04284a2eab2a972b11919579'
+const GEMINI_API_KEY = 'AIzaSyBnXuyrcA1RsKDRDsPlllKi2FG1rcqLTzw'
 
 // Estado global da aplicação
 let currentVerification = null
@@ -24,6 +25,68 @@ document.addEventListener('DOMContentLoaded', () => {
   initThemeSwitch()
   setupEventListeners()
 })
+
+async function checkWithGemini(text) {
+  const prompt = `Análise detalhada do seguinte texto para verificar sua veracidade:
+"${text}"
+
+Retorne apenas um objeto JSON válido com esta estrutura exata, sem texto adicional:
+{
+  "score": [0-1],
+  "confiabilidade": [0-1],
+  "classificacao": ["Comprovadamente Verdadeiro", "Parcialmente Verdadeiro", "Não Verificável", "Provavelmente Falso", "Comprovadamente Falso"],
+  "explicacao_score": "string",
+  "elementos_verdadeiros": ["array"],
+  "elementos_falsos": ["array"],
+  "elementos_suspeitos": ["array"],
+  "fontes_confiaveis": ["array"],
+  "indicadores_desinformacao": ["array"],
+  "analise_detalhada": "string",
+  "recomendacoes": ["array"]
+}`
+
+  try {
+    const response = await fetch(
+      `https://generativelanguage.googleapis.com/v1/models/gemini-pro:generateContent?key=${GEMINI_API_KEY}`,
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          contents: [
+            {
+              parts: [{ text: prompt }]
+            }
+          ],
+          generationConfig: {
+            temperature: 0.1,
+            topP: 0.1,
+            topK: 16,
+            maxOutputTokens: 2048
+          }
+        })
+      }
+    )
+
+    if (!response.ok) {
+      console.error('API Error:', await response.text())
+      throw new Error(`HTTP error! status: ${response.status}`)
+    }
+
+    const data = await response.json()
+
+    if (!data.candidates?.[0]?.content?.parts?.[0]?.text) {
+      throw new Error('Resposta inválida da API')
+    }
+
+    const analysisText = data.candidates[0].content.parts[0].text.trim()
+    return JSON.parse(analysisText)
+  } catch (error) {
+    console.error('Erro detalhado:', error)
+    throw new Error(`Falha na análise: ${error.message}`)
+  }
+}
 
 // Configuração dos event listeners
 function setupEventListeners() {
@@ -77,15 +140,17 @@ async function handleVerification() {
     const results = await Promise.all([
       checkFactChecking(text),
       analyzeNews(text),
-      performContentAnalysis(text)
+      performContentAnalysis(text),
+      checkWithGemini(text)
     ])
 
-    const [factCheckResult, newsResult, contentAnalysis] = results
+    const [factCheckResult, newsResult, contentAnalysis, geminiResult] = results
     const verification = createVerificationResult(
       text,
       factCheckResult,
       newsResult,
-      contentAnalysis
+      contentAnalysis,
+      geminiResult
     )
 
     displayResults(verification)
@@ -160,7 +225,13 @@ async function performContentAnalysis(text) {
 }
 
 // Criação e exibição dos resultados
-function createVerificationResult(text, factCheck, news, analysis) {
+function createVerificationResult(
+  text,
+  factCheck,
+  news,
+  analysis,
+  geminiResult
+) {
   return {
     id: Date.now(),
     timestamp: new Date().toISOString(),
@@ -168,66 +239,131 @@ function createVerificationResult(text, factCheck, news, analysis) {
     factCheckResults: factCheck,
     newsResults: news,
     contentAnalysis: analysis,
-    overallScore: calculateOverallScore(factCheck, news, analysis)
+    geminiAnalysis: geminiResult,
+    overallScore: calculateOverallScore(factCheck, news, analysis, geminiResult)
   }
 }
 
-function calculateOverallScore(factCheck, news, analysis) {
-  let score = 0.5 // Score inicial neutro
+function calculateOverallScore(factCheck, news, analysis, geminiResult) {
+  if (!geminiResult) return 0.5
 
-  // Ajuste baseado na análise de conteúdo
-  score -= analysis.suspiciousScore * 0.3
+  let score = geminiResult.score * 0.8 // Base score from Gemini
 
-  // Ajuste baseado nos fact checks encontrados
-  if (factCheck?.claims?.length > 0) {
-    const factCheckScore =
-      factCheck.claims.reduce((acc, claim) => {
-        return acc + (claim.ratingValue ? claim.ratingValue / 5 : 0)
-      }, 0) / factCheck.claims.length
-    score += factCheckScore * 0.4
+  // Adjust based on confidence
+  score *= 0.5 + geminiResult.confiabilidade * 0.5
+
+  // Additional factors
+  if (factCheck?.claims?.length > 0) score += 0.1
+  if (news?.articles?.length > 0) score += 0.1
+
+  // Content analysis adjustments
+  if (analysis) {
+    score *= 1 - analysis.suspiciousScore * 0.2
   }
 
-  // Ajuste baseado nas notícias relacionadas
-  if (news?.articles?.length > 0) {
-    score += 0.3 // Bonus por ter cobertura de mídia
-  }
-
-  return Math.max(0, Math.min(1, score)) // Normaliza entre 0 e 1
+  return Math.max(0, Math.min(1, score))
 }
 
 function displayResults(verification) {
-  const scoreClass =
-    verification.overallScore > 0.7
-      ? 'text-success'
-      : verification.overallScore > 0.4
-      ? 'text-warning'
-      : 'text-danger'
+  if (!verification.geminiAnalysis) {
+    elements.result.innerHTML =
+      '<div class="alert alert-danger">Não foi possível realizar a análise. Tente novamente.</div>'
+    elements.resultSection.classList.remove('d-none')
+    return
+  }
+
+  const gemini = verification.geminiAnalysis
+  const scorePercentage = Math.round(verification.overallScore * 100)
+
+  const getScoreClass = score => {
+    if (score >= 0.7) return 'success'
+    if (score >= 0.4) return 'warning'
+    return 'danger'
+  }
 
   const resultHTML = `
-    <div class="result-card p-4 border rounded">
-      <h3 class="h5 mb-3">Resultado da Análise</h3>
-      <div class="d-flex align-items-center mb-4">
-        <div class="progress flex-grow-1 me-3" style="height: 25px;">
-          <div class="progress-bar ${scoreClass}" role="progressbar" 
-               style="width: ${verification.overallScore * 100}%" 
-               aria-valuenow="${verification.overallScore * 100}" 
-               aria-valuemin="0" aria-valuemax="100">
-            ${Math.round(verification.overallScore * 100)}%
-          </div>
+    <div class="result-card p-4 border rounded shadow-sm">
+      <div class="mb-4 text-center">
+        <div class="display-4 text-${getScoreClass(
+          verification.overallScore
+        )}">${scorePercentage}%</div>
+        <h3 class="h5">${gemini.classificacao}</h3>
+      </div>
+
+      <div class="progress mb-4" style="height: 25px;">
+        <div class="progress-bar bg-${getScoreClass(verification.overallScore)}"
+             role="progressbar"
+             style="width: ${scorePercentage}%"
+             aria-valuenow="${scorePercentage}"
+             aria-valuemin="0"
+             aria-valuemax="100">
         </div>
-        <span class="${scoreClass} fw-bold">
-          ${getScoreLabel(verification.overallScore)}
-        </span>
       </div>
+
+      <div class="alert alert-secondary">
+        <i class="fas fa-info-circle me-2"></i>
+        ${gemini.explicacao_score}
+      </div>
+
+      ${generateAnalysisSection(
+        'Elementos Verificados',
+        gemini.elementos_verdadeiros,
+        'success',
+        'check-circle'
+      )}
+      ${generateAnalysisSection(
+        'Elementos Falsos',
+        gemini.elementos_falsos,
+        'danger',
+        'times-circle'
+      )}
+      ${generateAnalysisSection(
+        'Pontos Suspeitos',
+        gemini.elementos_suspeitos,
+        'warning',
+        'exclamation-triangle'
+      )}
       
-      <div class="analysis-details">
-        ${generateAnalysisDetails(verification)}
+      <div class="card mb-3">
+        <div class="card-body">
+          <h4 class="h6 mb-3">Análise Detalhada</h4>
+          <p class="mb-0">${gemini.analise_detalhada}</p>
+        </div>
       </div>
+
+      ${generateAnalysisSection(
+        'Recomendações',
+        gemini.recomendacoes,
+        'info',
+        'lightbulb'
+      )}
     </div>
   `
 
   elements.result.innerHTML = resultHTML
   elements.resultSection.classList.remove('d-none')
+}
+
+function generateAnalysisSection(title, items, colorClass, icon) {
+  if (!items?.length) return ''
+
+  return `
+    <div class="mb-3">
+      <h4 class="h6 mb-2">${title}</h4>
+      <div class="list-group">
+        ${items
+          .map(
+            item => `
+          <div class="list-group-item list-group-item-${colorClass}">
+            <i class="fas fa-${icon} me-2"></i>
+            ${item}
+          </div>
+        `
+          )
+          .join('')}
+      </div>
+    </div>
+  `
 }
 
 function getScoreLabel(score) {
@@ -239,6 +375,20 @@ function getScoreLabel(score) {
 function generateAnalysisDetails(verification) {
   let details =
     '<h4 class="h6 mb-3">Detalhes da Análise:</h4><ul class="list-group">'
+
+  // Adiciona análise do Gemini
+  if (verification.geminiAnalysis) {
+    details += `
+      <li class="list-group-item">
+        <strong>Análise IA:</strong> ${verification.geminiAnalysis.summary}
+        <ul class="mt-2">
+          ${verification.geminiAnalysis.reasons
+            .map(reason => `<li>${reason}</li>`)
+            .join('')}
+        </ul>
+      </li>
+    `
+  }
 
   // Adiciona resultados do fact-checking
   if (verification.factCheckResults?.claims?.length > 0) {
