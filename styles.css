@@ -1,15 +1,14 @@
 /* Global Styles & CSS Reset */
 :root {
-  --primary-color: #4a90e2;
-  --primary-dark: #357abd;
-  --secondary-color: #6c757d;
-  --success-color: #28a745;
-  --danger-color: #dc3545;
-  --warning-color: #ffc107;
-  --light-color: #f8f9fa;
-  --dark-color: #343a40;
-  --body-bg: #f5f7fa;
-  --transition-speed: 0.3s;
+  --primary-color: #2563eb;
+  --primary-dark: #1e40af;
+  --secondary-color: #4b5563;
+  --danger-color: #b91c1c;
+  --warning-color: #b45309;
+  --light-color: #f8fafc;
+  --dark-color: #0f172a;
+  --body-bg: #f8fafc;
+  --text-muted: #4b5563;
 }
 
 * {
@@ -47,6 +46,7 @@ body {
 
 /* Navbar Styles */
 .navbar {
+  background-color: var(--primary-color) !important;
   padding: 1rem 0;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
@@ -57,13 +57,14 @@ body {
 }
 
 .nav-link {
+  color: rgba(255, 255, 255, 0.9) !important;
   font-weight: 500;
   padding: 0.5rem 1rem;
   transition: color var(--transition-speed);
 }
 
 .nav-link:hover {
-  color: var(--light-color) !important;
+  color: #ffffff !important;
   transform: translateY(-1px);
 }
 
@@ -146,6 +147,10 @@ footer a:hover {
   color: #ffffff !important;
 }
 
+footer a.text-white-50 {
+  color: rgba(255, 255, 255, 0.9) !important;
+}
+
 /* Share Buttons */
 .share-buttons .btn {
   padding: 0.5rem 1rem;
@@ -172,18 +177,19 @@ footer a:hover {
 
 /* Dark Mode Styles */
 [data-theme='dark'] {
-  --body-bg: #1a1a1a;
+  --body-bg: #020617;
   --dark-color: #ffffff;
+  --text-muted: #9ca3af;
 }
 
 [data-theme='dark'] .bg-white {
-  background-color: #2d2d2d !important;
+  background-color: #1e293b !important;
   color: #ffffff;
 }
 
 [data-theme='dark'] .form-control {
-  background-color: #333333;
-  border-color: #404040;
+  background-color: #0f172a;
+  border-color: #334155;
   color: #ffffff;
 }
 
