@@ -122,15 +122,40 @@ body {
   box-shadow: 0 4px 12px rgba(74, 144, 226, 0.25);
 }
 
-/* Accordion Styles */
-.accordion-button:not(.collapsed) {
+/* Estilos para a seção de dicas */
+#dicas .accordion-button {
+  padding: 1rem 1.25rem;
+  font-weight: 500;
+}
+
+#dicas .accordion-button:not(.collapsed) {
   background-color: rgba(74, 144, 226, 0.1);
   color: var(--primary-color);
 }
 
-.accordion-button:focus {
+#dicas .accordion-body {
+  padding: 1.25rem;
+}
+
+#dicas .accordion-body ul {
+  padding-left: 1.25rem;
+}
+
+#dicas .accordion-body li {
+  margin-bottom: 0.5rem;
+}
+
+#dicas .accordion-body li:last-child {
+  margin-bottom: 0;
+}
+
+#dicas .accordion-button:focus {
   box-shadow: none;
   border-color: rgba(74, 144, 226, 0.5);
+}
+
+#dicas .fas {
+  color: var(--primary-color);
 }
 
 /* Footer Styles */
@@ -191,6 +216,64 @@ footer a.text-white-50 {
   background-color: #0f172a;
   border-color: #334155;
   color: #ffffff;
+}
+
+[data-theme='dark'] .form-control::placeholder {
+  color: #64748b;
+}
+
+[data-theme='dark'] .form-text {
+  color: #94a3b8;
+}
+
+/* Dark mode styles para o accordion */
+[data-theme='dark'] .accordion-item {
+  background-color: #1e293b;
+  border-color: #334155;
+}
+
+[data-theme='dark'] .accordion-button {
+  background-color: #1e293b;
+  color: #ffffff;
+}
+
+[data-theme='dark'] .accordion-button:not(.collapsed) {
+  background-color: #0f172a;
+  color: #ffffff;
+}
+
+[data-theme='dark'] .accordion-button::after {
+  filter: invert(1);
+}
+
+[data-theme='dark'] .accordion-button:focus {
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 0.25rem rgba(59, 130, 246, 0.25);
+}
+
+[data-theme='dark'] .accordion-button:not(.collapsed)::after {
+  filter: invert(1);
+}
+
+[data-theme='dark'] .accordion-body {
+  background-color: #1e293b;
+  color: #e2e8f0;
+}
+
+[data-theme='dark'] .accordion-button i {
+  color: #60a5fa;
+}
+
+[data-theme='dark'] .accordion-body ul {
+  color: #cbd5e1;
+}
+
+[data-theme='dark'] .accordion-button:hover {
+  background-color: #334155;
+}
+
+[data-theme='dark'] .accordion-button:not(.collapsed) {
+  box-shadow: inset 0 -1px 0 #334155;
 }
 
 /* Responsive Adjustments */

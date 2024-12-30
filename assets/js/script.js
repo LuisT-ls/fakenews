@@ -16,7 +16,8 @@ const elements = {
   verificationsHistory: document.getElementById('verificationsHistory'),
   themeSwitcher: document.getElementById('themeSwitcher'),
   spinner: document.querySelector('.spinner-border'),
-  notificationToast: document.getElementById('notificationToast')
+  notificationToast: document.getElementById('notificationToast'),
+  clearHistoryBtn: document.getElementById('clearHistoryBtn')
 }
 
 // Inicialização
@@ -92,6 +93,7 @@ Retorne apenas um objeto JSON válido com esta estrutura exata, sem texto adicio
 function setupEventListeners() {
   elements.verifyButton.addEventListener('click', handleVerification)
   elements.userInput.addEventListener('input', handleInputChange)
+  elements.clearHistoryBtn.addEventListener('click', handleClearHistory)
   window.addEventListener('offline', () =>
     showNotification(
       'Você está offline. Algumas funcionalidades podem estar indisponíveis.'
@@ -100,6 +102,20 @@ function setupEventListeners() {
   window.addEventListener('online', () =>
     showNotification('Conexão restabelecida!')
   )
+}
+
+function handleClearHistory() {
+  // Cria um modal de confirmação usando Bootstrap
+  const confirmed = confirm(
+    'Tem certeza que deseja apagar todo o histórico de verificações?'
+  )
+
+  if (confirmed) {
+    verificationHistory = []
+    localStorage.removeItem('verificationHistory')
+    updateHistoryDisplay()
+    showNotification('Histórico apagado com sucesso!', 'success')
+  }
 }
 
 // Gerenciamento do tema
