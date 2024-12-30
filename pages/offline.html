@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#4a90e2" />
+    <title>Offline - Verificador de Fake News</title>
+
+    <!-- Bootstrap -->
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
+      rel="stylesheet"
+    />
+
+    <style>
+      .offline-container {
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+      }
+
+      .offline-card {
+        background: white;
+        border-radius: 15px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        max-width: 600px;
+        margin: 20px auto;
+        padding: 2rem;
+      }
+
+      .offline-icon {
+        font-size: 4rem;
+        color: #4a90e2;
+        margin-bottom: 1rem;
+      }
+
+      .retry-button {
+        background-color: #4a90e2;
+        border: none;
+        padding: 12px 30px;
+        border-radius: 25px;
+        transition: transform 0.2s, box-shadow 0.2s;
+      }
+
+      .retry-button:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(74, 144, 226, 0.3);
+        background-color: #357abd;
+      }
+
+      .tips-list {
+        background-color: rgba(74, 144, 226, 0.1);
+        border-radius: 10px;
+        padding: 1.5rem;
+        margin-top: 2rem;
+      }
+
+      .tips-list li {
+        margin-bottom: 1rem;
+        display: flex;
+        align-items: flex-start;
+      }
+
+      .tips-list i {
+        color: #4a90e2;
+        margin-right: 10px;
+        margin-top: 4px;
+      }
+
+      .cached-content {
+        margin-top: 2rem;
+        padding: 1rem;
+        border: 1px solid #e0e0e0;
+        border-radius: 10px;
+      }
+
+      @media (max-width: 576px) {
+        .offline-card {
+          margin: 20px;
+        }
+      }
+
+      .loading {
+        display: none;
+        margin-left: 8px;
+      }
+
+      .loading.active {
+        display: inline-block;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="offline-container">
+      <div class="offline-card">
+        <div class="text-center">
+          <i class="fas fa-wifi-slash offline-icon"></i>
+          <h1 class="h3 mb-4">Você está offline</h1>
+          <p class="lead mb-4">
+            Não foi possível conectar à internet. Algumas funcionalidades podem
+            estar indisponíveis.
+          </p>
+          <button
+            onclick="checkConnection()"
+            class="btn btn-primary retry-button"
+          >
+            <span>Tentar Novamente</span>
+            <div class="spinner-border spinner-border-sm loading" role="status">
+              <span class="visually-hidden">Verificando conexão...</span>
+            </div>
+          </button>
+        </div>
+
+        <div class="tips-list">
+          <h2 class="h5 mb-3">O que você pode fazer:</h2>
+          <ul class="list-unstyled">
+            <li>
+              <i class="fas fa-check-circle"></i>
+              <div>Verificar sua conexão com a internet</div>
+            </li>
+            <li>
+              <i class="fas fa-check-circle"></i>
+              <div>Verificar se o modo avião está desativado</div>
+            </li>
+            <li>
+              <i class="fas fa-check-circle"></i>
+              <div>Verificar as configurações do seu roteador</div>
+            </li>
+            <li>
+              <i class="fas fa-check-circle"></i>
+              <div>Tentar conectar a uma rede Wi-Fi diferente</div>
+            </li>
+          </ul>
+        </div>
+
+        <div id="cachedContent" class="cached-content d-none">
+          <h2 class="h5 mb-3">Conteúdo Disponível Offline</h2>
+          <div id="cachedItems">
+            <!-- Será preenchido via JavaScript -->
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      function checkConnection() {
+        const button = document.querySelector('.retry-button')
+        const loading = document.querySelector('.loading')
+        const buttonText = button.querySelector('span')
+
+        // Desabilita o botão e mostra loading
+        button.disabled = true
+        loading.classList.add('active')
+        buttonText.textContent = 'Verificando'
+
+        // Tenta fazer uma requisição para verificar a conexão
+        fetch('/')
+          .then(response => {
+            if (response.ok) {
+              // Se obtiver resposta, recarrega a página
+              window.location.reload()
+            }
+          })
+          .catch(() => {
+            // Se falhar, reabilita o botão
+            button.disabled = false
+            loading.classList.remove('active')
+            buttonText.textContent = 'Tentar Novamente'
+
+            // Mostra mensagem de erro
+            const toast = document.createElement('div')
+            toast.className = 'alert alert-danger mt-3'
+            toast.role = 'alert'
+            toast.textContent =
+              'Ainda sem conexão. Por favor, tente novamente mais tarde.'
+            document.querySelector('.offline-card').appendChild(toast)
+
+            // Remove a mensagem após 3 segundos
+            setTimeout(() => {
+              toast.remove()
+            }, 3000)
+          })
+      }
+
+      // Verifica e exibe conteúdo em cache se disponível
+      if ('caches' in window) {
+        caches.match('/').then(response => {
+          if (response) {
+            document.getElementById('cachedContent').classList.remove('d-none')
+            // Aqui você pode adicionar lógica para mostrar itens específicos em cache
+            document.getElementById('cachedItems').innerHTML = `
+                        <div class="list-group">
+                            <a href="/" class="list-group-item list-group-item-action">
+                                <i class="fas fa-home me-2"></i>
+                                Página Inicial
+                            </a>
+                            <a href="/pages/sobre.html" class="list-group-item list-group-item-action">
+                                <i class="fas fa-info-circle me-2"></i>
+                                Sobre
+                            </a>
+                        </div>
+                    `
+          }
+        })
+      }
+
+      // Monitora mudanças no estado da conexão
+      window.addEventListener('online', () => {
+        window.location.reload()
+      })
+    </script>
+  </body>
+</html>

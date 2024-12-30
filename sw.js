@@ -2,8 +2,8 @@ const CACHE_NAME = 'fake-news-checker-v1'
 const ASSETS_TO_CACHE = [
   '/',
   '/index.html',
-  '/styles.css',
-  '/script.js',
+  '/assets/css/styles.css',
+  '/assets/js/script.js',
   '/manifest.json',
   '/favicon.ico',
   'https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css',
