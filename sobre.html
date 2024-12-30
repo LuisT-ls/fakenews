@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="Saiba mais sobre o projeto Verificador de Fake News, sua missão, equipe e objetivos no combate à desinformação."
+    />
+
+    <title>Sobre - Verificador de Fake News</title>
+
+    <!-- Bootstrap e FontAwesome -->
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
+      rel="stylesheet"
+    />
+
+    <style>
+      .header-gradient {
+        background: linear-gradient(135deg, #2563eb, #6366f1);
+        position: relative;
+        overflow: hidden;
+      }
+
+      .team-member img {
+        width: 150px;
+        height: 150px;
+        border-radius: 50%;
+        object-fit: cover;
+      }
+
+      .mission-card {
+        border-left: 4px solid #2563eb;
+      }
+
+      .timeline {
+        position: relative;
+        padding-left: 50px;
+      }
+
+      .timeline::before {
+        content: '';
+        position: absolute;
+        left: 15px;
+        top: 0;
+        bottom: 0;
+        width: 2px;
+        background: #2563eb;
+      }
+
+      .timeline-item {
+        position: relative;
+        margin-bottom: 30px;
+      }
+
+      .timeline-item::before {
+        content: '';
+        position: absolute;
+        left: -43px;
+        top: 0;
+        width: 20px;
+        height: 20px;
+        border-radius: 50%;
+        background: #2563eb;
+        border: 4px solid #fff;
+      }
+
+      .social-link,
+      .text-primary {
+        text-decoration: none !important;
+        color: inherit;
+        margin-right: 1rem;
+        transition: color 0.3s ease;
+      }
+
+      .social-link:hover {
+        color: #2563eb;
+      }
+
+      .social-link:last-child {
+        margin-right: 0;
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Barra de Navegação -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+      <div class="container">
+        <a class="navbar-brand" href="/">
+          <i class="fas fa-shield-alt me-2"></i>
+          Verificador de Fake News
+        </a>
+        <button
+          class="navbar-toggler"
+          type="button"
+          data-bs-toggle="collapse"
+          data-bs-target="#navbarNav"
+        >
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+          <ul class="navbar-nav ms-auto">
+            <li class="nav-item">
+              <a class="nav-link" href="/">Início</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="/#como-funciona">Como Funciona</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link active" href="/sobre.html">Sobre</a>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </nav>
+
+    <!-- Header -->
+    <header class="header-gradient py-5 text-white text-center">
+      <div class="container">
+        <h1 class="display-4 fw-bold mb-3">Sobre o Projeto</h1>
+        <p class="lead mb-0">
+          Combatendo a desinformação através da tecnologia e educação
+        </p>
+      </div>
+    </header>
+
+    <!-- Conteúdo Principal -->
+    <main class="container py-5">
+      <!-- Missão e Visão -->
+      <section class="mb-5">
+        <div class="row">
+          <div class="col-lg-6 mb-4">
+            <div class="card h-100 mission-card">
+              <div class="card-body">
+                <h2 class="h4 mb-4">Nossa Missão</h2>
+                <p>
+                  O Verificador de Fake News nasceu da necessidade de combater a
+                  crescente onda de desinformação em nossa sociedade. Nossa
+                  missão é empoderar as pessoas com ferramentas e conhecimento
+                  para identificar e combater notícias falsas.
+                </p>
+                <p>
+                  Através da combinação de tecnologia avançada e educação
+                  digital, buscamos criar um ambiente online mais confiável e
+                  transparente.
+                </p>
+              </div>
+            </div>
+          </div>
+          <div class="col-lg-6 mb-4">
+            <div class="card h-100 mission-card">
+              <div class="card-body">
+                <h2 class="h4 mb-4">Nossa Visão</h2>
+                <p>
+                  Aspiramos criar uma sociedade mais consciente e crítica em
+                  relação às informações que consome. Visualizamos um futuro
+                  onde cada cidadão tenha as ferramentas e o conhecimento
+                  necessários para distinguir fatos de ficção.
+                </p>
+                <p>
+                  Queremos ser referência no combate à desinformação,
+                  contribuindo para um debate público mais saudável e baseado em
+                  fatos.
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- História do Projeto -->
+      <section class="mb-5">
+        <h2 class="h4 mb-4">História do Projeto</h2>
+        <div class="timeline">
+          <div class="timeline-item">
+            <h3 class="h5">Início do Desenvolvimento</h3>
+            <p>
+              O projeto começou como trabalho final na disciplina "Algoritmo,
+              Política e Sociedade" na UFBA, sob orientação do Prof. Dr. Paulo
+              Fonseca.
+            </p>
+          </div>
+          <div class="timeline-item">
+            <h3 class="h5">Desenvolvimento da IA</h3>
+            <p>
+              Implementação de algoritmos de análise de texto e integração com
+              APIs de fact-checking para melhorar a precisão das verificações.
+            </p>
+          </div>
+          <div class="timeline-item">
+            <h3 class="h5">Lançamento</h3>
+            <p>
+              Disponibilização da ferramenta para o público, com foco em
+              usabilidade e acessibilidade.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <!-- Equipe -->
+      <section class="mb-5">
+        <h2 class="h4 mb-4">Nossa Equipe</h2>
+        <div class="row justify-content-center">
+          <div class="col-md-4 text-center mb-4">
+            <div class="team-member">
+              <img src="/luis.png" alt="Luís Antonio" class="mb-3" />
+              <h3 class="h5">Luís Antonio Souza Teixeira</h3>
+              <p class="text-muted">Desenvolvedor Full-Stack e Estudante</p>
+              <div class="social-links">
+                <a
+                  href="https://www.linkedin.com/in/luis-tei/"
+                  class="text-primary me-2"
+                  target="_blank"
+                >
+                  <i class="fab fa-linkedin"></i>
+                </a>
+                <a
+                  href="https://github.com/luisteixeira"
+                  class="text-primary"
+                  target="_blank"
+                >
+                  <i class="fab fa-github"></i>
+                </a>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-4 text-center mb-4">
+            <div class="team-member">
+              <img
+                src="/api/placeholder/150/150"
+                alt="Dr. Paulo Fonseca"
+                class="mb-3"
+              />
+              <h3 class="h5">Dr. Paulo Fonseca</h3>
+              <p class="text-muted">Orientador do Projeto</p>
+              <p class="small">Professor da UFBA</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Tecnologias -->
+      <section>
+        <h2 class="h4 mb-4">Tecnologias Utilizadas</h2>
+        <div class="row row-cols-2 row-cols-md-4 g-4">
+          <div class="col">
+            <div class="card h-100 text-center">
+              <div class="card-body">
+                <i class="fab fa-react fa-2x text-primary mb-3"></i>
+                <h3 class="h6">React</h3>
+                <p class="small text-muted">Frontend</p>
+              </div>
+            </div>
+          </div>
+          <div class="col">
+            <div class="card h-100 text-center">
+              <div class="card-body">
+                <i class="fas fa-robot fa-2x text-primary mb-3"></i>
+                <h3 class="h6">Machine Learning</h3>
+                <p class="small text-muted">Análise de Texto</p>
+              </div>
+            </div>
+          </div>
+          <div class="col">
+            <div class="card h-100 text-center">
+              <div class="card-body">
+                <i class="fas fa-database fa-2x text-primary mb-3"></i>
+                <h3 class="h6">APIs</h3>
+                <p class="small text-muted">Fact-checking</p>
+              </div>
+            </div>
+          </div>
+          <div class="col">
+            <div class="card h-100 text-center">
+              <div class="card-body">
+                <i class="fas fa-mobile-alt fa-2x text-primary mb-3"></i>
+                <h3 class="h6">PWA</h3>
+                <p class="small text-muted">Mobile-first</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-dark text-white py-4 mt-5">
+      <div class="container">
+        <div class="row">
+          <div class="col-md-6 mb-3 mb-md-0">
+            <h4 class="h5 mb-3">Contato</h4>
+            <p><i class="fas fa-envelope me-2"></i> luishg213@outlook.com</p>
+            <p><i class="fas fa-phone me-2"></i> (71) 99332-2305</p>
+          </div>
+          <div class="col-md-6 text-md-end">
+            <h4 class="h5 mb-3">Redes Sociais</h4>
+            <a
+              href="https://www.linkedin.com/in/luis-tei/"
+              class="social-link"
+              target="_blank"
+            >
+              <i class="fab fa-linkedin fa-lg"></i>
+            </a>
+            <a
+              href="https://github.com/luisteixeira"
+              class="social-link"
+              target="_blank"
+            >
+              <i class="fab fa-github fa-lg"></i>
+            </a>
+            <a
+              href="https://twitter.com/luistls_"
+              class="social-link"
+              target="_blank"
+            >
+              <i class="fab fa-twitter fa-lg"></i>
+            </a>
+          </div>
+        </div>
+        <hr class="my-4" />
+        <div class="text-center">
+          <p class="mb-0">
+            &copy; 2025 Verificador de Fake News. Todos os direitos reservados.
+          </p>
+        </div>
+      </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  </body>
+</html>
