@@ -177,19 +177,60 @@ body {
 /* Footer Styles */
 footer {
   background: linear-gradient(to right, #2d3436, #2c3e50);
+  color: #f4f4f4;
+  padding: 40px 0;
+  border-top: 1px solid #34495e;
 }
 
 footer a {
-  transition: color var(--transition-speed);
+  color: rgba(255, 255, 255, 0.8);
+  transition: all 0.3s ease;
   text-decoration: none;
 }
 
 footer a:hover {
-  color: #ffffff !important;
+  color: #f39c12 !important;
 }
 
 footer a.text-white-50 {
-  color: rgba(255, 255, 255, 0.9) !important;
+  transition: all 0.3s ease;
+}
+
+/* Section Titles */
+footer h4 {
+  font-weight: 600;
+  margin-bottom: 20px;
+  color: #f39c12;
+}
+
+/* Footer Columns */
+footer .col-md-6,
+footer .col-md-3 {
+  margin-bottom: 30px;
+}
+
+/* Divider Line */
+footer hr.my-4 {
+  border-color: rgba(255, 255, 255, 0.2);
+  margin: 30px 0;
+}
+
+/* Social Media Icons */
+footer .list-inline-item a {
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 1.5rem;
+  transition: transform 0.3s ease, color 0.3s ease;
+}
+
+footer .list-inline-item a:hover {
+  color: #f39c12 !important;
+  transform: scale(1.1);
+}
+
+/* Footer Copyright */
+footer .text-center {
+  font-size: 0.9rem;
+  color: rgba(255, 255, 255, 0.8);
 }
 
 /* Share Buttons */
@@ -302,6 +343,119 @@ footer a.text-white-50 {
   color: #94a3b8 !important;
 }
 
+/* Dark mode styles para o modal de feedback */
+[data-theme='dark'] #feedbackModal .modal-content {
+  background-color: #1e293b;
+  color: #e2e8f0;
+}
+
+[data-theme='dark'] #feedbackModal .modal-header {
+  border-bottom: 1px solid #334155;
+}
+
+[data-theme='dark'] #feedbackModal .modal-header .modal-title {
+  color: #ffffff;
+}
+
+[data-theme='dark'] #feedbackModal .modal-header .btn-close {
+  filter: invert(1);
+}
+
+[data-theme='dark'] #feedbackModal .modal-body {
+  color: #cbd5e1;
+}
+
+[data-theme='dark'] #feedbackModal .btn-outline-success {
+  color: #22c55e;
+  border-color: #22c55e;
+}
+
+[data-theme='dark'] #feedbackModal .btn-outline-success:hover {
+  background-color: #16a34a;
+  color: #ffffff;
+}
+
+[data-theme='dark'] #feedbackModal .btn-outline-danger {
+  color: #f87171;
+  border-color: #f87171;
+}
+
+[data-theme='dark'] #feedbackModal .btn-outline-danger:hover {
+  background-color: #b91c1c;
+  color: #ffffff;
+}
+
+/* Dark mode styles para os resultados */
+[data-theme='dark'] #result-section {
+  background-color: #1e293b;
+  color: #e2e8f0;
+}
+
+[data-theme='dark'] #result-section .result-card {
+  background-color: #1e293b;
+  color: #e2e8f0;
+  border-color: #334155;
+}
+
+[data-theme='dark'] #result-section .result-card .display-4 {
+  color: #ffffff;
+}
+
+[data-theme='dark'] #result-section .progress-bar {
+  background-color: #3b82f6;
+}
+
+[data-theme='dark'] #result-section .alert-secondary {
+  background-color: #334155;
+  color: #e2e8f0;
+}
+
+[data-theme='dark'] #result-section .btn-outline-primary {
+  color: #3b82f6;
+  border-color: #3b82f6;
+}
+
+[data-theme='dark'] #result-section .btn-outline-primary:hover {
+  background-color: #2563eb;
+  color: #ffffff;
+}
+
+[data-theme='dark'] #result-section .list-group-item {
+  background-color: #1e293b;
+  color: #e2e8f0;
+}
+
+[data-theme='dark'] #result-section .list-group-item-success {
+  background-color: #22c55e;
+  color: #ffffff;
+}
+
+[data-theme='dark'] #result-section .list-group-item-danger {
+  background-color: #f87171;
+  color: #ffffff;
+}
+
+[data-theme='dark'] #result-section .list-group-item-warning {
+  background-color: #fbbf24;
+  color: #1e293b;
+}
+
+[data-theme='dark'] footer {
+  background: linear-gradient(to right, #1e293b, #34495e);
+}
+
+[data-theme='dark'] footer h4 {
+  color: #f1c40f;
+}
+
+[data-theme='dark'] footer .list-inline-item a {
+  color: rgba(255, 255, 255, 0.8);
+}
+
+[data-theme='dark'] footer .list-inline-item a:hover {
+  color: #f1c40f;
+}
+
 /* Responsive Adjustments */
 @media (max-width: 768px) {
   .navbar-brand span {
@@ -324,6 +478,15 @@ footer a.text-white-50 {
     width: 40px;
     height: 40px;
     font-size: 1rem;
+  }
+
+  footer .col-md-6,
+  footer .col-md-3 {
+    text-align: center;
+  }
+
+  footer .list-inline {
+    justify-content: center;
   }
 }
 
