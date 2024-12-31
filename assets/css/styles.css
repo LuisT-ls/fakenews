@@ -292,6 +292,16 @@ footer a.text-white-50 {
   box-shadow: inset 0 -1px 0 #334155;
 }
 
+[data-theme='dark'] .list-group-item {
+  background-color: #1e293b;
+  color: #e2e8f0;
+}
+
+[data-theme='dark'] #verificationsHistory .list-group-item small,
+[data-theme='dark'] #verificationsHistory .list-group-item .text-muted {
+  color: #94a3b8 !important;
+}
+
 /* Responsive Adjustments */
 @media (max-width: 768px) {
   .navbar-brand span {
