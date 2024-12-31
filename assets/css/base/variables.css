@@ -1,0 +1,34 @@
+:root {
+  /* Colors */
+  --primary-color: #2563eb;
+  --primary-dark: #1e40af;
+  --secondary-color: #4b5563;
+  --danger-color: #b91c1c;
+  --warning-color: #b45309;
+  --light-color: #f8fafc;
+  --dark-color: #0f172a;
+
+  /* Background */
+  --body-bg: #f8fafc;
+
+  /* Text */
+  --text-muted: #4b5563;
+
+  /* Transitions */
+  --transition-speed: 0.3s;
+
+  /* Shadows */
+  --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.1);
+  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.15);
+  --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.12);
+
+  /* Border Radius */
+  --radius-full: 9999px;
+  --radius-lg: 1rem;
+  --radius-md: 0.5rem;
+
+  /* Dark Mode Colors */
+  --dark-bg: #020617;
+  --dark-surface: #1e293b;
+  --dark-border: #334155;
+}
