@@ -1,10 +1,7 @@
 // Configuração das APIs
-const GOOGLE_FACT_CHECK_API_KEY = 'AIzaSyD59PUUAWUxhDD1x-2maOAmdJCANoM06hQ'
-const NEWS_API_KEY = 'dd9ac3ec04284a2eab2a972b11919579'
 const GEMINI_API_KEY = 'AIzaSyBnXuyrcA1RsKDRDsPlllKi2FG1rcqLTzw'
 
 // Estado global da aplicação
-let currentVerification = null
 let verificationHistory = []
 
 // Elementos do DOM
@@ -20,12 +17,81 @@ const elements = {
   clearHistoryBtn: document.getElementById('clearHistoryBtn')
 }
 
-// Inicialização
+// Inicialização com Event Delegation
 document.addEventListener('DOMContentLoaded', () => {
   loadVerificationHistory()
   initThemeSwitch()
-  setupEventListeners()
+
+  // Event Delegation
+  document.addEventListener('click', handleGlobalClicks)
+  elements.userInput.addEventListener('input', () => {
+    elements.verifyButton.disabled = !elements.userInput.value.trim()
+  })
+
+  // Listeners de conectividade
+  window.addEventListener('offline', () =>
+    showNotification(
+      'Você está offline. Algumas funcionalidades podem estar indisponíveis.'
+    )
+  )
+  window.addEventListener('online', () =>
+    showNotification('Conexão restabelecida!')
+  )
 })
+
+// Handler global de clicks
+function shareContent(platform) {
+  // Pegar o texto da análise do elemento de resultado
+  const resultElement = document.getElementById('result')
+  if (!resultElement) return
+
+  // Extrair informações relevantes do resultado
+  const scoreElement = resultElement.querySelector('.display-4')
+  const classificacaoElement = resultElement.querySelector('.h5')
+  const analiseElement = resultElement.querySelector('.card p')
+
+  if (!scoreElement || !classificacaoElement || !analiseElement) return
+
+  // Construir a mensagem de compartilhamento
+  const score = scoreElement.textContent
+  const classificacao = classificacaoElement.textContent
+  const analise = analiseElement.textContent
+
+  const mensagem =
+    `🔍 Verifiquei essa informação no Verificador de Fake News!\n\n` +
+    `📊 Resultado: ${score} de confiabilidade\n` +
+    `📋 Classificação: ${classificacao}\n` +
+    `📝 Análise: ${analise.substring(0, 200)}...\n\n` +
+    `Verifique você também:`
+
+  // Codificar a mensagem para URL
+  const textoCodificado = encodeURIComponent(mensagem)
+  const url = encodeURIComponent(window.location.href)
+
+  // URLs para cada plataforma
+  const platformUrls = {
+    twitter: `https://twitter.com/intent/tweet?text=${textoCodificado}&url=${url}`,
+    whatsapp: `https://wa.me/?text=${textoCodificado} ${url}`,
+    telegram: `https://t.me/share/url?url=${url}&text=${textoCodificado}`
+  }
+
+  // Abrir janela de compartilhamento
+  window.open(platformUrls[platform], '_blank')
+}
+
+function handleGlobalClicks(e) {
+  const target = e.target
+  const shareButton = target.closest('[data-share]')
+
+  if (target === elements.verifyButton) {
+    handleVerification()
+  } else if (target === elements.clearHistoryBtn) {
+    handleClearHistory()
+  } else if (shareButton) {
+    const platform = shareButton.getAttribute('data-share')
+    shareContent(platform)
+  }
+}
 
 async function checkWithGemini(text) {
   const prompt = `Análise detalhada do seguinte texto para verificar sua veracidade:
@@ -51,15 +117,9 @@ Retorne apenas um objeto JSON válido com esta estrutura exata, sem texto adicio
       `https://generativelanguage.googleapis.com/v1/models/gemini-pro:generateContent?key=${GEMINI_API_KEY}`,
       {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          contents: [
-            {
-              parts: [{ text: prompt }]
-            }
-          ],
+          contents: [{ parts: [{ text: prompt }] }],
           generationConfig: {
             temperature: 0.1,
             topP: 0.1,
@@ -70,59 +130,26 @@ Retorne apenas um objeto JSON válido com esta estrutura exata, sem texto adicio
       }
     )
 
-    if (!response.ok) {
-      console.error('API Error:', await response.text())
-      throw new Error(`HTTP error! status: ${response.status}`)
-    }
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`)
 
     const data = await response.json()
-
     if (!data.candidates?.[0]?.content?.parts?.[0]?.text) {
       throw new Error('Resposta inválida da API')
     }
 
-    const analysisText = data.candidates[0].content.parts[0].text.trim()
-    return JSON.parse(analysisText)
+    return JSON.parse(data.candidates[0].content.parts[0].text.trim())
   } catch (error) {
-    console.error('Erro detalhado:', error)
-    throw new Error(`Falha na análise: ${error.message}`)
-  }
-}
-
-// Configuração dos event listeners
-function setupEventListeners() {
-  elements.verifyButton.addEventListener('click', handleVerification)
-  elements.userInput.addEventListener('input', handleInputChange)
-  elements.clearHistoryBtn.addEventListener('click', handleClearHistory)
-  window.addEventListener('offline', () =>
-    showNotification(
-      'Você está offline. Algumas funcionalidades podem estar indisponíveis.'
-    )
-  )
-  window.addEventListener('online', () =>
-    showNotification('Conexão restabelecida!')
-  )
-}
-
-function handleClearHistory() {
-  // Cria um modal de confirmação usando Bootstrap
-  const confirmed = confirm(
-    'Tem certeza que deseja apagar todo o histórico de verificações?'
-  )
-
-  if (confirmed) {
-    verificationHistory = []
-    localStorage.removeItem('verificationHistory')
-    updateHistoryDisplay()
-    showNotification('Histórico apagado com sucesso!', 'success')
+    console.error('Erro na análise:', error)
+    throw error
   }
 }
 
 // Gerenciamento do tema
 function initThemeSwitch() {
-  const currentTheme = localStorage.getItem('theme') || 'light'
-  document.documentElement.setAttribute('data-theme', currentTheme)
-  updateThemeIcon(currentTheme)
+  const theme = localStorage.getItem('theme') || 'light'
+  document.documentElement.setAttribute('data-theme', theme)
+  elements.themeSwitcher.querySelector('i').className =
+    theme === 'dark' ? 'fas fa-sun' : 'fas fa-moon'
 
   elements.themeSwitcher.addEventListener('click', () => {
     const newTheme =
@@ -131,18 +158,9 @@ function initThemeSwitch() {
         : 'dark'
     document.documentElement.setAttribute('data-theme', newTheme)
     localStorage.setItem('theme', newTheme)
-    updateThemeIcon(newTheme)
+    elements.themeSwitcher.querySelector('i').className =
+      newTheme === 'dark' ? 'fas fa-sun' : 'fas fa-moon'
   })
-}
-
-function updateThemeIcon(theme) {
-  const icon = elements.themeSwitcher.querySelector('i')
-  icon.className = theme === 'dark' ? 'fas fa-sun' : 'fas fa-moon'
-}
-
-// Manipulação do input
-function handleInputChange() {
-  elements.verifyButton.disabled = !elements.userInput.value.trim()
 }
 
 // Processo de verificação
@@ -153,21 +171,14 @@ async function handleVerification() {
   showLoadingState(true)
 
   try {
-    const results = await Promise.all([
-      checkFactChecking(text),
-      analyzeNews(text),
-      performContentAnalysis(text),
-      checkWithGemini(text)
-    ])
-
-    const [factCheckResult, newsResult, contentAnalysis, geminiResult] = results
-    const verification = createVerificationResult(
-      text,
-      factCheckResult,
-      newsResult,
-      contentAnalysis,
-      geminiResult
-    )
+    const geminiResult = await checkWithGemini(text)
+    const verification = {
+      id: Date.now(),
+      timestamp: new Date().toISOString(),
+      text: text.substring(0, 200) + (text.length > 200 ? '...' : ''),
+      geminiAnalysis: geminiResult,
+      overallScore: geminiResult.score
+    }
 
     displayResults(verification)
     saveVerification(verification)
@@ -183,103 +194,7 @@ async function handleVerification() {
   }
 }
 
-// Chamadas às APIs
-async function checkFactChecking(text) {
-  const query = encodeURIComponent(text)
-  const url = `https://factchecktools.googleapis.com/v1alpha1/claims:search?key=${GOOGLE_FACT_CHECK_API_KEY}&query=${query}`
-
-  try {
-    const response = await fetch(url)
-    return await response.json()
-  } catch (error) {
-    console.error('Erro na verificação de fatos:', error)
-    return null
-  }
-}
-
-async function analyzeNews(text) {
-  // Resumo de texto para evitar URLs muito longas
-  const shortenedText =
-    text.length > 100 ? text.substring(0, 100) + '...' : text
-  const query = encodeURIComponent(shortenedText)
-  const url = `https://newsapi.org/v2/everything?q=${query}&apiKey=${NEWS_API_KEY}&language=pt&sortBy=relevancy`
-
-  try {
-    const response = await fetch(url)
-    if (!response.ok) {
-      throw new Error(`Erro na API NewsAPI: ${response.statusText}`)
-    }
-    return await response.json()
-  } catch (error) {
-    console.error('Erro na análise de notícias:', error)
-    return null
-  }
-}
-
-async function performContentAnalysis(text) {
-  // Implementação básica de análise de conteúdo
-  const redFlags = [
-    { pattern: /URGENTE|IMPORTANTE|ATENÇÃO/i, weight: 0.3 },
-    { pattern: /\b(?:100%|GARANTIDO)\b/i, weight: 0.4 },
-    { pattern: /(?:não divulgam|mídia esconde)/i, weight: 0.5 },
-    { pattern: /\b(?:cura milagrosa|segredo revelado)\b/i, weight: 0.6 }
-  ]
-
-  let suspiciousScore = 0
-  redFlags.forEach(flag => {
-    if (flag.pattern.test(text)) {
-      suspiciousScore += flag.weight
-    }
-  })
-
-  return {
-    suspiciousScore: Math.min(suspiciousScore, 1),
-    textLength: text.length,
-    hasLinks: /https?:\/\/[^\s]+/g.test(text),
-    hasNumbers: /\d+/g.test(text)
-  }
-}
-
-// Criação e exibição dos resultados
-function createVerificationResult(
-  text,
-  factCheck,
-  news,
-  analysis,
-  geminiResult
-) {
-  return {
-    id: Date.now(),
-    timestamp: new Date().toISOString(),
-    text: text.substring(0, 200) + (text.length > 200 ? '...' : ''),
-    factCheckResults: factCheck,
-    newsResults: news,
-    contentAnalysis: analysis,
-    geminiAnalysis: geminiResult,
-    overallScore: calculateOverallScore(factCheck, news, analysis, geminiResult)
-  }
-}
-
-function calculateOverallScore(factCheck, news, analysis, geminiResult) {
-  if (!geminiResult) return 0.5
-
-  let score = geminiResult.score * 0.8 // Base score from Gemini
-
-  // Adjust based on confidence
-  score *= 0.5 + geminiResult.confiabilidade * 0.5
-
-  // Additional factors
-  if (factCheck?.claims?.length > 0) score += 0.1
-  if (news?.articles?.length > 0) score += 0.1
-
-  // Content analysis adjustments
-  if (analysis) {
-    score *= 1 - analysis.suspiciousScore * 0.2
-  }
-
-  return Math.max(0, Math.min(1, score))
-}
-
+// Funções de UI
 function displayResults(verification) {
   if (!verification.geminiAnalysis) {
     elements.result.innerHTML =
@@ -290,24 +205,17 @@ function displayResults(verification) {
 
   const gemini = verification.geminiAnalysis
   const scorePercentage = Math.round(verification.overallScore * 100)
+  const scoreClass = getScoreClass(verification.overallScore)
 
-  const getScoreClass = score => {
-    if (score >= 0.7) return 'success'
-    if (score >= 0.4) return 'warning'
-    return 'danger'
-  }
-
-  const resultHTML = `
+  elements.result.innerHTML = `
     <div class="result-card p-4 border rounded shadow-sm">
       <div class="mb-4 text-center">
-        <div class="display-4 text-${getScoreClass(
-          verification.overallScore
-        )}">${scorePercentage}%</div>
+        <div class="display-4 text-${scoreClass}">${scorePercentage}%</div>
         <h3 class="h5">${gemini.classificacao}</h3>
       </div>
 
       <div class="progress mb-4" style="height: 25px;">
-        <div class="progress-bar bg-${getScoreClass(verification.overallScore)}"
+        <div class="progress-bar bg-${scoreClass}"
              role="progressbar"
              style="width: ${scorePercentage}%"
              aria-valuenow="${scorePercentage}"
@@ -321,24 +229,7 @@ function displayResults(verification) {
         ${gemini.explicacao_score}
       </div>
 
-      ${generateAnalysisSection(
-        'Elementos Verificados',
-        gemini.elementos_verdadeiros,
-        'success',
-        'check-circle'
-      )}
-      ${generateAnalysisSection(
-        'Elementos Falsos',
-        gemini.elementos_falsos,
-        'danger',
-        'times-circle'
-      )}
-      ${generateAnalysisSection(
-        'Pontos Suspeitos',
-        gemini.elementos_suspeitos,
-        'warning',
-        'exclamation-triangle'
-      )}
+      ${generateAnalysisSections(gemini)}
       
       <div class="card mb-3">
         <div class="card-body">
@@ -346,156 +237,70 @@ function displayResults(verification) {
           <p class="mb-0">${gemini.analise_detalhada}</p>
         </div>
       </div>
-
-      ${generateAnalysisSection(
-        'Recomendações',
-        gemini.recomendacoes,
-        'info',
-        'lightbulb'
-      )}
     </div>
   `
 
-  elements.result.innerHTML = resultHTML
   elements.resultSection.classList.remove('d-none')
 }
 
-function generateAnalysisSection(title, items, colorClass, icon) {
-  if (!items?.length) return ''
+// Função para gerar seções de análise
+function generateAnalysisSections(gemini) {
+  const sections = [
+    {
+      title: 'Elementos Verificados',
+      items: gemini.elementos_verdadeiros,
+      colorClass: 'success',
+      icon: 'check-circle'
+    },
+    {
+      title: 'Elementos Falsos',
+      items: gemini.elementos_falsos,
+      colorClass: 'danger',
+      icon: 'times-circle'
+    },
+    {
+      title: 'Pontos Suspeitos',
+      items: gemini.elementos_suspeitos,
+      colorClass: 'warning',
+      icon: 'exclamation-triangle'
+    },
+    {
+      title: 'Recomendações',
+      items: gemini.recomendacoes,
+      colorClass: 'info',
+      icon: 'lightbulb'
+    }
+  ]
 
-  return `
-    <div class="mb-3">
-      <h4 class="h6 mb-2">${title}</h4>
-      <div class="list-group">
-        ${items
-          .map(
-            item => `
-          <div class="list-group-item list-group-item-${colorClass}">
-            <i class="fas fa-${icon} me-2"></i>
-            ${item}
+  return sections
+    .map(({ title, items, colorClass, icon }) =>
+      items?.length
+        ? `
+        <div class="mb-3">
+          <h4 class="h6 mb-2">${title}</h4>
+          <div class="list-group">
+            ${items
+              .map(
+                item => `
+              <div class="list-group-item list-group-item-${colorClass}">
+                <i class="fas fa-${icon} me-2"></i>${item}
+              </div>
+            `
+              )
+              .join('')}
           </div>
-        `
-          )
-          .join('')}
-      </div>
-    </div>
-  `
-}
-
-function getScoreLabel(score) {
-  if (score > 0.7) return 'Provavelmente Verdadeiro'
-  if (score > 0.4) return 'Verificação Necessária'
-  return 'Possível Fake News'
-}
-
-function generateAnalysisDetails(verification) {
-  let details =
-    '<h4 class="h6 mb-3">Detalhes da Análise:</h4><ul class="list-group">'
-
-  // Adiciona análise do Gemini
-  if (verification.geminiAnalysis) {
-    details += `
-      <li class="list-group-item">
-        <strong>Análise IA:</strong> ${verification.geminiAnalysis.summary}
-        <ul class="mt-2">
-          ${verification.geminiAnalysis.reasons
-            .map(reason => `<li>${reason}</li>`)
-            .join('')}
-        </ul>
-      </li>
-    `
-  }
-
-  // Adiciona resultados do fact-checking
-  if (verification.factCheckResults?.claims?.length > 0) {
-    details += `
-      <li class="list-group-item">
-        <strong>Fact-Checks Encontrados:</strong> ${verification.factCheckResults.claims.length}
-      </li>
-    `
-  }
-
-  // Adiciona resultados da análise de conteúdo
-  details += `
-    <li class="list-group-item">
-      <strong>Indicadores de Alerta:</strong>
-      ${
-        verification.contentAnalysis.suspiciousScore > 0
-          ? `<span class="text-warning">Encontrados alguns padrões suspeitos</span>`
-          : `<span class="text-success">Nenhum padrão suspeito significativo</span>`
-      }
-    </li>
-  `
-
-  // Adiciona cobertura de notícias
-  if (verification.newsResults?.articles?.length > 0) {
-    details += `
-      <li class="list-group-item">
-        <strong>Cobertura na Mídia:</strong> 
-        Encontradas ${verification.newsResults.articles.length} notícias relacionadas
-      </li>
-    `
-  }
-
-  details += '</ul>'
-  return details
-}
-
-// Gerenciamento do histórico
-function saveVerification(verification) {
-  verificationHistory.unshift(verification)
-  if (verificationHistory.length > 10) {
-    verificationHistory.pop()
-  }
-  localStorage.setItem(
-    'verificationHistory',
-    JSON.stringify(verificationHistory)
-  )
-  updateHistoryDisplay()
-}
-
-function loadVerificationHistory() {
-  try {
-    const saved = localStorage.getItem('verificationHistory')
-    verificationHistory = saved ? JSON.parse(saved) : []
-    updateHistoryDisplay()
-  } catch (error) {
-    console.error('Erro ao carregar histórico:', error)
-    verificationHistory = []
-  }
-}
-
-function updateHistoryDisplay() {
-  const historyHTML = verificationHistory
-    .map(
-      verification => `
-    <div class="list-group-item">
-      <div class="d-flex justify-content-between align-items-center">
-        <small class="text-muted">
-          ${new Date(verification.timestamp).toLocaleString()}
-        </small>
-        <span class="badge bg-${getScoreBadgeColor(verification.overallScore)}">
-          ${Math.round(verification.overallScore * 100)}%
-        </span>
-      </div>
-      <p class="mb-1 text-truncate">${verification.text}</p>
-    </div>
-  `
+        </div>
+      `
+        : ''
     )
     .join('')
-
-  elements.verificationsHistory.innerHTML =
-    historyHTML ||
-    '<p class="text-center text-muted">Nenhuma verificação realizada</p>'
 }
 
-function getScoreBadgeColor(score) {
-  if (score > 0.7) return 'success'
-  if (score > 0.4) return 'warning'
-  return 'danger'
+// Utilitários
+function getScoreClass(score) {
+  return score >= 0.7 ? 'success' : score >= 0.4 ? 'warning' : 'danger'
 }
 
-// Funções de UI
 function showLoadingState(loading) {
   elements.verifyButton.disabled = loading
   elements.spinner.classList.toggle('d-none', !loading)
@@ -507,46 +312,71 @@ function showLoadingState(loading) {
 function showNotification(message, type = 'info') {
   const toast = new bootstrap.Toast(elements.notificationToast)
   elements.notificationToast.querySelector('.toast-body').textContent = message
-  elements.notificationToast.classList.add(`bg-${type}`)
+  elements.notificationToast.className = `toast bg-${type}`
   toast.show()
 }
 
-// Compartilhamento
-function shareOnTwitter() {
-  const text = encodeURIComponent(
-    'Verifiquei esta informação usando o Verificador de Fake News!'
+// Gerenciamento do histórico
+function saveVerification(verification) {
+  verificationHistory.unshift(verification)
+  if (verificationHistory.length > 10) verificationHistory.pop()
+  localStorage.setItem(
+    'verificationHistory',
+    JSON.stringify(verificationHistory)
   )
-  const url = encodeURIComponent(window.location.href)
-  window.open(
-    `https://twitter.com/intent/tweet?text=${text}&url=${url}`,
-    '_blank'
-  )
+  updateHistoryDisplay()
 }
 
-function shareOnWhatsApp() {
-  const text = encodeURIComponent(
-    'Verifiquei esta informação usando o Verificador de Fake News!'
-  )
-  const url = encodeURIComponent(window.location.href)
-  window.open(`https://wa.me/?text=${text} ${url}`, '_blank')
+function loadVerificationHistory() {
+  try {
+    verificationHistory =
+      JSON.parse(localStorage.getItem('verificationHistory')) || []
+    updateHistoryDisplay()
+  } catch (error) {
+    console.error('Erro ao carregar histórico:', error)
+    verificationHistory = []
+  }
 }
 
-function shareOnTelegram() {
-  const text = encodeURIComponent(
-    'Verifiquei esta informação usando o Verificador de Fake News!'
-  )
-  const url = encodeURIComponent(window.location.href)
-  window.open(`https://t.me/share/url?url=${url}&text=${text}`, '_blank')
+function updateHistoryDisplay() {
+  elements.verificationsHistory.innerHTML = verificationHistory.length
+    ? verificationHistory
+        .map(
+          verification => `
+      <div class="list-group-item">
+        <div class="d-flex justify-content-between align-items-center">
+          <small class="text-muted">${new Date(
+            verification.timestamp
+          ).toLocaleString()}</small>
+          <span class="badge bg-${getScoreClass(verification.overallScore)}">
+            ${Math.round(verification.overallScore * 100)}%
+          </span>
+        </div>
+        <p class="mb-1 text-truncate">${verification.text}</p>
+      </div>
+    `
+        )
+        .join('')
+    : '<p class="text-center text-muted">Nenhuma verificação realizada</p>'
+}
+
+function handleClearHistory() {
+  if (
+    confirm('Tem certeza que deseja apagar todo o histórico de verificações?')
+  ) {
+    verificationHistory = []
+    localStorage.removeItem('verificationHistory')
+    updateHistoryDisplay()
+    showNotification('Histórico apagado com sucesso!', 'success')
+  }
 }
 
 // Feedback
 function showFeedbackModal() {
-  const modal = new bootstrap.Modal(document.getElementById('feedbackModal'))
-  modal.show()
+  new bootstrap.Modal(document.getElementById('feedbackModal')).show()
 }
 
 function submitFeedback(type) {
-  // Falta implementar a lógica para salvar o feedback
   showNotification('Obrigado pelo seu feedback!', 'success')
   bootstrap.Modal.getInstance(document.getElementById('feedbackModal')).hide()
 }
