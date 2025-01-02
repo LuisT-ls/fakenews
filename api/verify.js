@@ -6,6 +6,11 @@ module.exports = async (req, res) => {
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS')
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type')
 
+  // Debug inicial
+  console.log('=== Debug Info ===')
+  console.log('API Key exists:', !!process.env.GEMINI_API_KEY)
+  console.log('API Key length:', process.env.GEMINI_API_KEY?.length || 0)
+
   // Tratar preflight requests
   if (req.method === 'OPTIONS') {
     res.status(200).end()
@@ -18,12 +23,6 @@ module.exports = async (req, res) => {
   }
 
   try {
-    console.log('Requisição recebida no backend')
-    console.log('API Key presente:', !!process.env.GEMINI_API_KEY)
-    console.log(
-      'API Key primeiros 5 caracteres:',
-      process.env.GEMINI_API_KEY?.substring(0, 5)
-    )
     const { text } = req.body
 
     if (!text) {
@@ -50,19 +49,22 @@ module.exports = async (req, res) => {
       "recomendacoes": ["array"]
     }`
 
-    console.log('Headers:', {
+    const headers = {
       'Content-Type': 'application/json',
-      Authorization: `Bearer ${process.env.GEMINI_API_KEY?.substring(0, 5)}...`
+      Authorization: `Bearer ${process.env.GEMINI_API_KEY}`
+    }
+    console.log('Request headers:', {
+      ...headers,
+      Authorization: headers.Authorization
+        ? 'Bearer [PRIMEIROS_5_CHARS]' + headers.Authorization.slice(5, 10)
+        : 'undefined'
     })
 
     const response = await fetch(
       'https://generativelanguage.googleapis.com/v1/models/gemini-pro:generateContent',
       {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${process.env.GEMINI_API_KEY}`
-        },
+        headers,
         body: JSON.stringify({
           contents: [{ parts: [{ text: prompt }] }],
           generationConfig: {
@@ -75,12 +77,12 @@ module.exports = async (req, res) => {
       }
     )
 
-    console.log('Status da resposta Gemini:', response.status)
+    console.log('Gemini API Response Status:', response.status)
 
     if (!response.ok) {
       const errorText = await response.text()
-      console.error('Erro da API Gemini:', errorText)
-      throw new Error(`Erro na API Gemini: ${response.status}`)
+      console.error('Gemini API Error Response:', errorText)
+      throw new Error(`Erro na API Gemini: ${response.status} - ${errorText}`)
     }
 
     const data = await response.json()
@@ -92,10 +94,11 @@ module.exports = async (req, res) => {
     const result = JSON.parse(data.candidates[0].content.parts[0].text.trim())
     res.status(200).json(result)
   } catch (error) {
-    console.error('Erro detalhado no backend:', error)
+    console.error('Erro completo:', error)
     res.status(500).json({
       error: 'Erro ao processar a solicitação',
-      details: error.message
+      details: error.message,
+      stack: process.env.NODE_ENV === 'development' ? error.stack : undefined
     })
   }
 }
