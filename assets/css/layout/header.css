@@ -34,14 +34,14 @@
 }
 
 .nav-link {
-  color: rgba(255, 255, 255, 0.9) !important;
+  color: #ffffff !important;
   font-weight: 500;
   padding: 0.5rem 1rem;
   transition: color var(--transition-speed);
 }
 
 .nav-link:hover {
-  color: #ffffff !important;
+  color: #f8fafc !important;
   transform: translateY(-1px);
 }
 
