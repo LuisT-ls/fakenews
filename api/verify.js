@@ -19,6 +19,11 @@ module.exports = async (req, res) => {
 
   try {
     console.log('Requisição recebida no backend')
+    console.log('API Key presente:', !!process.env.GEMINI_API_KEY)
+    console.log(
+      'API Key primeiros 5 caracteres:',
+      process.env.GEMINI_API_KEY?.substring(0, 5)
+    )
     const { text } = req.body
 
     if (!text) {
@@ -44,6 +49,11 @@ module.exports = async (req, res) => {
       "analise_detalhada": "string",
       "recomendacoes": ["array"]
     }`
+
+    console.log('Headers:', {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${process.env.GEMINI_API_KEY?.substring(0, 5)}...`
+    })
 
     const response = await fetch(
       'https://generativelanguage.googleapis.com/v1/models/gemini-pro:generateContent',
