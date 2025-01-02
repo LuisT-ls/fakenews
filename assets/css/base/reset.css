@@ -32,6 +32,6 @@ button {
 
 input,
 textarea {
-  font-family: 'Inter', sans-serif;
+  font: inherit;
   font-display: swap;
 }
