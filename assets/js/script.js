@@ -1,6 +1,3 @@
-// Configuração das APIs
-const GEMINI_API_KEY = 'AIzaSyBnXuyrcA1RsKDRDsPlllKi2FG1rcqLTzw'
-
 // Estado global da aplicação
 let verificationHistory = []
 
@@ -94,50 +91,28 @@ function handleGlobalClicks(e) {
 }
 
 async function checkWithGemini(text) {
-  const prompt = `Análise detalhada do seguinte texto para verificar sua veracidade:
-"${text}"
-
-Retorne apenas um objeto JSON válido com esta estrutura exata, sem texto adicional:
-{
-  "score": [0-1],
-  "confiabilidade": [0-1],
-  "classificacao": ["Comprovadamente Verdadeiro", "Parcialmente Verdadeiro", "Não Verificável", "Provavelmente Falso", "Comprovadamente Falso"],
-  "explicacao_score": "string",
-  "elementos_verdadeiros": ["array"],
-  "elementos_falsos": ["array"],
-  "elementos_suspeitos": ["array"],
-  "fontes_confiaveis": ["array"],
-  "indicadores_desinformacao": ["array"],
-  "analise_detalhada": "string",
-  "recomendacoes": ["array"]
-}`
-
   try {
-    const response = await fetch(
-      `https://generativelanguage.googleapis.com/v1/models/gemini-pro:generateContent?key=${GEMINI_API_KEY}`,
-      {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          contents: [{ parts: [{ text: prompt }] }],
-          generationConfig: {
-            temperature: 0.1,
-            topP: 0.1,
-            topK: 16,
-            maxOutputTokens: 2048
-          }
-        })
-      }
-    )
+    const response = await fetch('/api/verify', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ text })
+    })
 
-    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`)
+    if (!response.ok) {
+      const errorData = await response.json()
+      throw new Error(
+        errorData.error || `HTTP error! status: ${response.status}`
+      )
+    }
 
-    const data = await response.json()
-    if (!data.candidates?.[0]?.content?.parts?.[0]?.text) {
+    const result = await response.json()
+
+    // Validar se a resposta tem a estrutura esperada
+    if (!result || typeof result.score === 'undefined') {
       throw new Error('Resposta inválida da API')
     }
 
-    return JSON.parse(data.candidates[0].content.parts[0].text.trim())
+    return result
   } catch (error) {
     console.error('Erro na análise:', error)
     throw error
