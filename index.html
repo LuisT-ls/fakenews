@@ -107,18 +107,13 @@
       href="https://fakenews-sigma.vercel.app/en/"
     />
 
-    <!-- Preload CSS -->
+    <!-- CSS Principal -->
     <link
-      rel="preload"
       href="/assets/css/styles.css"
-      as="style"
-      onload="this.rel='stylesheet'"
-      onerror="this.onerror=null;this.href='/assets/css/fallback-styles.css';"
+      rel="stylesheet"
+      media="print"
+      onload="this.media='all';"
     />
-
-    <noscript>
-      <link href="/assets/css/styles.css" rel="stylesheet" />
-    </noscript>
   </head>
   <body>
     <!-- Barra de Navegação -->
