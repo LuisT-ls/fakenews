@@ -33,15 +33,5 @@ button {
 input,
 textarea {
   font-family: 'Inter', sans-serif;
-  font-size: 16px;
-  line-height: 1.5;
   font-display: swap;
-  width: 100%;
-  padding: 10px;
-  border: 1px solid #ccc;
-  background-color: #fff;
-  box-sizing: border-box;
-  border-radius: 4px;
-  resize: none;
-  transition: background-color 0.3s ease;
 }
