@@ -1,108 +1,169 @@
-# Verificador de Fake News
+# 🔍 Verificador de Fake News
 
-Uma aplicação web interativa que utiliza análises avançadas e consultas a APIs externas para identificar possíveis fake news, promovendo uma comunicação mais consciente e confiável.
+> Uma aplicação web moderna que utiliza Inteligência Artificial e APIs avançadas para detectar e analisar possíveis fake news, promovendo uma comunicação mais consciente e baseada em fatos.
 
-## 🚀 Funcionalidades Principais
+[![MIT License](https://img.shields.io/badge/License-MIT-green.svg)](https://choosealicense.com/licenses/mit/)
+[![Made with JavaScript](https://img.shields.io/badge/Made%20with-JavaScript-yellow.svg)](https://developer.mozilla.org/en-US/docs/Web/JavaScript)
+[![Bootstrap 5](https://img.shields.io/badge/Bootstrap-5.3.0-purple.svg)](https://getbootstrap.com/)
 
-- **Entrada de Texto**:  
-  Permite que o usuário insira notícias ou afirmações para análise.
-- **Análise Automatizada**:
-  - Identificação de palavras-chave associadas a fake news.
-  - Avaliação de padrões suspeitos no texto fornecido.
-- **Consulta a Bancos de Dados e IA Avançada**:
-  - **Google Fact Check API**: Busca e valida informações usando bases de dados verificadas.
-  - **NewsAPI**: Retorna notícias relacionadas provenientes de fontes confiáveis.
-  - **Google Gemini API**: Utiliza modelos de linguagem avançados para oferecer análises contextuais profundas e interpretações baseadas em IA.
-- **Resultados Detalhados**:
-  - Pontuação de risco (baixo, moderado, alto).
-  - Relatórios com padrões suspeitos.
-  - Lista de notícias relacionadas e verificadas.
+## 📑 Índice
 
-## 🛠️ Tecnologias Utilizadas
+- [🌟 Visão Geral](#-visão-geral)
+- [✨ Funcionalidades](#-funcionalidades)
+- [🛠️ Tecnologias](#️-tecnologias)
+- [📂 Estrutura do Projeto](#-estrutura-do-projeto)
+- [🚀 Começando](#-começando)
+- [⚙️ Configuração](#️-configuração)
+- [💡 Uso](#-uso)
+- [🎨 Interface](#-interface)
+- [📱 PWA](#-pwa)
+- [🔒 Privacidade e Segurança](#-privacidade-e-segurança)
+- [🤝 Contribuindo](#-contribuindo)
+- [📄 Licença](#-licença)
+- [👤 Autor](#-autor)
 
-- **Frontend**:
-  - HTML5 e CSS3 para estrutura e design.
-  - Bootstrap 5 para um layout responsivo e moderno.
-- **Linguagem de Programação**: JavaScript para lógica e interatividade.
-- **APIs Externas**:
-  - [Google Fact Check API](https://developers.google.com/fact-check/tools/api)
-  - [NewsAPI](https://newsapi.org/)
-  - [Google Gemini API](https://developers.google.com/gemini)
+## 🌟 Visão Geral
 
-## 📋 Pré-requisitos
+O Verificador de Fake News é uma ferramenta web desenvolvida como projeto final da disciplina "Algoritmo, Política e Sociedade" na UFBA. Utiliza tecnologias modernas e IA para analisar e identificar possíveis desinformações, ajudando usuários a tomarem decisões mais informadas sobre o conteúdo que consomem e compartilham.
 
-Antes de configurar o projeto, você precisará:
+## ✨ Funcionalidades
 
-1. **Chaves de API Ativas**:
-   - Google Fact Check API.
-   - NewsAPI.
-   - Google Gemini API.
-2. **Navegador Moderno**: Compatível com as tecnologias mais recentes.
+### Análise de Conteúdo
+- ✅ Verificação em tempo real de textos e notícias
+- 📊 Pontuação de confiabilidade baseada em múltiplos fatores
+- 🔍 Identificação de elementos suspeitos
+- 📝 Análise detalhada do conteúdo
 
-## 🛠️ Configuração do Projeto
+### Recursos Avançados
+- 🤖 Integração com Google Gemini API para análise profunda
+- 💾 Histórico de verificações
+- 🌓 Modo escuro/claro
+- 📱 Design responsivo
+- 🔄 Funcionamento offline
+- 📲 Instalável como PWA
 
-Siga os passos abaixo para configurar e executar o projeto:
+### Compartilhamento
+- 📤 Compartilhamento direto para redes sociais
+- 📊 Resultados detalhados exportáveis
+- 🔗 Links para fontes confiáveis
 
-1. **Clone o Repositório**:
+## 🛠️ Tecnologias
 
-   ```bash
-   git clone https://github.com/LuisT-ls/fakenews.git
-   cd fakenews
-   ```
+### Frontend
+- HTML5 & CSS3
+- JavaScript (ES6+)
+- Bootstrap 5.3.0
+- Font Awesome 6.0.0
 
-2. **Configure as Chaves de API**:  
-   Abra o arquivo `./assets/js/script.js` e insira suas chaves:
+### APIs e Serviços
+- Google Gemini API
+- Service Workers para PWA
 
-   ```javascript
-   const GOOGLE_FACT_CHECK_API_KEY = 'SUA_CHAVE_GOOGLE_FACT_CHECK'
-   const NEWS_API_KEY = 'SUA_CHAVE_NEWSAPI'
-   const GOOGLE_GEMINI_API_KEY = 'SUA_CHAVE_GOOGLE_GEMINI'
-   ```
+### Ferramentas de Desenvolvimento
+- CSS Modular
+- Sistema de Componentes
+- Mobile-First Design
 
-3. **Execute o Projeto**:  
-   Abra o arquivo `index.html` no navegador ou utilize um servidor local (ex.: [Live Server](https://marketplace.visualstudio.com/items?itemName=ritwickdey.LiveServer)).
+## 📂 Estrutura do Projeto
 
-## 🖼️ Interface do Usuário
+```
+.
+├── assets/
+│   ├── css/
+│   │   ├── base/           # Estilos base e variáveis
+│   │   ├── components/     # Componentes reutilizáveis
+│   │   ├── layout/         # Layouts principais
+│   │   └── utils/          # Utilidades CSS
+│   ├── images/
+│   └── js/
+├── docs/
+├── pages/                  # Páginas estáticas
+└── manifest.json          # Configuração PWA
+```
 
-A interface foi projetada para ser acessível e funcional:
+## 🚀 Começando
 
-- **Página Inicial**:
-  - Campo para inserir o texto da notícia.
-  - Botão de "Verificar".
-- **Resultados**:
-  - Exibição do nível de risco.
-  - Relatório com padrões suspeitos.
-  - Links para notícias verificadas.
+### Pré-requisitos
 
-## 🐛 Problemas Conhecidos
+- Navegador moderno com suporte a ES6+
+- Chave da API Google Gemini
 
-- **Limitações das APIs**:
-  - Os planos gratuitos podem restringir o número de requisições.
-- **Dependência de Contexto**:
-  - A precisão depende da qualidade do texto e das informações disponíveis.
+### Instalação
 
-## 🤝 Como Contribuir
+1. Clone o repositório:
+```bash
+git clone https://github.com/LuisT-ls/fakenews.git
+cd fakenews
+```
 
-Quer ajudar a melhorar o projeto? Siga estas etapas:
+2. Configure as variáveis de ambiente no arquivo `assets/js/script.js`:
+```javascript
+const GEMINI_API_KEY = 'SUA_CHAVE_AQUI';
+```
 
-1. Faça um fork do repositório.
-2. Crie uma nova branch:
-   ```bash
-   git checkout -b minha-contribuicao
-   ```
-3. Realize as alterações e envie um pull request.
+3. Execute o projeto:
+- Use um servidor local como Live Server
+- Ou abra `index.html` diretamente no navegador
+
+## 💡 Uso
+
+1. Acesse a aplicação
+2. Cole o texto a ser verificado
+3. Clique em "Verificar Agora"
+4. Analise os resultados detalhados
+5. Compartilhe a verificação (opcional)
+
+## 🎨 Interface
+
+### Componentes Principais
+- Barra de navegação responsiva
+- Campo de entrada de texto
+- Painel de resultados
+- Histórico de verificações
+- Guia de dicas
+
+### Temas
+- Suporte a modo claro/escuro
+- Cores acessíveis
+- Design intuitivo
+
+## 📱 PWA
+
+A aplicação é um Progressive Web App (PWA) que oferece:
+- ⚡ Instalação no dispositivo
+- 🔄 Funcionamento offline
+- 📲 Experiência nativa
+- 🔔 Notificações (opcional)
+
+## 🔒 Privacidade e Segurança
+
+- ✅ Não armazena dados sensíveis
+- 🔐 Processamento local quando possível
+- 📜 Política de privacidade clara
+- ⚠️ Avisos sobre limitações
+
+## 🤝 Contribuindo
+
+1. Fork o projeto
+2. Crie sua Feature Branch (`git checkout -b feature/AmazingFeature`)
+3. Commit suas mudanças (`git commit -m 'Add some AmazingFeature'`)
+4. Push para a Branch (`git push origin feature/AmazingFeature`)
+5. Abra um Pull Request
 
 ## 📄 Licença
 
-Este projeto está licenciado sob os termos da [Licença MIT](LICENSE).
+Distribuído sob a licença MIT. Veja `LICENSE` para mais informações.
+
+## 👤 Autor
+
+**Luís Antonio Souza Teixeira**
+
+- 📧 Email: luishg213@outlook.com
+- 🔗 LinkedIn: [luis-tei](https://www.linkedin.com/in/luis-tei/)
+- 📷 Instagram: [@luis.tei](https://www.instagram.com/luis.tei)
 
 ---
 
-## 📢 Avisos Importantes
+⭐️ Este projeto? [Deixe uma estrela no GitHub](https://github.com/LuisT-ls/fakenews)!
 
-- A ferramenta é um auxílio e **não substitui uma análise humana cuidadosa**.
-- Sempre verifique as fontes das informações antes de compartilhar.
-
----
-
-Desenvolvido com paixão para combater a desinformação e promover uma comunicação responsável. 🌟
+> **Nota**: Esta ferramenta é um auxílio e não substitui a verificação humana cuidadosa. Sempre verifique múltiplas fontes confiáveis.
