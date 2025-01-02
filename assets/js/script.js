@@ -92,30 +92,32 @@ function handleGlobalClicks(e) {
 
 async function checkWithGemini(text) {
   try {
+    console.log('Iniciando requisição para /api/verify')
     const response = await fetch('/api/verify', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: {
+        'Content-Type': 'application/json'
+      },
       body: JSON.stringify({ text })
     })
 
+    console.log('Status da resposta:', response.status)
+
+    const data = await response.json()
+    console.log('Resposta recebida:', data)
+
     if (!response.ok) {
-      const errorData = await response.json()
-      throw new Error(
-        errorData.error || `HTTP error! status: ${response.status}`
-      )
+      throw new Error(data.error || `Erro no servidor: ${response.status}`)
     }
 
-    const result = await response.json()
-
-    // Validar se a resposta tem a estrutura esperada
-    if (!result || typeof result.score === 'undefined') {
-      throw new Error('Resposta inválida da API')
+    if (!data || typeof data.score === 'undefined') {
+      throw new Error('Formato de resposta inválido')
     }
 
-    return result
+    return data
   } catch (error) {
-    console.error('Erro na análise:', error)
-    throw error
+    console.error('Erro detalhado:', error)
+    throw new Error(`Falha na verificação: ${error.message}`)
   }
 }
 

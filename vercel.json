@@ -5,5 +5,11 @@
       "memory": 1024,
       "maxDuration": 10
     }
-  }
+  },
+  "routes": [
+    {
+      "src": "/api/(.*)",
+      "dest": "/api/$1"
+    }
+  ]
 }

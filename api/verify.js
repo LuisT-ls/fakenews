@@ -2,10 +2,7 @@ const fetch = require('node-fetch')
 
 module.exports = async (req, res) => {
   // Configurar CORS
-  res.setHeader(
-    'Access-Control-Allow-Origin',
-    'https://fakenews-sigma.vercel.app'
-  )
+  res.setHeader('Access-Control-Allow-Origin', '*')
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS')
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type')
 
@@ -21,11 +18,14 @@ module.exports = async (req, res) => {
   }
 
   try {
+    console.log('Requisição recebida no backend')
     const { text } = req.body
 
     if (!text) {
       return res.status(400).json({ error: 'Texto não fornecido' })
     }
+
+    console.log('Verificando chave da API:', !!process.env.GEMINI_API_KEY)
 
     const prompt = `Análise detalhada do seguinte texto para verificar sua veracidade:
     "${text}"
@@ -65,19 +65,27 @@ module.exports = async (req, res) => {
       }
     )
 
+    console.log('Status da resposta Gemini:', response.status)
+
     if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`)
+      const errorText = await response.text()
+      console.error('Erro da API Gemini:', errorText)
+      throw new Error(`Erro na API Gemini: ${response.status}`)
     }
 
     const data = await response.json()
+
     if (!data.candidates?.[0]?.content?.parts?.[0]?.text) {
-      throw new Error('Resposta inválida da API')
+      throw new Error('Resposta inválida da API Gemini')
     }
 
     const result = JSON.parse(data.candidates[0].content.parts[0].text.trim())
     res.status(200).json(result)
   } catch (error) {
-    console.error('Erro na análise:', error)
-    res.status(500).json({ error: 'Erro ao processar a solicitação' })
+    console.error('Erro detalhado no backend:', error)
+    res.status(500).json({
+      error: 'Erro ao processar a solicitação',
+      details: error.message
+    })
   }
 }
