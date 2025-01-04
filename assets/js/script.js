@@ -182,7 +182,6 @@ async function handleVerification() {
 
     displayResults(verification)
     saveVerification(verification)
-    showFeedbackModal()
   } catch (error) {
     console.error('Erro durante a verificação:', error)
     showNotification(
@@ -237,10 +236,62 @@ function displayResults(verification) {
           <p class="mb-0">${gemini.analise_detalhada}</p>
         </div>
       </div>
+
+      <div class="feedback-section mt-4 text-center" data-verification-id="${
+        verification.id
+      }">
+        <div class="small text-muted mb-2">Esta análise foi útil?</div>
+        <div class="btn-group btn-group-sm" role="group" aria-label="Feedback">
+          <button class="btn btn-outline-success btn-feedback" data-feedback="positive">
+            <i class="fas fa-thumbs-up"></i>
+          </button>
+          <button class="btn btn-outline-danger btn-feedback" data-feedback="negative">
+            <i class="fas fa-thumbs-down"></i>
+          </button>
+        </div>
+      </div>
     </div>
   `
 
+  const feedbackSection = elements.result.querySelector('.feedback-section')
+  feedbackSection.querySelectorAll('.btn-feedback').forEach(button => {
+    button.addEventListener('click', function () {
+      handleFeedback(this, feedbackSection)
+    })
+  })
+
   elements.resultSection.classList.remove('d-none')
+}
+
+function handleFeedback(button, feedbackSection) {
+  const verificationId = feedbackSection.dataset.verificationId
+  const feedbackType = button.dataset.feedback
+
+  // Desabilitar os botões após o clique
+  feedbackSection.querySelectorAll('.btn-feedback').forEach(btn => {
+    btn.disabled = true
+    btn.classList.remove('btn-outline-success', 'btn-outline-danger')
+    btn.classList.add('btn-light')
+  })
+
+  // Destacar o botão selecionado
+  button.classList.remove('btn-light')
+  button.classList.add(
+    feedbackType === 'positive' ? 'btn-success' : 'btn-danger'
+  )
+
+  // Substituir os botões por uma mensagem de agradecimento
+  setTimeout(() => {
+    feedbackSection.innerHTML = `
+      <div class="text-muted small">
+        <i class="fas fa-check-circle text-success"></i>
+        Obrigado pelo seu feedback!
+      </div>
+    `
+  }, 1000)
+
+  // Salvar o feedback
+  submitFeedback(feedbackType)
 }
 
 // Função para gerar seções de análise
@@ -372,11 +423,8 @@ function handleClearHistory() {
 }
 
 // Feedback
-function showFeedbackModal() {
-  new bootstrap.Modal(document.getElementById('feedbackModal')).show()
-}
-
 function submitFeedback(type) {
   showNotification('Obrigado pelo seu feedback!', 'success')
   bootstrap.Modal.getInstance(document.getElementById('feedbackModal')).hide()
+  console.log(`Feedback ${type} recebido e processado`)
 }
