@@ -5,12 +5,29 @@
   border-radius: 0.5rem;
   transition: transform var(--transition-speed),
     box-shadow var(--transition-speed);
+  position: relative;
+  cursor: pointer;
+}
+
+.btn > * {
+  pointer-events: none;
+}
+
+.btn span,
+.btn div {
+  position: relative;
+  z-index: 1;
 }
 
 /* Primary Button */
 .btn-primary {
   background-color: var(--primary-color);
   border-color: var(--primary-color);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  width: auto;
 }
 
 .btn-primary:hover {
@@ -35,6 +52,12 @@
 .share-buttons .btn {
   padding: 0.5rem 1rem;
   margin: 0 0.25rem;
+}
+
+/* Large Button Modifier */
+.btn-lg {
+  padding: 0.875rem 1.75rem;
+  font-size: 1.1rem;
 }
 
 /* Dark Mode Button Styles */
@@ -66,4 +89,9 @@
 [data-theme='dark'] #result-section .btn-outline-primary:hover {
   background-color: #2563eb;
   color: #ffffff;
+}
+
+/* Fix for spinner alignment */
+.spinner-border-sm {
+  margin-left: 0.5rem;
 }

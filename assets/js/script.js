@@ -61,7 +61,7 @@ function shareContent(platform) {
     `🔍 Verifiquei essa informação no Verificador de Fake News!\n\n` +
     `📊 Resultado: ${score} de confiabilidade\n` +
     `📋 Classificação: ${classificacao}\n` +
-    `📝 Análise: ${analise.substring(0, 200)}...\n\n` +
+    `📝 Análise: ${analise.substring(0, 1500)}...\n\n` +
     `Verifique você também:`
 
   // Codificar a mensagem para URL
