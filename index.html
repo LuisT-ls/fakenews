@@ -614,6 +614,65 @@
       </div>
     </div>
 
+    <!-- Modal de Confirmação -->
+    <div
+      class="modal fade"
+      id="clearHistoryModal"
+      tabindex="-1"
+      aria-labelledby="clearHistoryModalLabel"
+      aria-hidden="true"
+    >
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+          <div class="modal-header border-0">
+            <h5 class="modal-title" id="clearHistoryModalLabel">
+              <i class="fas fa-trash-alt text-danger me-2"></i>
+              Limpar Histórico
+            </h5>
+            <button
+              type="button"
+              class="btn-close"
+              data-bs-dismiss="modal"
+              aria-label="Fechar"
+            ></button>
+          </div>
+          <div class="modal-body text-center py-4">
+            <div class="mb-4">
+              <span class="fa-stack fa-2x">
+                <i class="fas fa-circle fa-stack-2x text-danger"></i>
+                <i class="fas fa-exclamation fa-stack-1x fa-inverse"></i>
+              </span>
+            </div>
+            <h6 class="mb-3">
+              Tem certeza que deseja apagar todo o histórico?
+            </h6>
+            <p class="text-muted mb-0">
+              Esta ação não poderá ser desfeita e você perderá todas as
+              verificações anteriores.
+            </p>
+          </div>
+          <div class="modal-footer border-0 justify-content-center">
+            <button
+              type="button"
+              class="btn btn-light px-4"
+              data-bs-dismiss="modal"
+            >
+              <i class="fas fa-times me-2"></i>
+              Cancelar
+            </button>
+            <button
+              type="button"
+              class="btn btn-danger px-4"
+              id="confirmClearHistory"
+            >
+              <i class="fas fa-trash-alt me-2"></i>
+              Limpar Histórico
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <!-- Scripts -->
     <script
       src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"

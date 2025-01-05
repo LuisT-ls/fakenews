@@ -28,6 +28,24 @@ document.addEventListener('DOMContentLoaded', () => {
     elements.verifyButton.disabled = !elements.userInput.value.trim()
   })
 
+  document
+    .getElementById('confirmClearHistory')
+    ?.addEventListener('click', () => {
+      // Limpa o histórico
+      verificationHistory = []
+      localStorage.removeItem('verificationHistory')
+      updateHistoryDisplay()
+
+      // Fecha o modal
+      const modal = bootstrap.Modal.getInstance(
+        document.getElementById('clearHistoryModal')
+      )
+      modal.hide()
+
+      // Mostra notificação de sucesso
+      showNotification('Histórico apagado com sucesso!', 'success')
+    })
+
   // Listeners de conectividade
   window.addEventListener('offline', () =>
     showNotification(
@@ -412,16 +430,130 @@ function updateHistoryDisplay() {
 }
 
 function handleClearHistory() {
-  if (
-    confirm('Tem certeza que deseja apagar todo o histórico de verificações?')
-  ) {
-    verificationHistory = []
-    localStorage.removeItem('verificationHistory')
-    updateHistoryDisplay()
-    showNotification('Histórico apagado com sucesso!', 'success')
+  // Verifica se há itens no histórico
+  if (verificationHistory.length === 0) {
+    // Se não houver histórico, mostra um modal diferente
+    const modalContent = `
+      <div class="modal fade" id="emptyHistoryModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+          <div class="modal-content">
+            <div class="modal-header border-0">
+              <h5 class="modal-title">
+                <i class="fas fa-info-circle text-info me-2"></i>
+                Histórico Vazio
+              </h5>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
+            </div>
+            <div class="modal-body text-center py-4">
+              <div class="mb-4">
+                <span class="fa-stack fa-2x">
+                  <i class="fas fa-circle fa-stack-2x text-info"></i>
+                  <i class="fas fa-inbox fa-stack-1x fa-inverse"></i>
+                </span>
+              </div>
+              <h6 class="mb-3">Não há histórico para apagar</h6>
+              <p class="text-muted mb-0">Realize algumas verificações primeiro para construir seu histórico.</p>
+            </div>
+            <div class="modal-footer border-0 justify-content-center">
+              <button type="button" class="btn btn-primary px-4" data-bs-dismiss="modal">
+                <i class="fas fa-check me-2"></i>
+                Entendi
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    `
+
+    // Remove qualquer instância anterior do modal
+    const existingModal = document.getElementById('emptyHistoryModal')
+    if (existingModal) {
+      existingModal.remove()
+    }
+
+    // Adiciona o novo modal ao DOM
+    document.body.insertAdjacentHTML('beforeend', modalContent)
+
+    // Mostra o modal
+    const modal = new bootstrap.Modal(
+      document.getElementById('emptyHistoryModal')
+    )
+    modal.show()
+
+    // Remove o modal do DOM após ser fechado
+    document
+      .getElementById('emptyHistoryModal')
+      .addEventListener('hidden.bs.modal', function () {
+        this.remove()
+      })
+
+    return
+  }
+
+  // Se houver histórico, mostra o modal de confirmação normal
+  const modal = new bootstrap.Modal(
+    document.getElementById('clearHistoryModal')
+  )
+  modal.show()
+}
+
+function updateHistoryDisplay() {
+  if (verificationHistory.length === 0) {
+    elements.verificationsHistory.style.opacity = '0'
+    setTimeout(() => {
+      elements.verificationsHistory.innerHTML =
+        '<p class="text-center text-muted">Nenhuma verificação realizada</p>'
+      elements.verificationsHistory.style.opacity = '1'
+    }, 300)
+  } else {
+    elements.verificationsHistory.innerHTML = verificationHistory
+      .map(
+        verification => `
+        <div class="list-group-item">
+          <div class="d-flex justify-content-between align-items-center">
+            <small class="text-muted">${new Date(
+              verification.timestamp
+            ).toLocaleString()}</small>
+            <span class="badge bg-${getScoreClass(verification.overallScore)}">
+              ${Math.round(verification.overallScore * 100)}%
+            </span>
+          </div>
+          <p class="mb-1 text-truncate">${verification.text}</p>
+        </div>
+      `
+      )
+      .join('')
   }
 }
 
+// Adicionar este CSS ao seu arquivo de estilos
+document.head.insertAdjacentHTML(
+  'beforeend',
+  `
+  <style>
+    #verificationsHistory {
+      transition: opacity 0.3s ease-in-out;
+    }
+    
+    .modal.fade .modal-dialog {
+      transition: transform 0.3s ease-out;
+    }
+    
+    .modal.fade.show .modal-dialog {
+      transform: none;
+    }
+    
+    .fa-stack {
+      transition: transform 0.3s ease;
+    }
+    
+    #clearHistoryModal:hover .fa-stack,
+    #emptyHistoryModal:hover .fa-stack {
+      transform: scale(1.1);
+    }
+  </style>
+`
+)
 // Feedback
 function submitFeedback(type) {
   showNotification('Obrigado pelo seu feedback!', 'success')
