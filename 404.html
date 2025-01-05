@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="robots" content="noindex, follow" />
+    <meta
+      name="description"
+      content="Página não encontrada - Verificador de Fake News"
+    />
+    <meta name="theme-color" content="#2563eb" />
+
+    <title>Página Não Encontrada - Verificador de Fake News</title>
+
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
+      rel="stylesheet"
+    />
+
+    <style>
+      :root {
+        --primary-gradient: linear-gradient(135deg, #2563eb, #6366f1);
+        --animation-duration: 0.3s;
+      }
+
+      body {
+        overflow-x: hidden;
+      }
+
+      .error-page {
+        min-height: calc(100vh - 200px);
+        background: var(--primary-gradient);
+        position: relative;
+      }
+
+      .error-page::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.05'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+      }
+
+      .error-code {
+        font-size: 150px;
+        font-weight: 900;
+        color: rgba(255, 255, 255, 0.9);
+        text-shadow: 4px 4px 8px rgba(0, 0, 0, 0.2);
+        animation: floatAnimation 3s ease-in-out infinite;
+        margin-bottom: 2rem;
+      }
+
+      .error-image {
+        max-width: 300px;
+        margin: 2rem auto;
+        animation: bounceAnimation 1s ease-in-out;
+        filter: drop-shadow(0 10px 15px rgba(0, 0, 0, 0.2));
+        transition: transform var(--animation-duration) ease;
+      }
+
+      .error-image:hover {
+        transform: scale(1.05);
+      }
+
+      .error-message {
+        font-size: 1.2rem;
+        color: rgba(255, 255, 255, 0.9);
+        max-width: 600px;
+        margin: 0 auto 2rem;
+        animation: fadeInUp 0.5s ease-out;
+      }
+
+      .btn {
+        position: relative;
+        overflow: hidden;
+        transition: all var(--animation-duration) ease;
+      }
+
+      .btn-outline-light {
+        border-width: 2px;
+      }
+
+      .btn-outline-light:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+      }
+
+      .btn-light {
+        font-weight: 500;
+      }
+
+      .btn-light:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        background-color: #fff;
+      }
+
+      .search-box {
+        max-width: 500px;
+        margin: 2rem auto;
+        animation: fadeInUp 0.7s ease-out;
+      }
+
+      .navbar {
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+      }
+
+      .navbar-brand {
+        font-weight: 600;
+        transition: transform var(--animation-duration) ease;
+      }
+
+      .navbar-brand:hover {
+        transform: scale(1.05);
+      }
+
+      footer {
+        background: #1a1a1a;
+        border-top: 1px solid rgba(255, 255, 255, 0.1);
+      }
+
+      @keyframes floatAnimation {
+        0%,
+        100% {
+          transform: translateY(0);
+        }
+        50% {
+          transform: translateY(-20px);
+        }
+      }
+
+      @keyframes bounceAnimation {
+        0% {
+          transform: translateY(-100px);
+          opacity: 0;
+        }
+        60% {
+          transform: translateY(20px);
+        }
+        100% {
+          transform: translateY(0);
+          opacity: 1;
+        }
+      }
+
+      @keyframes fadeInUp {
+        from {
+          opacity: 0;
+          transform: translateY(20px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      /* Responsividade */
+      @media (max-width: 768px) {
+        .error-code {
+          font-size: 100px;
+        }
+
+        .error-image {
+          max-width: 200px;
+        }
+
+        .error-message {
+          font-size: 1rem;
+          padding: 0 1rem;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Barra de Navegação -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+      <div class="container">
+        <a class="navbar-brand" href="/">
+          <i class="fas fa-shield-alt"></i>
+          <span class="ms-2">Verificador de Fake News</span>
+        </a>
+      </div>
+    </nav>
+
+    <!-- Conteúdo Principal -->
+    <main class="error-page d-flex align-items-center">
+      <div class="container text-center text-white py-5">
+        <h1 class="error-code" data-text="404">404</h1>
+        <img
+          src="./assets/images/erro404.png"
+          alt="Ilustração de erro 404"
+          class="error-image"
+          loading="lazy"
+        />
+        <h2 class="h3 mb-4">Ops! Esta página parece uma fake news...</h2>
+        <p class="error-message mb-4">
+          A página que você está procurando não existe ou foi removida. Mas não
+          se preocupe, assim como checamos fake news, podemos ajudar você a
+          encontrar o conteúdo correto!
+        </p>
+
+        <!-- Barra de Pesquisa -->
+        <div class="search-box mb-4">
+          <div class="input-group">
+            <input
+              type="text"
+              class="form-control form-control-lg"
+              placeholder="O que você está procurando?"
+              aria-label="Pesquisar conteúdo"
+            />
+            <button class="btn btn-light" type="button">
+              <i class="fas fa-search"></i>
+            </button>
+          </div>
+        </div>
+
+        <div class="d-flex justify-content-center gap-3 flex-wrap">
+          <a
+            href="javascript:history.back()"
+            class="btn btn-outline-light btn-lg"
+            aria-label="Voltar para a página anterior"
+          >
+            <i class="fas fa-arrow-left me-2"></i>Voltar
+          </a>
+          <a
+            href="/"
+            class="btn btn-light btn-lg"
+            aria-label="Ir para a página inicial"
+          >
+            <i class="fas fa-home me-2"></i>Página Inicial
+          </a>
+        </div>
+      </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="text-white py-4">
+      <div class="container text-center">
+        <p class="mb-0">
+          &copy; <time datetime="2025">2025</time> Verificador de Fake News.
+          Todos os direitos reservados.
+        </p>
+      </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+      // Animação do texto 404
+      document.querySelector('.error-code').innerHTML = Array.from('404')
+        .map(
+          char =>
+            `<span style="display: inline-block; animation: floatAnimation ${
+              Math.random() * 2 + 2
+            }s ease-in-out infinite;">${char}</span>`
+        )
+        .join('')
+
+      // Funcionalidade de pesquisa
+      const searchInput = document.querySelector('.search-box input')
+      const searchButton = document.querySelector('.search-box button')
+
+      function handleSearch() {
+        const query = searchInput.value.trim()
+        if (query) {
+          window.location.href = `/?search=${encodeURIComponent(query)}`
+        }
+      }
+
+      searchButton.addEventListener('click', handleSearch)
+      searchInput.addEventListener('keypress', e => {
+        if (e.key === 'Enter') {
+          handleSearch()
+        }
+      })
+    </script>
+  </body>
+</html>
