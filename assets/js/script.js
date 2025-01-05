@@ -554,6 +554,7 @@ document.head.insertAdjacentHTML(
   </style>
 `
 )
+
 // Feedback
 function submitFeedback(type) {
   showNotification('Obrigado pelo seu feedback!', 'success')

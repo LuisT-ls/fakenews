@@ -103,3 +103,45 @@
 [data-theme='dark'] .text-muted.small {
   color: var(--text-muted) !important;
 }
+
+/* Estilos padrão do modal */
+.modal-content {
+  background-color: var(--light-color);
+  color: var(--secondary-color);
+  border: 1px solid var(--dark-border);
+  box-shadow: var(--shadow-md);
+  transition: background-color var(--transition-speed),
+    color var(--transition-speed);
+}
+
+/* Estilos para dark mode */
+[data-theme='dark'] .modal-content {
+  background-color: var(--dark-surface);
+  color: var(--dark-color);
+  border-color: var(--dark-border);
+}
+
+[data-theme='dark'] .modal-header {
+  border-bottom-color: var(--dark-border);
+}
+
+[data-theme='dark'] .modal-footer {
+  border-top-color: var(--dark-border);
+}
+
+/* Botões no modal */
+.modal-footer .btn-light {
+  background-color: var(--light-color);
+  color: var(--dark-color);
+  border: 1px solid var(--dark-border);
+}
+
+[data-theme='dark'] .modal-footer .btn-light {
+  background-color: var(--dark-surface);
+  color: var(--dark-color);
+  border-color: var(--dark-border);
+}
+
+[data-theme='dark'] .text-muted.mb-0 {
+  color: var(--text-muted) !important;
+}
