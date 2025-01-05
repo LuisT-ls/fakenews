@@ -62,6 +62,7 @@
         animation: bounceAnimation 1s ease-in-out;
         filter: drop-shadow(0 10px 15px rgba(0, 0, 0, 0.2));
         transition: transform var(--animation-duration) ease;
+        background: url('data:image/svg+xml,...') center/contain no-repeat;
       }
 
       .error-image:hover {
@@ -189,12 +190,16 @@
     </nav>
 
     <!-- Conteúdo Principal -->
-    <main class="error-page d-flex align-items-center">
+    <main
+      class="error-page d-flex align-items-center"
+      role="main"
+      aria-labelledby="error-title"
+    >
       <div class="container text-center text-white py-5">
-        <h1 class="error-code" data-text="404">404</h1>
+        <h1 id="error-title" class="error-code" data-text="404">404</h1>
         <img
-          src="./assets/images/erro404.png"
-          alt="Ilustração de erro 404"
+          src="./assets/images/erro404.svg"
+          alt="Ilustração de página não encontrada - Erro 404"
           class="error-image"
           loading="lazy"
         />
@@ -225,6 +230,7 @@
             href="javascript:history.back()"
             class="btn btn-outline-light btn-lg"
             aria-label="Voltar para a página anterior"
+            onclick="if(!window.history.back) this.href='/'"
           >
             <i class="fas fa-arrow-left me-2"></i>Voltar
           </a>
@@ -279,6 +285,16 @@
           handleSearch()
         }
       })
+    </script>
+
+    <!-- Google Analytics -->
+    <script>
+      if (typeof gtag === 'function') {
+        gtag('event', '404_error', {
+          page_path: window.location.pathname,
+          page_title: document.title
+        })
+      }
     </script>
   </body>
 </html>
