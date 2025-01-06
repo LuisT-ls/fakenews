@@ -4,6 +4,38 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="theme-color" content="#4a90e2" />
+
+    <!-- Meta Tags Principais para SEO -->
+    <meta name="robots" content="index, follow" />
+    <meta
+      name="description"
+      content="Página de erro offline para o verificador de fake news. Tente novamente ou confira o conteúdo disponível offline."
+    />
+    <meta
+      name="keywords"
+      content="offline, verificador de fake news, erro, tentar novamente, internet, conexão"
+    />
+    <meta name="author" content="Luís Antonio Souza Teixeira" />
+
+    <!-- Open Graph (OG) para Redes Sociais -->
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="Offline - Verificador de Fake News" />
+    <meta
+      property="og:description"
+      content="Página de erro offline para o verificador de fake news. Tente novamente ou confira o conteúdo disponível offline."
+    />
+    <meta
+      property="og:url"
+      content="https://fakenews-sigma.vercel.app/pages/offline.html"
+    />
+    <meta property="og:locale" content="pt_BR" />
+
+    <!-- Meta Tags Regionais -->
+    <meta name="geo.region" content="BR" />
+    <meta name="geo.placename" content="Brasil" />
+    <meta name="geo.position" content="-14.235004;-51.92528" />
+    <meta name="ICBM" content="-14.235004, -51.92528" />
+
     <title>Offline - Verificador de Fake News</title>
 
     <!-- Bootstrap -->
@@ -41,17 +73,18 @@
       }
 
       .retry-button {
-        background-color: #4a90e2;
+        background-color: #357abd;
         border: none;
         padding: 12px 30px;
         border-radius: 25px;
         transition: transform 0.2s, box-shadow 0.2s;
+        color: #ffffff;
       }
 
       .retry-button:hover {
         transform: translateY(-2px);
         box-shadow: 0 5px 15px rgba(74, 144, 226, 0.3);
-        background-color: #357abd;
+        background-color: #2a5f8d;
       }
 
       .tips-list {
