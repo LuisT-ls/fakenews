@@ -36,9 +36,15 @@ textarea {
 }
 
 textarea::placeholder {
+  font-size: 16px;
   font-family: Arial, sans-serif;
+  color: #aaa;
 }
 
 #placeholder {
+  display: block;
+}
+
+#userInput {
   display: block;
 }
