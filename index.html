@@ -215,12 +215,11 @@
         line-height: 1.5;
       }
 
-      /* Otimização de fonte usando font-display: swap */
-      @font-face {
-        font-family: 'YourMainFont';
-        font-display: swap;
-        src: local('YourMainFont'),
-          url('/assets/fonts/your-main-font.woff2') format('woff2');
+      .mb-0 {
+        margin-bottom: 0;
+        font-family: Arial, sans-serif;
+        font-size: 16px;
+        line-height: 1.5;
       }
 
       textarea {
@@ -306,7 +305,7 @@
                 </div>
                 <div>
                   <h3 class="h5">1. Cole o Texto</h3>
-                  <p class="mb-0" style="min-height: 20px">
+                  <p class="mb-0" style="min-height: 20px; min-width: 300px">
                     Insira o conteúdo que deseja verificar no campo abaixo
                   </p>
                 </div>
