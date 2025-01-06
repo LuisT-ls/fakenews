@@ -82,6 +82,35 @@
     />
 
     <style>
+      /* Navbar */
+      .navbar {
+        background-color: #2563eb !important;
+        padding: 0.5rem 0;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      }
+
+      .navbar-brand {
+        font-size: 1.1rem;
+        display: flex;
+        align-items: center;
+      }
+
+      .navbar-brand i {
+        font-size: 1.25rem;
+      }
+
+      .nav-link {
+        color: #ffffff !important;
+        font-weight: 500;
+        padding: 0.5rem 1rem;
+        transition: color var(--transition-speed);
+      }
+
+      .nav-link:hover {
+        color: #f8fafc !important;
+        transform: translateY(-1px);
+      }
+
       .header-gradient {
         background: linear-gradient(135deg, #2563eb, #6366f1);
         position: relative;
@@ -196,27 +225,32 @@
     <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
       <div class="container">
         <a class="navbar-brand" href="/">
-          <i class="fas fa-shield-alt me-2"></i>
-          Verificador de Fake News
+          <i class="fas fa-shield-alt"></i>
+          <span class="ms-2">Verificador de Fake News</span>
         </a>
-        <button
-          class="navbar-toggler"
-          type="button"
-          data-bs-toggle="collapse"
-          data-bs-target="#navbarNav"
-        >
-          <span class="navbar-toggler-icon"></span>
-        </button>
+
+        <!-- Menu Hamburguer (visível em mobile) -->
+        <div class="d-flex align-items-center order-lg-last">
+          <button
+            class="navbar-toggler"
+            type="button"
+            data-bs-toggle="collapse"
+            data-bs-target="#navbarNav"
+            aria-controls="navbarNav"
+            aria-expanded="false"
+            aria-label="Toggle navigation"
+          >
+            <span class="navbar-toggler-icon"></span>
+          </button>
+        </div>
+
         <div class="collapse navbar-collapse" id="navbarNav">
           <ul class="navbar-nav ms-auto">
             <li class="nav-item">
-              <a class="nav-link" href="/">Início</a>
+              <a class="nav-link" href="#como-funciona">Como Funciona</a>
             </li>
             <li class="nav-item">
-              <a class="nav-link" href="/#como-funciona">Como Funciona</a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link active" href="/sobre.html">Sobre</a>
+              <a class="nav-link" href="#dicas">Dicas</a>
             </li>
           </ul>
         </div>
