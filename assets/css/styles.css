@@ -10,6 +10,7 @@
 @import url('./components/buttons.css');
 @import url('./components/cards.css');
 @import url('./components/forms.css');
+@import url('./components/expandable.css');
 
 /* Import Utilities */
 @import url('./utils/dark-mode.css');

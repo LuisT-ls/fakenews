@@ -40,6 +40,31 @@
   footer .list-inline {
     justify-content: center;
   }
+
+  /* Steps */
+  .steps-container {
+    padding: 1rem;
+  }
+
+  .step-item {
+    margin-left: 1rem;
+  }
+}
+
+@media (max-width: 767px) {
+  .expand-label {
+    font-size: 1rem;
+  }
+
+  .step-item {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+  }
+
+  .step-icon {
+    margin-bottom: 1rem;
+  }
 }
 
 /* Animations */

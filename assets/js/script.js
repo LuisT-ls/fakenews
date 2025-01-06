@@ -55,6 +55,21 @@ document.addEventListener('DOMContentLoaded', () => {
   window.addEventListener('online', () =>
     showNotification('Conexão restabelecida!')
   )
+
+  const trigger = document.querySelector('.expand-trigger')
+  const content = document.querySelector('.expand-content')
+
+  trigger.addEventListener('click', function () {
+    this.classList.toggle('active')
+    content.classList.toggle('show')
+
+    // Smooth scroll to content when expanding
+    if (content.classList.contains('show')) {
+      setTimeout(() => {
+        content.scrollIntoView({ behavior: 'smooth', block: 'start' })
+      }, 100)
+    }
+  })
 })
 
 // Handler global de clicks
