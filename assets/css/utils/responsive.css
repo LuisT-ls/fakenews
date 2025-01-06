@@ -41,6 +41,48 @@
     justify-content: center;
   }
 
+  /* Como Funciona */
+  #como-funciona {
+    padding: 1rem;
+    font-size: 0.95rem;
+  }
+
+  .expand-section {
+    margin-bottom: 1.5rem;
+  }
+
+  .expand-trigger {
+    display: block;
+    width: 100%;
+    text-align: center;
+    padding: 0.5rem;
+    border-radius: 8px;
+    background-color: #f8f9fa;
+    cursor: pointer;
+  }
+
+  .expand-text {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 1rem;
+    color: #007bff;
+  }
+
+  .expand-icon {
+    margin-right: 0.5rem;
+  }
+
+  .expand-arrow {
+    margin-left: 0.5rem;
+  }
+
+  .expand-label {
+    text-align: center;
+    display: inline-block;
+    margin-top: 0.25rem;
+  }
+
   /* Steps */
   .steps-container {
     padding: 1rem;
