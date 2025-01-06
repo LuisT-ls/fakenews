@@ -70,6 +70,14 @@ document.addEventListener('DOMContentLoaded', () => {
       }, 100)
     }
   })
+
+  const skeletons = document.querySelectorAll('.skeleton-text')
+  skeletons.forEach(skeleton => {
+    const content = skeleton.dataset.content
+    if (content) {
+      skeleton.outerHTML = content
+    }
+  })
 })
 
 // Handler global de clicks
