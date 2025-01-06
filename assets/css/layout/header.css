@@ -1,8 +1,23 @@
 /* Header Gradient */
 .header-gradient {
   background: linear-gradient(135deg, var(--primary-color), #6366f1);
+  padding: 3rem 0;
   position: relative;
   overflow: hidden;
+}
+
+.header-gradient .container {
+  max-width: 100%;
+}
+
+.header-gradient h1 {
+  font-size: 2rem;
+  margin-bottom: 1rem;
+}
+
+.header-gradient .lead {
+  font-size: 1.25rem;
+  color: rgba(255, 255, 255, 0.75);
 }
 
 .header-gradient::before {
@@ -66,9 +81,10 @@
 
   .header-gradient h1 {
     font-size: 1.5rem;
+    margin-bottom: 0.5rem;
   }
 
   .header-gradient .lead {
-    font-size: 0.9rem;
+    font-size: 1rem;
   }
 }
