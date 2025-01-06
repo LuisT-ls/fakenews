@@ -188,6 +188,37 @@
         transform: translateY(-1px);
         box-shadow: 0 4px 12px rgba(74, 144, 226, 0.25);
       }
+
+      .form-control-lg {
+        font-size: 1.25rem;
+        padding: 0.5rem 1rem;
+        border-radius: 0.3rem;
+        display: block;
+        width: 100%;
+        font-weight: 400;
+        line-height: 1.5;
+        background-clip: padding-box;
+        border: 1px solid #ced4da;
+        -webkit-appearance: none;
+        -moz-appearance: none;
+        appearance: none;
+        transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+      }
+
+      .critical-content {
+        margin-bottom: 1rem;
+        font-size: 1rem;
+        font-weight: 400;
+        line-height: 1.5;
+      }
+
+      /* Otimização de fonte usando font-display: swap */
+      @font-face {
+        font-family: 'YourMainFont';
+        font-display: swap;
+        src: local('YourMainFont'),
+          url('/assets/fonts/your-main-font.woff2') format('woff2');
+      }
     </style>
   </head>
   <body>
@@ -242,9 +273,11 @@
     <header class="py-4 text-center header-gradient">
       <div class="container">
         <h1 class="h2 fw-bold text-white mb-2">Detecte Fake News com IA</h1>
-        <p class="lead text-white-50 mb-0 small">
-          Verifique a credibilidade de notícias em segundos
-        </p>
+        <div class="critical-content">
+          <p class="lead text-white-50 mb-0 small">
+            Verifique a credibilidade de notícias em segundos
+          </p>
+        </div>
       </div>
     </header>
 
@@ -771,6 +804,30 @@
             })
         })
       }
+    </script>
+
+    <!-- Script de otimização de renderização -->
+    <script type="module">
+      // Registra um paint timing observer
+      if ('PerformanceObserver' in window) {
+        const observer = new PerformanceObserver(list => {
+          for (const entry of list.getEntries()) {
+            if (entry.entryType === 'largest-contentful-paint') {
+              console.log('LCP:', entry.startTime)
+            }
+          }
+        })
+        observer.observe({ entryTypes: ['largest-contentful-paint'] })
+      }
+
+      // Otimiza carregamento de recursos
+      document.addEventListener('DOMContentLoaded', () => {
+        // Carrega recursos não críticos após o conteúdo principal
+        const deferredStyles = document.querySelectorAll('link[media="print"]')
+        deferredStyles.forEach(style => {
+          style.media = 'all'
+        })
+      })
     </script>
 
     <!-- Script principal da aplicação -->
