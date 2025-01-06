@@ -34,3 +34,11 @@ input,
 textarea {
   font: inherit;
 }
+
+textarea::placeholder {
+  font-family: Arial, sans-serif;
+}
+
+#placeholder {
+  display: block;
+}

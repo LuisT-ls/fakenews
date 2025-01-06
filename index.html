@@ -219,6 +219,12 @@
         src: local('YourMainFont'),
           url('/assets/fonts/your-main-font.woff2') format('woff2');
       }
+
+      textarea {
+        font-family: Arial, sans-serif;
+        font-size: 16px;
+        color: #333;
+      }
     </style>
   </head>
   <body>
@@ -348,7 +354,7 @@
                 placeholder="Digite ou cole aqui o texto que deseja verificar..."
                 rows="6"
                 aria-describedby="inputHelp"
-                loading="lazy"
+                priority
               ></textarea>
               <div id="inputHelp" class="form-text">
                 Quanto mais completo o texto, mais precisa será a análise.
