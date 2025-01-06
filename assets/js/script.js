@@ -584,3 +584,20 @@ function submitFeedback(type) {
   bootstrap.Modal.getInstance(document.getElementById('feedbackModal')).hide()
   console.log(`Feedback ${type} recebido e processado`)
 }
+
+const userInput = document.getElementById('userInput')
+const defaultText = 'Digite ou cole aqui o texto que deseja verificar...'
+
+userInput.addEventListener('focus', () => {
+  if (userInput.value === defaultText) {
+    userInput.value = ''
+    userInput.style.color = '#000'
+  }
+})
+
+userInput.addEventListener('blur', () => {
+  if (userInput.value.trim() === '') {
+    userInput.value = defaultText
+    userInput.style.color = '#6c757d'
+  }
+})
