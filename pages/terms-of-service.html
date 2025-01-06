@@ -50,13 +50,39 @@
       rel="stylesheet"
     />
 
-    <!-- CSS Principal -->
-    <link href="styles.css" rel="stylesheet" />
-
     <!-- Favicon -->
     <link rel="icon" type="image/png" sizes="32x32" href="../favicon.ico" />
 
     <style>
+      /* Navbar */
+      .navbar {
+        background-color: #2563eb !important;
+        padding: 0.5rem 0;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      }
+
+      .navbar-brand {
+        font-size: 1.1rem;
+        display: flex;
+        align-items: center;
+      }
+
+      .navbar-brand i {
+        font-size: 1.25rem;
+      }
+
+      .nav-link {
+        color: #ffffff !important;
+        font-weight: 500;
+        padding: 0.5rem 1rem;
+        transition: color var(--transition-speed);
+      }
+
+      .nav-link:hover {
+        color: #f8fafc !important;
+        transform: translateY(-1px);
+      }
+
       /* Custom Scrollbar */
       ::-webkit-scrollbar {
         width: 8px;
@@ -98,7 +124,7 @@
         <div class="collapse navbar-collapse" id="navbarNav">
           <ul class="navbar-nav ms-auto">
             <li class="nav-item">
-              <a class="nav-link" href="../index.html">Início</a>
+              <a class="nav-link" href="/">Início</a>
             </li>
           </ul>
         </div>
