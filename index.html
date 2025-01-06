@@ -131,6 +131,15 @@
       as="style"
       onload="this.onload=null;this.rel='stylesheet'"
     />
+    <link
+      rel="preload"
+      href="/assets/css/components/buttons.css"
+      as="style"
+      onload="this.onload=null;this.rel='stylesheet'"
+    />
+    <noscript>
+      <link rel="stylesheet" href="/assets/css/components/buttons.css" />
+    </noscript>
 
     <style>
       .critical-input {
@@ -141,6 +150,27 @@
         border: 1px solid #ced4da;
         border-radius: 0.25rem;
         transition: border-color 0.15s ease-in-out;
+      }
+
+      .btn {
+        display: inline-block;
+        font-weight: 500;
+        padding: 0.5rem 1rem;
+        border-radius: 0.25rem;
+        text-align: center;
+        text-decoration: none;
+        transition: all 0.15s ease-in-out;
+      }
+
+      .btn-primary {
+        color: #fff;
+        background-color: #0d6efd;
+        border: 1px solid #0d6efd;
+      }
+
+      .btn-primary:hover {
+        background-color: #0b5ed7;
+        border-color: #0a58ca;
       }
     </style>
   </head>
