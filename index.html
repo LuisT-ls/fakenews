@@ -96,6 +96,14 @@
       onload="this.media='all'"
     />
 
+    <!-- 1. Preconnect para recursos importantes -->
+    <link rel="preconnect" href="https://www.googletagmanager.com" />
+
+    <!-- 2. Prefetch para navegação provável -->
+    <link rel="prefetch" href="/pages/sobre.html" />
+
+    <!-- 3. DNS-prefetch para domínios externos -->
+    <link rel="dns-prefetch" href="//cdnjs.cloudflare.com" />
     <!-- Alternates -->
     <link
       rel="alternate"
@@ -114,6 +122,14 @@
       rel="stylesheet"
       onerror="this.onerror=null;this.href='fallback-styles.css';"
       media="all"
+    />
+
+    <!-- CSS Cards -->
+    <link
+      rel="preload"
+      href="./assets/css/components/cards.css"
+      as="style"
+      onload="this.onload=null;this.rel='stylesheet'"
     />
   </head>
   <body>
