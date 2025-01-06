@@ -153,24 +153,40 @@
       }
 
       .btn {
-        display: inline-block;
-        font-weight: 500;
-        padding: 0.5rem 1rem;
-        border-radius: 0.25rem;
-        text-align: center;
-        text-decoration: none;
-        transition: all 0.15s ease-in-out;
+        padding: 0.75rem 1.5rem;
+        font-weight: 600;
+        border-radius: 0.5rem;
+        transition: transform var(--transition-speed),
+          box-shadow var(--transition-speed);
+        position: relative;
+        cursor: pointer;
+      }
+
+      .btn > * {
+        pointer-events: none;
+      }
+
+      .btn span,
+      .btn div {
+        position: relative;
+        z-index: 1;
       }
 
       .btn-primary {
-        color: #fff;
-        background-color: #0d6efd;
-        border: 1px solid #0d6efd;
+        background-color: #2563eb;
+        border-color: #2563eb;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        width: auto;
       }
 
       .btn-primary:hover {
-        background-color: #0b5ed7;
-        border-color: #0a58ca;
+        background-color: #1e40af;
+        border-color: #1e40af;
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(74, 144, 226, 0.25);
       }
     </style>
   </head>
