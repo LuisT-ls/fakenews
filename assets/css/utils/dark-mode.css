@@ -147,6 +147,10 @@
 }
 
 /* Expandable Section */
+[data-theme='dark'] .expand-trigger {
+  background: var(--dark-bg);
+}
+
 [data-theme='dark'] .expand-text {
   background: var(--dark-surface);
 }
