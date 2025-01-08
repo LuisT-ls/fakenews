@@ -187,71 +187,66 @@
     </div>
 
     <script>
-      function checkConnection() {
+      async function checkConnection() {
         const button = document.querySelector('.retry-button')
         const loading = document.querySelector('.loading')
         const buttonText = button.querySelector('span')
 
-        // Desabilita o botão e mostra loading
         button.disabled = true
         loading.classList.add('active')
         buttonText.textContent = 'Verificando'
 
-        // Tenta fazer uma requisição para verificar a conexão
-        fetch('/')
-          .then(response => {
-            if (response.ok) {
-              // Se obtiver resposta, recarrega a página
-              window.location.reload()
-            }
+        try {
+          const response = await fetch('/', {
+            method: 'HEAD',
+            cache: 'no-cache'
           })
-          .catch(() => {
-            // Se falhar, reabilita o botão
-            button.disabled = false
-            loading.classList.remove('active')
-            buttonText.textContent = 'Tentar Novamente'
 
-            // Mostra mensagem de erro
-            const toast = document.createElement('div')
-            toast.className = 'alert alert-danger mt-3'
-            toast.role = 'alert'
-            toast.textContent =
-              'Ainda sem conexão. Por favor, tente novamente mais tarde.'
-            document.querySelector('.offline-card').appendChild(toast)
+          if (response.ok) {
+            window.location.href = '/'
+          }
+        } catch {
+          button.disabled = false
+          loading.classList.remove('active')
+          buttonText.textContent = 'Tentar Novamente'
 
-            // Remove a mensagem após 3 segundos
-            setTimeout(() => {
-              toast.remove()
-            }, 3000)
-          })
+          showToast('Ainda sem conexão. Por favor, verifique sua internet.')
+        }
       }
 
-      // Verifica e exibe conteúdo em cache se disponível
+      function showToast(message) {
+        const toast = document.createElement('div')
+        toast.className = 'alert alert-danger mt-3'
+        toast.textContent = message
+        document.querySelector('.offline-card').appendChild(toast)
+        setTimeout(() => toast.remove(), 3000)
+      }
+
+      // Check cached content
       if ('caches' in window) {
-        caches.match('/').then(response => {
-          if (response) {
-            document.getElementById('cachedContent').classList.remove('d-none')
-            // Aqui você pode adicionar lógica para mostrar itens específicos em cache
-            document.getElementById('cachedItems').innerHTML = `
-                        <div class="list-group">
-                            <a href="/" class="list-group-item list-group-item-action">
-                                <i class="fas fa-home me-2"></i>
-                                Página Inicial
-                            </a>
-                            <a href="/pages/sobre.html" class="list-group-item list-group-item-action">
-                                <i class="fas fa-info-circle me-2"></i>
-                                Sobre
-                            </a>
-                        </div>
-                    `
+        caches.keys().then(cacheNames => {
+          const cachedContent = document.getElementById('cachedContent')
+          const cachedItems = document.getElementById('cachedItems')
+
+          if (cacheNames.length) {
+            cachedContent.classList.remove('d-none')
+            cachedItems.innerHTML = `
+              <div class="list-group">
+                <a href="/" class="list-group-item list-group-item-action">
+                  <i class="fas fa-home me-2"></i>
+                  Página Inicial
+                </a>
+                <a href="/pages/sobre.html" class="list-group-item list-group-item-action">
+                  <i class="fas fa-info-circle me-2"></i>
+                  Sobre
+                </a>
+              </div>
+            `
           }
         })
       }
 
-      // Monitora mudanças no estado da conexão
-      window.addEventListener('online', () => {
-        window.location.reload()
-      })
+      window.addEventListener('online', () => (window.location.href = '/'))
     </script>
   </body>
 </html>
