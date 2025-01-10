@@ -156,7 +156,6 @@ Retorne apenas um objeto JSON válido com esta estrutura exata, sem texto adicio
   "recomendacoes": ["array"]
 }`
 
-  try {
     const response = await fetch(
       `https://generativelanguage.googleapis.com/v1/models/gemini-pro:generateContent?key=${apiKey}`,
       {
