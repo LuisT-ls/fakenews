@@ -1,6 +1,3 @@
-// Configuração das APIs
-const GEMINI_API_KEY = 'AIzaSyBnXuyrcA1RsKDRDsPlllKi2FG1rcqLTzw'
-
 // Estado global da aplicação
 let verificationHistory = []
 
@@ -135,8 +132,14 @@ function handleGlobalClicks(e) {
 }
 
 async function checkWithGemini(text) {
-  const prompt = `Análise detalhada do seguinte texto para verificar sua veracidade:
-"${text}"
+  try {
+    // Primeiro, buscar a chave API do endpoint seguro
+    const keyResponse = await fetch('/api/getApiKey')
+    if (!keyResponse.ok) throw new Error('Não foi possível obter a chave API')
+    const { apiKey } = await keyResponse.json()
+
+    const prompt = `Análise detalhada do seguinte texto para verificar sua veracidade:
+    "${text}"
 
 Retorne apenas um objeto JSON válido com esta estrutura exata, sem texto adicional:
 {
@@ -155,7 +158,7 @@ Retorne apenas um objeto JSON válido com esta estrutura exata, sem texto adicio
 
   try {
     const response = await fetch(
-      `https://generativelanguage.googleapis.com/v1/models/gemini-pro:generateContent?key=${GEMINI_API_KEY}`,
+      `https://generativelanguage.googleapis.com/v1/models/gemini-pro:generateContent?key=${apiKey}`,
       {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },

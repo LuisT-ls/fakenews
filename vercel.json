@@ -11,6 +11,13 @@
       "src": "/(.*)",
       "dest": "/404.html",
       "status": 404
+    },
+    {
+      "src": "/api/getApiKey",
+      "methods": ["GET"],
+      "headers": {
+        "Access-Control-Allow-Origin": "https://fakenews-sigma.vercel.app"
+      }
     }
   ]
 }
