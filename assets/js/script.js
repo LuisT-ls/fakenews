@@ -134,8 +134,22 @@ function handleGlobalClicks(e) {
 async function checkWithGemini(text) {
   try {
     // Primeiro, buscar a chave API do endpoint seguro
-    const keyResponse = await fetch('/api/getApiKey')
-    if (!keyResponse.ok) throw new Error('Não foi possível obter a chave API')
+    const keyResponse = await fetch(
+      'https://fakenews-sigma.vercel.app/api/getApiKey',
+      {
+        method: 'GET',
+        credentials: 'include',
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      }
+    )
+
+    if (!keyResponse.ok) {
+      console.error('Erro ao obter chave:', await keyResponse.text())
+      throw new Error('Não foi possível obter a chave API')
+    }
+
     const { apiKey } = await keyResponse.json()
 
     const prompt = `Análise detalhada do seguinte texto para verificar sua veracidade:
