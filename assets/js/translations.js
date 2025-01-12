@@ -166,6 +166,7 @@ function toggleLanguage() {
 
   document.documentElement.lang = newLang
   localStorage.setItem('language', newLang)
+
   translatePage(newLang)
   updateLanguageButton(newLang)
 }
@@ -178,23 +179,28 @@ function updateLanguageButton(lang) {
 }
 
 function translatePage(targetLang) {
-  const elements = document.querySelectorAll('[data-translate]')
+  // Adiciona atributos de tradução para elementos sem `data-translate`
+  addTranslateAttributes(document.body)
 
-  elements.forEach(element => {
+  // Atualiza os textos dos elementos traduzíveis
+  document.querySelectorAll('[data-translate]').forEach(element => {
     const key = element.getAttribute('data-translate')
-    if (translations[targetLang] && translations[targetLang][key]) {
-      element.textContent = translations[targetLang][key]
-    } else if (translations.en[key]) {
-      element.textContent = translations.en[key] // Fallback
+    const translation =
+      translations[targetLang]?.[key] || translations.en[key] || key
+
+    if (element.tagName === 'INPUT' || element.tagName === 'TEXTAREA') {
+      element.placeholder = translation
+    } else {
+      element.textContent = translation
     }
   })
 
   updateMetaTags(targetLang)
 }
 
-function addTranslateAttributes(element) {
+function addTranslateAttributes(rootElement) {
   const walker = document.createTreeWalker(
-    element,
+    rootElement,
     NodeFilter.SHOW_TEXT,
     null,
     false
@@ -219,16 +225,17 @@ function updateMetaTags(lang) {
   const metaTags = {
     en: {
       description:
-        'Free fake news verification tool using Artificial Intelligence...',
+        'Free fake news verification tool using Artificial Intelligence.',
       ogTitle: 'Fake News Detector',
-      ogDescription: 'Online tool to help identify fake news...'
+      ogDescription:
+        'Online tool to help identify fake news and misinformation.'
     },
     pt: {
       description:
-        'Ferramenta gratuita de verificação de fake news usando Inteligência Artificial...',
+        'Ferramenta gratuita de verificação de fake news usando Inteligência Artificial.',
       ogTitle: 'Verificador de Fake News',
       ogDescription:
-        'Ferramenta online para ajudar na identificação de fake news...'
+        'Ferramenta online para ajudar na identificação de fake news.'
     }
   }
 
