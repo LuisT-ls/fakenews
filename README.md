@@ -64,8 +64,8 @@ cd fakenews
 .
 ├── assets/
 │   ├── css/
-│   │   ├── base/           # Estilos base e variáveis
-│   │   ├── components/     # Estilos de componentes
+│   │   ├── base/          # Estilos base e variáveis
+│   │   ├── components/    # Estilos de componentes
 │   │   ├── layout/        # Estilos de layout
 │   │   └── utils/         # Utilidades CSS
 │   ├── images/
@@ -78,7 +78,7 @@ cd fakenews
 ├── pages/                 # Páginas estáticas
 ├── api/                   # Funções serverless
 ├── docs/                  # Documentação
-└── sw.js                 # Service Worker
+└── sw.js                  # Service Worker
 ```
 
 ## 💡 Funcionalidades
@@ -133,8 +133,6 @@ Este projeto está licenciado sob a MIT License - veja o arquivo [LICENSE](docs/
 - Instagram: [@luis.tei](https://www.instagram.com/luis.tei)
 
 ---
-
-[Previous Portuguese content remains the same until English Version...]
 
 # English Version
 
@@ -197,8 +195,8 @@ cd fakenews
 .
 ├── assets/
 │   ├── css/
-│   │   ├── base/           # Base styles and variables
-│   │   ├── components/     # Component styles
+│   │   ├── base/          # Base styles and variables
+│   │   ├── components/    # Component styles
 │   │   ├── layout/        # Layout styles
 │   │   └── utils/         # CSS utilities
 │   ├── images/
@@ -211,7 +209,7 @@ cd fakenews
 ├── pages/                 # Static pages
 ├── api/                   # Serverless functions
 ├── docs/                  # Documentation
-└── sw.js                 # Service Worker
+└── sw.js                  # Service Worker
 ```
 
 ## 💡 Features
