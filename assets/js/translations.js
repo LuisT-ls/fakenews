@@ -35,25 +35,11 @@ const translations = {
       'Type or paste here the text you want to verify:',
     'Verificar Agora': 'Verify Now',
     'Verificando...': 'Verifying...',
+    'Nenhuma verificação realizada': 'No verifications performed',
 
     // Results Section
     'Resultado da Análise': 'Analysis Result',
     'Compartilhe esta verificação:': 'Share this verification:',
-
-    // History Section
-    'Histórico de Verificações': 'Verification History',
-    'Limpar Histórico': 'Clear History',
-    'Tem certeza que deseja apagar todo o histórico?':
-      'Are you sure you want to clear all history?',
-    'Esta ação não poderá ser desfeita e você perderá todas as verificações anteriores.':
-      'This action cannot be undone and you will lose all previous verifications.',
-    Cancelar: 'Cancel',
-
-    'Histórico Vazio': 'History Empty',
-    'Não há histórico para apagar': 'There is no history to clear',
-    'Realize algumas verificações primeiro para construir seu histórico.':
-      'Make some verifications first to build your history.',
-    Entendi: 'Understood',
 
     // Tips Section
     'Dicas para Identificar Fake News': 'Tips to Identify Fake News',
@@ -110,41 +96,32 @@ const translations = {
     'Observe detalhes como data, local e elementos visuais que possam indicar manipulação':
       'Look for details like date, location, and visual elements that might indicate manipulation',
 
+    // About Section
+    'Este projeto foi desenvolvido com a missão de combater a desinformação e estimular o pensamento crítico. Ele é fruto do trabalho final na disciplina "Algoritmo, Política e Sociedade", ministrada pelo professor Dr. Paulo Fonseca na Universidade Federal da Bahia.':
+      'This project was developed with the mission of combating misinformation and promoting critical thinking. It is the result of the final project in the course "Algorithm, Politics, and Society," taught by Professor Dr. Paulo Fonseca at the Federal University of Bahia.',
+
     // Footer
     'Sobre o Projeto': 'About the Project',
     'Links Úteis': 'Useful Links',
     Contato: 'Contact',
-    'Este projeto foi desenvolvido com a missão de combater a desinformação e estimular o pensamento crítico. Ele é fruto do trabalho final na disciplina "Algoritmo, Política e Sociedade", ministrada pelo professor Dr. Paulo Fonseca na Universidade Federal da Bahia.':
-      'This project was developed with the mission of combating misinformation and promoting critical thinking. It is the result of the final project in the course "Algorithm, Politics, and Society," taught by Professor Dr. Paulo Fonseca at the Federal University of Bahia.',
     'Política de Privacidade': 'Privacy Policy',
     'Termos de Uso': 'Terms of Use',
     'Todos os direitos reservados.': 'All rights reserved.',
     '© 2025 Verificador de Fake News.': '© 2025 Fake News Detector.',
 
-    // Notification Toast
-    Notificação: 'Notification',
-    Fechar: 'Close',
-    'Conteúdo dinâmico da notificação': 'Dynamic notification content',
-
-    // Confirmation Modal
+    // History Section
+    'Histórico de Verificações': 'Verification History',
     'Limpar Histórico': 'Clear History',
     'Tem certeza que deseja apagar todo o histórico?':
       'Are you sure you want to delete all history?',
     'Esta ação não poderá ser desfeita e você perderá todas as verificações anteriores.':
-      'This action cannot be undone, and you will lose all previous verifications.',
+      'This action cannot be undone and you will lose all previous verifications.',
     Cancelar: 'Cancel',
-    'Confirmar Limpeza': 'Confirm Clear',
-
-    // Contact Information
-    'luishg213@outlook.com': 'luishg213@outlook.com',
-    '+55 (71) 9 9332-2305': '+55 (71) 9 9332-2305',
-
-    // Social Media Profiles
-    'Perfil no Facebook de Luis Teixeira': "Luis Teixeira's Facebook Profile",
-    'Perfil no X (Twitter) de Luis Teixeira':
-      "Luis Teixeira's X (Twitter) Profile",
-    'Perfil no Instagram de Luis Teixeira': "Luis Teixeira's Instagram Profile",
-    'Perfil no LinkedIn de Luis Teixeira': "Luis Teixeira's LinkedIn Profile"
+    Entendi: 'Understood',
+    'Histórico Vazio': 'Empty History',
+    'Não há histórico para apagar': 'No history to clear',
+    'Realize algumas verificações primeiro para construir seu histórico.':
+      'Perform some verifications first to build your history.'
   },
   pt: {}
 }
@@ -194,10 +171,8 @@ function updateLanguageButton(lang) {
 }
 
 function translatePage(targetLang) {
-  // Adiciona atributos de tradução automaticamente
   addTranslateAttributes(document.body)
 
-  // Atualiza os elementos traduzíveis
   document.querySelectorAll('[data-translate]').forEach(element => {
     const key = element.getAttribute('data-translate')
     const translation = translations[targetLang]?.[key] || key
