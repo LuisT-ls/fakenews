@@ -1,4 +1,3 @@
-// translations.js
 const translations = {
   en: {
     // Navigation
