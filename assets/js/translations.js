@@ -31,7 +31,7 @@ const translations = {
     // Verification Section
     'Verificar Conteúdo': 'Verify Content',
     'Digite ou cole aqui o texto que deseja verificar:':
-      'Type or paste here the text you want to verify:',
+      'Type or paste here the text you want to verify',
     'Verificar Agora': 'Verify Now',
     'Verificando...': 'Verifying...',
     'Nenhuma verificação realizada': 'No verifications performed',
@@ -205,10 +205,16 @@ function translatePage(targetLang) {
 }
 
 function addTranslateAttributes(rootElement) {
+  // Processa todos os nós de texto, incluindo os ocultos
   const walker = document.createTreeWalker(
     rootElement,
     NodeFilter.SHOW_TEXT,
-    null,
+    {
+      acceptNode: function (node) {
+        // Remove qualquer verificação de visibilidade que possa existir
+        return NodeFilter.FILTER_ACCEPT
+      }
+    },
     false
   )
 
@@ -217,8 +223,7 @@ function addTranslateAttributes(rootElement) {
     const parent = node.parentElement
     const text = node.textContent.trim()
 
-    // Verifica se o pai já tem o atributo
-    if (parent && !parent.hasAttribute('data-translate')) {
+    if (parent && !parent.hasAttribute('data-translate') && text) {
       // Procura pela chave exata ou pela chave normalizada
       const hasExactMatch = translations.en.hasOwnProperty(text)
 
