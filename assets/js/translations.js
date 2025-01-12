@@ -49,6 +49,12 @@ const translations = {
       'This action cannot be undone and you will lose all previous verifications.',
     Cancelar: 'Cancel',
 
+    'Histórico Vazio': 'History Empty',
+    'Não há histórico para apagar': 'There is no history to clear',
+    'Realize algumas verificações primeiro para construir seu histórico.':
+      'Make some verifications first to build your history.',
+    Entendi: 'Understood',
+
     // Tips Section
     'Dicas para Identificar Fake News': 'Tips to Identify Fake News',
     'Verifique a Fonte': 'Check the Source',
@@ -109,23 +115,31 @@ const translations = {
     'Links Úteis': 'Useful Links',
     Contato: 'Contact',
     'Este projeto foi desenvolvido com a missão de combater a desinformação e estimular o pensamento crítico. Ele é fruto do trabalho final na disciplina "Algoritmo, Política e Sociedade", ministrada pelo professor Dr. Paulo Fonseca na Universidade Federal da Bahia.':
-      'This project was developed with the mission of combating misinformation and stimulating critical thinking. It is the result of the final work in the "Algorithm, Politics and Society" course, taught by Professor Dr. Paulo Fonseca at the Federal University of Bahia.',
-    'Todos os direitos reservados.': 'All rights reserved.',
+      'This project was developed with the mission of combating misinformation and promoting critical thinking. It is the result of the final project in the course "Algorithm, Politics, and Society," taught by Professor Dr. Paulo Fonseca at the Federal University of Bahia.',
     'Política de Privacidade': 'Privacy Policy',
-    'Termos de Uso': 'Terms of Service',
+    'Termos de Uso': 'Terms of Use',
+    'Todos os direitos reservados.': 'All rights reserved.',
     '© 2025 Verificador de Fake News.': '© 2025 Fake News Detector.',
 
-    // Notifications
+    // Notification Toast
     Notificação: 'Notification',
     Fechar: 'Close',
+    'Conteúdo dinâmico da notificação': 'Dynamic notification content',
 
-    // Modal
+    // Confirmation Modal
     'Limpar Histórico': 'Clear History',
     'Tem certeza que deseja apagar todo o histórico?':
-      'Are you sure you want to clear all history?',
-    'Esta ação não poderá ser desfeita': 'This action cannot be undone',
+      'Are you sure you want to delete all history?',
+    'Esta ação não poderá ser desfeita e você perderá todas as verificações anteriores.':
+      'This action cannot be undone, and you will lose all previous verifications.',
+    Cancelar: 'Cancel',
+    'Confirmar Limpeza': 'Confirm Clear',
 
-    // Social Media
+    // Contact Information
+    'luishg213@outlook.com': 'luishg213@outlook.com',
+    '+55 (71) 9 9332-2305': '+55 (71) 9 9332-2305',
+
+    // Social Media Profiles
     'Perfil no Facebook de Luis Teixeira': "Luis Teixeira's Facebook Profile",
     'Perfil no X (Twitter) de Luis Teixeira':
       "Luis Teixeira's X (Twitter) Profile",
