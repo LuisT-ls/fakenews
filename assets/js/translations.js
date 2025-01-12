@@ -37,6 +37,22 @@ const translations = {
     'Verificando...': 'Verifying...',
     'Nenhuma verificação realizada': 'No verifications performed',
 
+    'Nenhum resultado encontrado': 'No results found',
+    'Sem verificações anteriores': 'No previous verifications',
+    'Verifique um texto para ver o resultado aqui':
+      'Verify a text to see the result here',
+    'Todos os seus resultados aparecerão aqui':
+      'All your results will appear here',
+    'Suas verificações aparecerão aqui': 'Your verifications will appear here',
+    'Resultado da verificação': 'Verification result',
+    'Data da verificação': 'Verification date',
+    'Ver detalhes': 'See details',
+    'Não foi possível carregar o histórico': 'Could not load history',
+    'Tente novamente mais tarde': 'Please try again later',
+    'Nenhuma verificação': 'No verification',
+    'Realize uma verificação para ver o resultado':
+      'Perform a verification to see the result',
+
     // Results Section
     'Resultado da Análise': 'Analysis Result',
     'Compartilhe esta verificação:': 'Share this verification:',
