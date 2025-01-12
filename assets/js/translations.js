@@ -106,8 +106,8 @@ const translations = {
     Contato: 'Contact',
     'Política de Privacidade': 'Privacy Policy',
     'Termos de Uso': 'Terms of Use',
-    'Todos os direitos reservados.': 'All rights reserved.',
-    '© 2025 Verificador de Fake News.': '© 2025 Fake News Detector.',
+    'Verificador de Fake News. Todos os direitos reservados.':
+      '© 2025 Fake News Detector. All rights reserved.',
 
     // History Section
     'Histórico de Verificações': 'Verification History',
@@ -202,12 +202,24 @@ function addTranslateAttributes(rootElement) {
     const parent = node.parentElement
     const text = node.textContent.trim()
 
-    if (
-      text &&
-      !parent.hasAttribute('data-translate') &&
-      translations.en[text]
-    ) {
-      parent.setAttribute('data-translate', text)
+    // Verifica se o pai já tem o atributo
+    if (parent && !parent.hasAttribute('data-translate')) {
+      // Procura pela chave exata ou pela chave normalizada
+      const hasExactMatch = translations.en.hasOwnProperty(text)
+
+      if (hasExactMatch) {
+        parent.setAttribute('data-translate', text)
+      } else {
+        // Tenta encontrar uma correspondência ignorando espaços extras e quebras de linha
+        const normalizedText = text.replace(/\s+/g, ' ')
+        const matchingKey = Object.keys(translations.en).find(
+          key => key.replace(/\s+/g, ' ') === normalizedText
+        )
+
+        if (matchingKey) {
+          parent.setAttribute('data-translate', matchingKey)
+        }
+      }
     }
   }
 }
