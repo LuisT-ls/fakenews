@@ -131,7 +131,8 @@ const translations = {
       "Luis Teixeira's X (Twitter) Profile",
     'Perfil no Instagram de Luis Teixeira': "Luis Teixeira's Instagram Profile",
     'Perfil no LinkedIn de Luis Teixeira': "Luis Teixeira's LinkedIn Profile"
-  }
+  },
+  pt: {}
 }
 
 function addLanguageSwitcher() {
@@ -179,19 +180,20 @@ function updateLanguageButton(lang) {
 }
 
 function translatePage(targetLang) {
-  // Adiciona atributos de tradução para elementos sem `data-translate`
+  // Adiciona atributos de tradução automaticamente
   addTranslateAttributes(document.body)
 
-  // Atualiza os textos dos elementos traduzíveis
+  // Atualiza os elementos traduzíveis
   document.querySelectorAll('[data-translate]').forEach(element => {
     const key = element.getAttribute('data-translate')
-    const translation =
-      translations[targetLang]?.[key] || translations.en[key] || key
+    const translation = translations[targetLang]?.[key] || key
 
-    if (element.tagName === 'INPUT' || element.tagName === 'TEXTAREA') {
-      element.placeholder = translation
-    } else {
-      element.textContent = translation
+    if (translation) {
+      if (element.tagName === 'INPUT' || element.tagName === 'TEXTAREA') {
+        element.placeholder = translation
+      } else {
+        element.textContent = translation
+      }
     }
   })
 
