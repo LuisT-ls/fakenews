@@ -134,7 +134,6 @@ const translations = {
   }
 }
 
-// Rest of the file remains the same as it handles the translation functionality
 function addLanguageSwitcher() {
   const navbarNav = document.querySelector('#navbarNav .navbar-nav')
   const langSwitcher = document.createElement('li')
@@ -158,9 +157,7 @@ function initializeLanguageSwitcher() {
     updateLanguageButton(currentLang)
   }
 
-  if (currentLang === 'en') {
-    translatePage('en')
-  }
+  translatePage(currentLang)
 }
 
 function toggleLanguage() {
@@ -169,13 +166,7 @@ function toggleLanguage() {
 
   document.documentElement.lang = newLang
   localStorage.setItem('language', newLang)
-
-  if (newLang === 'en') {
-    translatePage('en')
-  } else {
-    location.reload()
-  }
-
+  translatePage(newLang)
   updateLanguageButton(newLang)
 }
 
@@ -187,20 +178,18 @@ function updateLanguageButton(lang) {
 }
 
 function translatePage(targetLang) {
-  if (elements.length === 0) {
-    addTranslateAttributes(document.body)
-  }
+  const elements = document.querySelectorAll('[data-translate]')
 
-  document.querySelectorAll('[data-translate]').forEach(element => {
+  elements.forEach(element => {
     const key = element.getAttribute('data-translate')
     if (translations[targetLang] && translations[targetLang][key]) {
       element.textContent = translations[targetLang][key]
+    } else if (translations.en[key]) {
+      element.textContent = translations.en[key] // Fallback
     }
   })
 
-  if (targetLang === 'en') {
-    updateMetaTags()
-  }
+  updateMetaTags(targetLang)
 }
 
 function addTranslateAttributes(element) {
@@ -226,26 +215,28 @@ function addTranslateAttributes(element) {
   }
 }
 
-function updateMetaTags() {
-  const metaDescription = document.querySelector('meta[name="description"]')
-  const ogTitle = document.querySelector('meta[property="og:title"]')
-  const ogDescription = document.querySelector(
-    'meta[property="og:description"]'
-  )
-
-  if (metaDescription) {
-    metaDescription.content =
-      'Free fake news verification tool using Artificial Intelligence. Analyze news, messages, and suspicious content in seconds with accuracy and reliability. Fight misinformation with technology.'
+function updateMetaTags(lang) {
+  const metaTags = {
+    en: {
+      description:
+        'Free fake news verification tool using Artificial Intelligence...',
+      ogTitle: 'Fake News Detector',
+      ogDescription: 'Online tool to help identify fake news...'
+    },
+    pt: {
+      description:
+        'Ferramenta gratuita de verificação de fake news usando Inteligência Artificial...',
+      ogTitle: 'Verificador de Fake News',
+      ogDescription:
+        'Ferramenta online para ajudar na identificação de fake news...'
+    }
   }
 
-  if (ogTitle) {
-    ogTitle.content = 'Fake News Detector'
-  }
-
-  if (ogDescription) {
-    ogDescription.content =
-      'Online tool to help identify fake news and misinformation. Verify news credibility quickly.'
-  }
+  const meta = metaTags[lang] || metaTags.pt
+  document.querySelector('meta[name="description"]').content = meta.description
+  document.querySelector('meta[property="og:title"]').content = meta.ogTitle
+  document.querySelector('meta[property="og:description"]').content =
+    meta.ogDescription
 }
 
 document.addEventListener('DOMContentLoaded', () => {
