@@ -204,6 +204,20 @@ function translatePage(targetLang) {
   updateMetaTags(targetLang)
 }
 
+function observeDynamicContent() {
+  const observer = new MutationObserver(() => {
+    addTranslateAttributes(document.body)
+    translatePage(document.documentElement.lang || 'pt')
+  })
+
+  observer.observe(document.body, { childList: true, subtree: true })
+}
+
+// Ative o observador ao inicializar a página
+document.addEventListener('DOMContentLoaded', () => {
+  observeDynamicContent()
+})
+
 function addTranslateAttributes(rootElement) {
   // Processa todos os nós de texto, incluindo os ocultos
   const walker = document.createTreeWalker(
@@ -212,7 +226,8 @@ function addTranslateAttributes(rootElement) {
     {
       acceptNode: function (node) {
         // Remove qualquer verificação de visibilidade que possa existir
-        return NodeFilter.FILTER_ACCEPT
+        const text = node.textContent.trim()
+        return text ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_REJECT
       }
     },
     false
@@ -225,20 +240,12 @@ function addTranslateAttributes(rootElement) {
 
     if (parent && !parent.hasAttribute('data-translate') && text) {
       // Procura pela chave exata ou pela chave normalizada
-      const hasExactMatch = translations.en.hasOwnProperty(text)
-
-      if (hasExactMatch) {
-        parent.setAttribute('data-translate', text)
-      } else {
-        // Tenta encontrar uma correspondência ignorando espaços extras e quebras de linha
-        const normalizedText = text.replace(/\s+/g, ' ')
-        const matchingKey = Object.keys(translations.en).find(
-          key => key.replace(/\s+/g, ' ') === normalizedText
-        )
-
-        if (matchingKey) {
-          parent.setAttribute('data-translate', matchingKey)
-        }
+      const normalizedText = text.replace(/\s+/g, ' ')
+      const matchingKey = Object.keys(translations.en).find(
+        key => key.replace(/\s+/g, ' ') === normalizedText
+      )
+      if (matchingKey) {
+        parent.setAttribute('data-translate', matchingKey)
       }
     }
   }
