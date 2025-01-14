@@ -252,9 +252,14 @@ async function handleVerification() {
 
 // Funções de UI
 function displayResults(verification) {
+  const currentLang = document.documentElement.lang
+
   if (!verification.geminiAnalysis) {
-    elements.result.innerHTML =
-      '<div class="alert alert-danger">Não foi possível realizar a análise. Tente novamente.</div>'
+    const errorMessage = translateDynamicContent(
+      'Não foi possível realizar a análise. Tente novamente.',
+      currentLang
+    )
+    elements.result.innerHTML = `<div class="alert alert-danger">${errorMessage}</div>`
     elements.resultSection.classList.remove('d-none')
     return
   }
@@ -263,11 +268,17 @@ function displayResults(verification) {
   const scorePercentage = Math.round(verification.overallScore * 100)
   const scoreClass = getScoreClass(verification.overallScore)
 
+  // Translate classification
+  const translatedClassification = translateDynamicContent(
+    gemini.classificacao,
+    currentLang
+  )
+
   elements.result.innerHTML = `
     <div class="result-card p-4 border rounded shadow-sm">
       <div class="mb-4 text-center">
         <div class="display-4 text-${scoreClass}">${scorePercentage}%</div>
-        <h3 class="h5">${gemini.classificacao}</h3>
+        <h3 class="h5">${translatedClassification}</h3>
       </div>
 
       <div class="progress mb-4" style="height: 25px;">
@@ -418,8 +429,11 @@ function showLoadingState(loading) {
 }
 
 function showNotification(message, type = 'info') {
+  const currentLang = document.documentElement.lang
+  const translatedMessage = translateDynamicContent(message, currentLang)
   const toast = new bootstrap.Toast(elements.notificationToast)
-  elements.notificationToast.querySelector('.toast-body').textContent = message
+  elements.notificationToast.querySelector('.toast-body').textContent =
+    translatedMessage
   elements.notificationToast.className = `toast bg-${type}`
   toast.show()
 }

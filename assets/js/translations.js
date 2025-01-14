@@ -30,11 +30,35 @@ const translations = {
 
     // Verification Section
     'Verificar Conteúdo': 'Verify Content',
-    'Digite ou cole aqui o texto que deseja verificar:':
-      'Type or paste here the text you want to verify',
+    'Digite ou cole aqui o texto que deseja verificar...':
+      'Type or paste here the text you want to verify...',
     'Verificar Agora': 'Verify Now',
     'Verificando...': 'Verifying...',
     'Nenhuma verificação realizada': 'No verifications performed',
+    'Obrigado pelo seu feedback!': 'Thank you for your feedback!',
+    'Histórico apagado com sucesso!': 'History cleared successfully!',
+    'Você está offline. Algumas funcionalidades podem estar indisponíveis.':
+      'You are offline. Some features may be unavailable.',
+    'Conexão restabelecida!': 'Connection restored!',
+    'Ocorreu um erro durante a verificação. Tente novamente.':
+      'An error occurred during verification. Please try again.',
+    'Não foi possível realizar a análise. Tente novamente.':
+      'Analysis could not be performed. Please try again.',
+
+    // Analysis results translations
+    'Elementos Verificados': 'Verified Elements',
+    'Elementos Falsos': 'False Elements',
+    'Pontos Suspeitos': 'Suspicious Points',
+    Recomendações: 'Recommendations',
+    'Análise Detalhada': 'Detailed Analysis',
+    'Esta análise foi útil?': 'Was this analysis helpful?',
+
+    // Score classifications
+    'Comprovadamente Verdadeiro': 'Proven True',
+    'Parcialmente Verdadeiro': 'Partially True',
+    'Não Verificável': 'Not Verifiable',
+    'Provavelmente Falso': 'Probably False',
+    'Comprovadamente Falso': 'Proven False',
 
     'Nenhum resultado encontrado': 'No results found',
     'Sem verificações anteriores': 'No previous verifications',
@@ -136,7 +160,10 @@ const translations = {
     'Histórico Vazio': 'Empty History',
     'Não há histórico para apagar': 'No history to clear',
     'Realize algumas verificações primeiro para construir seu histórico.':
-      'Perform some verifications first to build your history.'
+      'Perform some verifications first to build your history.',
+
+    // Notifications
+    Notificação: 'Notification'
   },
   pt: {}
 }
@@ -176,6 +203,17 @@ function toggleLanguage() {
 
   translatePage(newLang)
   updateLanguageButton(newLang)
+  updateDynamicPlaceholders(newLang)
+
+  // Retranslate any visible results
+  const resultSection = document.getElementById('result-section')
+  if (!resultSection.classList.contains('d-none')) {
+    // Re-display the last result with new language
+    const lastVerification = verificationHistory[0]
+    if (lastVerification) {
+      displayResults(lastVerification)
+    }
+  }
 }
 
 function updateLanguageButton(lang) {
@@ -251,6 +289,26 @@ function addTranslateAttributes(rootElement) {
   }
 }
 
+// Function to translate dynamic content
+function translateDynamicContent(text, targetLang) {
+  if (targetLang === 'pt') return text
+  return translations[targetLang]?.[text] || text
+}
+
+// Update placeholder text on language change
+function updateDynamicPlaceholders(targetLang) {
+  const userInput = document.getElementById('userInput')
+  const defaultText = translateDynamicContent(
+    'Digite ou cole aqui o texto que deseja verificar...',
+    targetLang
+  )
+
+  if (userInput.value === userInput.getAttribute('data-default-text')) {
+    userInput.value = defaultText
+  }
+  userInput.setAttribute('data-default-text', defaultText)
+}
+
 function updateMetaTags(lang) {
   const metaTags = {
     en: {
@@ -279,4 +337,6 @@ function updateMetaTags(lang) {
 document.addEventListener('DOMContentLoaded', () => {
   addLanguageSwitcher()
   initializeLanguageSwitcher()
+  const currentLang = localStorage.getItem('language') || 'pt'
+  updateDynamicPlaceholders(currentLang)
 })
