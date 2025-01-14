@@ -295,18 +295,13 @@ function translateDynamicContent(text, targetLang) {
   return translations[targetLang]?.[text] || text
 }
 
-// Update placeholder text on language change
 function updateDynamicPlaceholders(targetLang) {
   const userInput = document.getElementById('userInput')
   const defaultText = translateDynamicContent(
     'Digite ou cole aqui o texto que deseja verificar...',
     targetLang
   )
-
-  if (userInput.value === userInput.getAttribute('data-default-text')) {
-    userInput.value = defaultText
-  }
-  userInput.setAttribute('data-default-text', defaultText)
+  userInput.placeholder = defaultText
 }
 
 function updateMetaTags(lang) {

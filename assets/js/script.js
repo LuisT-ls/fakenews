@@ -133,7 +133,6 @@ function handleGlobalClicks(e) {
 
 async function checkWithGemini(text) {
   try {
-    // Primeiro, buscar a chave API do endpoint seguro
     const keyResponse = await fetch(
       'https://fakenews-sigma.vercel.app/api/getApiKey',
       {
@@ -152,10 +151,15 @@ async function checkWithGemini(text) {
 
     const { apiKey } = await keyResponse.json()
 
-    const prompt = `Análise detalhada do seguinte texto para verificar sua veracidade:
+    // Get current language
+    const currentLang = document.documentElement.lang || 'pt'
+
+    // Adjust prompt based on language
+    const promptLang = currentLang === 'pt' ? 'em português' : 'in English'
+    const prompt = `Detailed analysis of the following text to verify its truthfulness. Please provide the response ${promptLang}:
     "${text}"
 
-Retorne apenas um objeto JSON válido com esta estrutura exata, sem texto adicional:
+Return only a valid JSON object with this exact structure, without any additional text:
 {
   "score": [0-1],
   "confiabilidade": [0-1],
@@ -616,18 +620,22 @@ function submitFeedback(type) {
 }
 
 const userInput = document.getElementById('userInput')
-const defaultText = 'Digite ou cole aqui o texto que deseja verificar...'
 
-userInput.addEventListener('focus', () => {
-  if (userInput.value === defaultText) {
-    userInput.value = ''
-    userInput.style.color = '#000'
-  }
-})
+userInput.value = ''
 
-userInput.addEventListener('blur', () => {
-  if (userInput.value.trim() === '') {
-    userInput.value = defaultText
-    userInput.style.color = '#6c757d'
-  }
-})
+userInput.placeholder = 'Digite ou cole aqui o texto que deseja verificar...'
+
+document.head.insertAdjacentHTML(
+  'beforeend',
+  `
+  <style>
+    #userInput::placeholder {
+      color: #6c757d;
+    }
+    
+    #userInput:focus::placeholder {
+      opacity: 0.5;
+    }
+  </style>
+`
+)
