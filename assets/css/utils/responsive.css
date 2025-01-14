@@ -99,7 +99,7 @@
 
   #clearHistoryBtn {
     justify-content: center;
-    width: 40px; /* Opcional: ajusta o tamanho do botão para mobile */
+    width: 40px;
     height: 40px;
   }
 }
