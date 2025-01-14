@@ -273,68 +273,181 @@ function displayResults(verification) {
 
   const gemini = verification.geminiAnalysis
   const langData = currentLang === 'en' ? gemini.en : gemini.pt
-  const scorePercentage = Math.round(verification.overallScore * 100)
-  const scoreClass = getScoreClass(verification.overallScore)
-
-  const classification =
-    currentLang === 'en' ? langData.classification : langData.classificacao
+  const scorePercentage = Math.round(gemini.score * 100)
+  const scoreClass = getScoreClass(gemini.score)
 
   elements.result.innerHTML = `
-    <div class="result-card p-4 border rounded shadow-sm">
-      <div class="mb-4 text-center">
-        <div class="display-4 text-${scoreClass}">${scorePercentage}%</div>
-        <h3 class="h5">${classification}</h3>
-      </div>
-
-      <div class="progress mb-4" style="height: 25px;">
-        <div class="progress-bar bg-${scoreClass}"
-             role="progressbar"
-             style="width: ${scorePercentage}%"
-             aria-valuenow="${scorePercentage}"
-             aria-valuemin="0"
-             aria-valuemax="100">
+    <div class="container my-4">
+      <div class="result-card bg-white p-4 border rounded shadow-sm">
+        <h2 class="text-center mb-4">${
+          currentLang === 'en' ? 'Analysis Result' : 'Resultado da Análise'
+        }</h2>
+        
+        <div class="score-section text-center mb-4">
+          <div class="display-4 mb-2 text-${scoreClass}">${scorePercentage}%</div>
+          <h3 class="h5 text-${scoreClass}">${
+    currentLang === 'en' ? langData.classification : langData.classificacao
+  }</h3>
         </div>
-      </div>
 
-      <div class="alert alert-secondary">
-        <i class="fas fa-info-circle me-2"></i>
-        ${
-          currentLang === 'en'
-            ? langData.score_explanation
-            : langData.explicacao_score
-        }
-      </div>
-
-      ${generateAnalysisSections(langData, currentLang)}
-      
-      <div class="card mb-3">
-        <div class="card-body">
-          <h4 class="h6 mb-3">${
-            currentLang === 'en' ? 'Detailed Analysis' : 'Análise Detalhada'
-          }</h4>
-          <p class="mb-0">${
-            currentLang === 'en'
-              ? langData.detailed_analysis
-              : langData.analise_detalhada
-          }</p>
+        <div class="progress mb-4" style="height: 25px;">
+          <div class="progress-bar bg-${scoreClass}"
+               role="progressbar"
+               style="width: ${scorePercentage}%"
+               aria-valuenow="${scorePercentage}"
+               aria-valuemin="0"
+               aria-valuemax="100">
+            ${scorePercentage}%
+          </div>
         </div>
-      </div>
 
-      <div class="feedback-section mt-4 text-center" data-verification-id="${
-        verification.id
-      }">
-        <div class="small text-muted mb-2">${
-          currentLang === 'en'
-            ? 'Was this analysis helpful?'
-            : 'Esta análise foi útil?'
-        }</div>
-        <div class="btn-group btn-group-sm" role="group" aria-label="Feedback">
-          <button class="btn btn-outline-success btn-feedback" data-feedback="positive">
-            <i class="fas fa-thumbs-up"></i>
-          </button>
-          <button class="btn btn-outline-danger btn-feedback" data-feedback="negative">
-            <i class="fas fa-thumbs-down"></i>
-          </button>
+        <div class="explanation-section mb-4">
+          <div class="alert alert-secondary">
+            <i class="fas fa-info-circle me-2"></i>
+            ${
+              currentLang === 'en'
+                ? langData.score_explanation
+                : langData.explicacao_score
+            }
+          </div>
+        </div>
+
+        <div class="analysis-sections">
+          <!-- Verified Elements -->
+          <div class="card mb-3">
+            <div class="card-header bg-light">
+              <h4 class="h6 mb-0">
+                ${
+                  currentLang === 'en'
+                    ? 'Verified Elements'
+                    : 'Elementos Verificados'
+                }
+              </h4>
+            </div>
+            <div class="card-body">
+              <ul class="list-unstyled mb-0">
+                ${(currentLang === 'en'
+                  ? langData.true_elements
+                  : langData.elementos_verdadeiros
+                )
+                  .map(
+                    item =>
+                      `<li class="mb-2"><i class="fas fa-check text-success me-2"></i>${item}</li>`
+                  )
+                  .join('')}
+              </ul>
+            </div>
+          </div>
+
+          <!-- False Elements -->
+          <div class="card mb-3">
+            <div class="card-header bg-light">
+              <h4 class="h6 mb-0">
+                ${currentLang === 'en' ? 'False Elements' : 'Elementos Falsos'}
+              </h4>
+            </div>
+            <div class="card-body">
+              <ul class="list-unstyled mb-0">
+                ${(currentLang === 'en'
+                  ? langData.false_elements
+                  : langData.elementos_falsos
+                )
+                  .map(
+                    item =>
+                      `<li class="mb-2"><i class="fas fa-times text-danger me-2"></i>${item}</li>`
+                  )
+                  .join('')}
+              </ul>
+            </div>
+          </div>
+
+          <!-- Suspicious Points -->
+          <div class="card mb-3">
+            <div class="card-header bg-light">
+              <h4 class="h6 mb-0">
+                ${
+                  currentLang === 'en'
+                    ? 'Suspicious Points'
+                    : 'Pontos Suspeitos'
+                }
+              </h4>
+            </div>
+            <div class="card-body">
+              <ul class="list-unstyled mb-0">
+                ${(currentLang === 'en'
+                  ? langData.suspicious_points
+                  : langData.elementos_suspeitos
+                )
+                  .map(
+                    item =>
+                      `<li class="mb-2"><i class="fas fa-exclamation-triangle text-warning me-2"></i>${item}</li>`
+                  )
+                  .join('')}
+              </ul>
+            </div>
+          </div>
+
+          <!-- Recommendations -->
+          <div class="card mb-3">
+            <div class="card-header bg-light">
+              <h4 class="h6 mb-0">
+                ${currentLang === 'en' ? 'Recommendations' : 'Recomendações'}
+              </h4>
+            </div>
+            <div class="card-body">
+              <ul class="list-unstyled mb-0">
+                ${(currentLang === 'en'
+                  ? langData.recommendations
+                  : langData.recomendacoes
+                )
+                  .map(
+                    item =>
+                      `<li class="mb-2"><i class="fas fa-lightbulb text-info me-2"></i>${item}</li>`
+                  )
+                  .join('')}
+              </ul>
+            </div>
+          </div>
+
+          <!-- Detailed Analysis -->
+          <div class="card mb-3">
+            <div class="card-header bg-light">
+              <h4 class="h6 mb-0">
+                ${
+                  currentLang === 'en'
+                    ? 'Detailed Analysis'
+                    : 'Análise Detalhada'
+                }
+              </h4>
+            </div>
+            <div class="card-body">
+              <p class="mb-0">${
+                currentLang === 'en'
+                  ? langData.detailed_analysis
+                  : langData.analise_detalhada
+              }</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="feedback-section mt-4 text-center" data-verification-id="${
+          verification.id
+        }">
+          <div class="small text-muted mb-2">
+            ${
+              currentLang === 'en'
+                ? 'Was this analysis helpful?'
+                : 'Esta análise foi útil?'
+            }
+          </div>
+          <div class="btn-group btn-group-sm" role="group" aria-label="Feedback">
+            <button class="btn btn-outline-success btn-feedback" data-feedback="positive">
+              <i class="fas fa-thumbs-up"></i>
+            </button>
+            <button class="btn btn-outline-danger btn-feedback" data-feedback="negative">
+              <i class="fas fa-thumbs-down"></i>
+            </button>
+          </div>
         </div>
       </div>
     </div>
