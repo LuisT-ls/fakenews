@@ -32,6 +32,8 @@ const translations = {
     'Verificar Conteúdo': 'Verify Content',
     'Digite ou cole aqui o texto que deseja verificar...':
       'Type or paste here the text you want to verify...',
+      'Digite ou cole aqui o texto que deseja verificar:':
+      'Type or paste here the text you want to verify:',
     'Verificar Agora': 'Verify Now',
     'Verificando...': 'Verifying...',
     'Nenhuma verificação realizada': 'No verifications performed',
