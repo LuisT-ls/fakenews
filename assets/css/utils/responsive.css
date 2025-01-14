@@ -91,6 +91,17 @@
   .step-item {
     margin-left: 1rem;
   }
+
+  /* Clear History Button */
+  #clearHistoryBtn .btn-text {
+    display: none;
+  }
+
+  #clearHistoryBtn {
+    justify-content: center;
+    width: 40px; /* Opcional: ajusta o tamanho do botão para mobile */
+    height: 40px;
+  }
 }
 
 @media (max-width: 767px) {
