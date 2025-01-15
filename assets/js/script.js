@@ -154,7 +154,7 @@ async function checkWithGemini(text) {
     const prompt = `Analyze the following text for truthfulness and provide a bilingual response (Portuguese and English):
     "${text}"
 
-Return only a valid JSON object with this exact structure, without any additional text:
+Return only a valid JSON object with this exact structure, without any markdown formatting or code blocks:
 {
   "score": [0-1],
   "pt": {
@@ -201,7 +201,18 @@ Return only a valid JSON object with this exact structure, without any additiona
       throw new Error('Resposta inválida da API')
     }
 
-    return JSON.parse(data.candidates[0].content.parts[0].text.trim())
+    let responseText = data.candidates[0].content.parts[0].text.trim()
+
+    responseText = responseText.replace(/```json\s*/, '')
+    responseText = responseText.replace(/```\s*$/, '')
+    responseText = responseText.trim()
+
+    try {
+      return JSON.parse(responseText)
+    } catch (parseError) {
+      console.error('Response text that failed to parse:', responseText)
+      throw new Error(`Failed to parse JSON response: ${parseError.message}`)
+    }
   } catch (error) {
     console.error('Erro na análise:', error)
     throw error
