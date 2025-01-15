@@ -151,10 +151,11 @@ async function checkWithGemini(text) {
 
     const { apiKey } = await keyResponse.json()
 
-    const prompt = `Analyze the following text for truthfulness and provide a bilingual response (Portuguese and English):
-    "${text}"
+    const prompt = `Analyze the following text for truthfulness and provide a comprehensive bilingual response (Portuguese and English). Consider linguistic patterns, source credibility, emotional manipulation, and fact verification:
 
-Return only a valid JSON object with this exact structure, without any markdown formatting or code blocks:
+"${text}"
+
+Return only a valid JSON object with this exact structure (no markdown formatting):
 {
   "score": [0-1],
   "pt": {
@@ -163,8 +164,25 @@ Return only a valid JSON object with this exact structure, without any markdown 
     "elementos_verdadeiros": ["array"],
     "elementos_falsos": ["array"],
     "elementos_suspeitos": ["array"],
+    "indicadores_linguisticos": {
+      "sensacionalismo": [0-1],
+      "apelo_emocional": [0-1],
+      "urgencia": [0-1],
+      "explicacao": "string"
+    },
+    "credibilidade_fonte": {
+      "nivel": [0-1],
+      "analise": "string",
+      "recomendacoes": ["array"]
+    },
+    "contexto_temporal": {
+      "atualidade": "string",
+      "relevancia": "string"
+    },
     "recomendacoes": ["array"],
-    "analise_detalhada": "string"
+    "analise_detalhada": "string",
+    "consideracoes_adicionais": ["array"],
+    "referencias_relacionadas": ["array"]
   },
   "en": {
     "classification": ["Proven True", "Partially True", "Not Verifiable", "Probably False", "Proven False"],
@@ -172,8 +190,25 @@ Return only a valid JSON object with this exact structure, without any markdown 
     "true_elements": ["array"],
     "false_elements": ["array"],
     "suspicious_points": ["array"],
+    "linguistic_indicators": {
+      "sensationalism": [0-1],
+      "emotional_appeal": [0-1],
+      "urgency": [0-1],
+      "explanation": "string"
+    },
+    "source_credibility": {
+      "level": [0-1],
+      "analysis": "string",
+      "recommendations": ["array"]
+    },
+    "temporal_context": {
+      "currentness": "string",
+      "relevance": "string"
+    },
     "recommendations": ["array"],
-    "detailed_analysis": "string"
+    "detailed_analysis": "string",
+    "additional_considerations": ["array"],
+    "related_references": ["array"]
   }
 }`
 
@@ -189,7 +224,25 @@ Return only a valid JSON object with this exact structure, without any markdown 
             topP: 0.1,
             topK: 16,
             maxOutputTokens: 2048
-          }
+          },
+          safetySettings: [
+            {
+              category: 'HARM_CATEGORY_HARASSMENT',
+              threshold: 'BLOCK_MEDIUM_AND_ABOVE'
+            },
+            {
+              category: 'HARM_CATEGORY_HATE_SPEECH',
+              threshold: 'BLOCK_MEDIUM_AND_ABOVE'
+            },
+            {
+              category: 'HARM_CATEGORY_SEXUALLY_EXPLICIT',
+              threshold: 'BLOCK_MEDIUM_AND_ABOVE'
+            },
+            {
+              category: 'HARM_CATEGORY_DANGEROUS_CONTENT',
+              threshold: 'BLOCK_MEDIUM_AND_ABOVE'
+            }
+          ]
         })
       }
     )
@@ -201,8 +254,8 @@ Return only a valid JSON object with this exact structure, without any markdown 
       throw new Error('Resposta inválida da API')
     }
 
+    // Clean up the response text
     let responseText = data.candidates[0].content.parts[0].text.trim()
-
     responseText = responseText.replace(/```json\s*/, '')
     responseText = responseText.replace(/```\s*$/, '')
     responseText = responseText.trim()
@@ -271,202 +324,349 @@ async function handleVerification() {
 // Funções de UI
 function displayResults(verification) {
   const currentLang = document.documentElement.lang
-
-  if (!verification.geminiAnalysis) {
-    const errorMessage = translateDynamicContent(
-      'Não foi possível realizar a análise. Tente novamente.',
-      currentLang
-    )
-    elements.result.innerHTML = `<div class="alert alert-danger">${errorMessage}</div>`
-    elements.resultSection.classList.remove('d-none')
-    return
-  }
-
   const gemini = verification.geminiAnalysis
   const langData = currentLang === 'en' ? gemini.en : gemini.pt
   const scorePercentage = Math.round(gemini.score * 100)
   const scoreClass = getScoreClass(gemini.score)
 
+  // Função auxiliar para criar cards de indicadores
+  const createIndicatorCard = (title, value, maxValue = 1) => {
+    const percentage = Math.round((value / maxValue) * 100)
+    return `
+      <div class="col-md-4 mb-3">
+        <div class="card h-100">
+          <div class="card-body">
+            <h6 class="card-title">${title}</h6>
+            <div class="progress mb-2" style="height: 10px;">
+              <div class="progress-bar bg-${getIndicatorClass(value)}"
+                   role="progressbar"
+                   style="width: ${percentage}%"
+                   aria-valuenow="${percentage}"
+                   aria-valuemin="0"
+                   aria-valuemax="100">
+              </div>
+            </div>
+            <small class="text-muted">${percentage}%</small>
+          </div>
+        </div>
+      </div>
+    `
+  }
+
   elements.result.innerHTML = `
     <div class="container my-4">
       <div class="result-card bg-white p-4 border rounded shadow-sm">
-        <h2 class="text-center mb-4">${
-          currentLang === 'en' ? 'Analysis Result' : 'Resultado da Análise'
-        }</h2>
-        
-        <div class="score-section text-center mb-4">
-          <div class="display-4 mb-2 text-${scoreClass}">${scorePercentage}%</div>
-          <h3 class="h5 text-${scoreClass}">${
+        <!-- Cabeçalho com Score -->
+        <div class="text-center mb-4">
+          <div class="score-circle ${scoreClass}">
+            <span class="display-4">${scorePercentage}%</span>
+          </div>
+          <h3 class="h5 mt-3 text-${scoreClass}">${
     currentLang === 'en' ? langData.classification : langData.classificacao
   }</h3>
         </div>
 
-        <div class="progress mb-4" style="height: 25px;">
-          <div class="progress-bar bg-${scoreClass}"
-               role="progressbar"
-               style="width: ${scorePercentage}%"
-               aria-valuenow="${scorePercentage}"
-               aria-valuemin="0"
-               aria-valuemax="100">
-            ${scorePercentage}%
+        <!-- Análise Linguística -->
+        <div class="card mb-4">
+          <div class="card-header bg-light">
+            <h4 class="h6 mb-0">
+              <i class="fas fa-language me-2"></i>
+              ${
+                currentLang === 'en'
+                  ? 'Linguistic Analysis'
+                  : 'Análise Linguística'
+              }
+            </h4>
+          </div>
+          <div class="card-body">
+            <div class="row">
+              ${createIndicatorCard(
+                currentLang === 'en' ? 'Sensationalism' : 'Sensacionalismo',
+                langData.linguistic_indicators?.sensationalism || 0
+              )}
+              ${createIndicatorCard(
+                currentLang === 'en' ? 'Emotional Appeal' : 'Apelo Emocional',
+                langData.linguistic_indicators?.emotional_appeal || 0
+              )}
+              ${createIndicatorCard(
+                currentLang === 'en' ? 'Urgency' : 'Urgência',
+                langData.linguistic_indicators?.urgency || 0
+              )}
+            </div>
+            <p class="mt-3 mb-0 text-muted">
+              ${
+                currentLang === 'en'
+                  ? langData.linguistic_indicators?.explanation
+                  : langData.indicadores_linguisticos?.explicacao
+              }
+            </p>
           </div>
         </div>
 
-        <div class="explanation-section mb-4">
-          <div class="alert alert-secondary">
-            <i class="fas fa-info-circle me-2"></i>
-            ${
-              currentLang === 'en'
-                ? langData.score_explanation
-                : langData.explicacao_score
-            }
+        <!-- Credibilidade da Fonte -->
+        <div class="card mb-4">
+          <div class="card-header bg-light">
+            <h4 class="h6 mb-0">
+              <i class="fas fa-shield-alt me-2"></i>
+              ${
+                currentLang === 'en'
+                  ? 'Source Credibility'
+                  : 'Credibilidade da Fonte'
+              }
+            </h4>
+          </div>
+          <div class="card-body">
+            <div class="credibility-meter mb-3">
+              <div class="progress" style="height: 1.5rem;">
+                <div class="progress-bar bg-${getCredibilityClass(
+                  langData.source_credibility?.level || 0
+                )}"
+                     role="progressbar"
+                     style="width: ${Math.round(
+                       (langData.source_credibility?.level || 0) * 100
+                     )}%">
+                  ${Math.round(
+                    (langData.source_credibility?.level || 0) * 100
+                  )}%
+                </div>
+              </div>
+            </div>
+            <p class="mb-3">
+              ${
+                currentLang === 'en'
+                  ? langData.source_credibility?.analysis
+                  : langData.credibilidade_fonte?.analise
+              }
+            </p>
+            <ul class="list-group list-group-flush">
+              ${(currentLang === 'en'
+                ? langData.source_credibility?.recommendations
+                : langData.credibilidade_fonte?.recomendacoes
+              )
+                .map(
+                  rec =>
+                    `<li class="list-group-item"><i class="fas fa-check-circle text-success me-2"></i>${rec}</li>`
+                )
+                .join('')}
+            </ul>
           </div>
         </div>
 
-        <div class="analysis-sections">
-          <!-- Verified Elements -->
-          <div class="card mb-3">
-            <div class="card-header bg-light">
-              <h4 class="h6 mb-0">
+        <!-- Contexto Temporal -->
+        <div class="card mb-4">
+          <div class="card-header bg-light">
+            <h4 class="h6 mb-0">
+              <i class="fas fa-clock me-2"></i>
+              ${currentLang === 'en' ? 'Temporal Context' : 'Contexto Temporal'}
+            </h4>
+          </div>
+          <div class="card-body">
+            <div class="row">
+              <div class="col-md-6">
+                <h6>${currentLang === 'en' ? 'Currentness' : 'Atualidade'}</h6>
+                <p class="text-muted">
+                  ${
+                    currentLang === 'en'
+                      ? langData.temporal_context?.currentness
+                      : langData.contexto_temporal?.atualidade
+                  }
+                </p>
+              </div>
+              <div class="col-md-6">
+                <h6>${currentLang === 'en' ? 'Relevance' : 'Relevância'}</h6>
+                <p class="text-muted">
+                  ${
+                    currentLang === 'en'
+                      ? langData.temporal_context?.relevance
+                      : langData.contexto_temporal?.relevancia
+                  }
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Análise Detalhada -->
+        <div class="card mb-4">
+          <div class="card-header bg-light">
+            <h4 class="h6 mb-0">
+              <i class="fas fa-search-plus me-2"></i>
+              ${
+                currentLang === 'en' ? 'Detailed Analysis' : 'Análise Detalhada'
+              }
+            </h4>
+          </div>
+          <div class="card-body">
+            <p class="mb-4">
+              ${
+                currentLang === 'en'
+                  ? langData.detailed_analysis
+                  : langData.analise_detalhada
+              }
+            </p>
+
+            <!-- Elementos Verificados -->
+            <div class="mb-3">
+              <h6 class="text-success">
+                <i class="fas fa-check me-2"></i>
                 ${
                   currentLang === 'en'
                     ? 'Verified Elements'
                     : 'Elementos Verificados'
                 }
-              </h4>
-            </div>
-            <div class="card-body">
-              <ul class="list-unstyled mb-0">
+              </h6>
+              <ul class="list-unstyled">
                 ${(currentLang === 'en'
                   ? langData.true_elements
                   : langData.elementos_verdadeiros
                 )
                   .map(
                     item =>
-                      `<li class="mb-2"><i class="fas fa-check text-success me-2"></i>${item}</li>`
+                      `<li class="mb-2"><i class="fas fa-check-circle text-success me-2"></i>${item}</li>`
                   )
                   .join('')}
               </ul>
             </div>
-          </div>
 
-          <!-- False Elements -->
-          <div class="card mb-3">
-            <div class="card-header bg-light">
-              <h4 class="h6 mb-0">
+            <!-- Elementos Falsos -->
+            <div class="mb-3">
+              <h6 class="text-danger">
+                <i class="fas fa-times me-2"></i>
                 ${currentLang === 'en' ? 'False Elements' : 'Elementos Falsos'}
-              </h4>
-            </div>
-            <div class="card-body">
-              <ul class="list-unstyled mb-0">
+              </h6>
+              <ul class="list-unstyled">
                 ${(currentLang === 'en'
                   ? langData.false_elements
                   : langData.elementos_falsos
                 )
                   .map(
                     item =>
-                      `<li class="mb-2"><i class="fas fa-times text-danger me-2"></i>${item}</li>`
+                      `<li class="mb-2"><i class="fas fa-times-circle text-danger me-2"></i>${item}</li>`
                   )
                   .join('')}
               </ul>
             </div>
-          </div>
 
-          <!-- Suspicious Points -->
-          <div class="card mb-3">
-            <div class="card-header bg-light">
-              <h4 class="h6 mb-0">
+            <!-- Pontos Suspeitos -->
+            <div class="mb-3">
+              <h6 class="text-warning">
+                <i class="fas fa-exclamation-triangle me-2"></i>
                 ${
                   currentLang === 'en'
                     ? 'Suspicious Points'
                     : 'Pontos Suspeitos'
                 }
-              </h4>
-            </div>
-            <div class="card-body">
-              <ul class="list-unstyled mb-0">
+              </h6>
+              <ul class="list-unstyled">
                 ${(currentLang === 'en'
                   ? langData.suspicious_points
                   : langData.elementos_suspeitos
                 )
                   .map(
                     item =>
-                      `<li class="mb-2"><i class="fas fa-exclamation-triangle text-warning me-2"></i>${item}</li>`
+                      `<li class="mb-2"><i class="fas fa-exclamation-circle text-warning me-2"></i>${item}</li>`
                   )
                   .join('')}
               </ul>
             </div>
           </div>
+        </div>
 
-          <!-- Recommendations -->
-          <div class="card mb-3">
-            <div class="card-header bg-light">
-              <h4 class="h6 mb-0">
-                ${currentLang === 'en' ? 'Recommendations' : 'Recomendações'}
-              </h4>
-            </div>
-            <div class="card-body">
-              <ul class="list-unstyled mb-0">
+        <!-- Recomendações e Considerações Adicionais -->
+        <div class="card mb-4">
+          <div class="card-header bg-light">
+            <h4 class="h6 mb-0">
+<i class="fas fa-lightbulb me-2"></i>
+              ${
+                currentLang === 'en'
+                  ? 'Recommendations & Additional Considerations'
+                  : 'Recomendações e Considerações Adicionais'
+              }
+            </h4>
+          </div>
+          <div class="card-body">
+            <!-- Recomendações -->
+            <div class="mb-4">
+              <h6>${
+                currentLang === 'en' ? 'Recommendations' : 'Recomendações'
+              }</h6>
+              <ul class="list-group list-group-flush">
                 ${(currentLang === 'en'
                   ? langData.recommendations
                   : langData.recomendacoes
                 )
                   .map(
-                    item =>
-                      `<li class="mb-2"><i class="fas fa-lightbulb text-info me-2"></i>${item}</li>`
+                    rec => `
+                    <li class="list-group-item">
+                      <i class="fas fa-check-circle text-success me-2"></i>${rec}
+                    </li>
+                  `
+                  )
+                  .join('')}
+              </ul>
+            </div>
+
+            <!-- Considerações Adicionais -->
+            <div class="mb-4">
+              <h6>${
+                currentLang === 'en'
+                  ? 'Additional Considerations'
+                  : 'Considerações Adicionais'
+              }</h6>
+              <ul class="list-group list-group-flush">
+                ${(currentLang === 'en'
+                  ? langData.additional_considerations
+                  : langData.consideracoes_adicionais
+                )
+                  .map(
+                    consideration => `
+                    <li class="list-group-item">
+                      <i class="fas fa-info-circle text-info me-2"></i>${consideration}
+                    </li>
+                  `
+                  )
+                  .join('')}
+              </ul>
+            </div>
+
+            <!-- Referências Relacionadas -->
+            <div>
+              <h6>${
+                currentLang === 'en'
+                  ? 'Related References'
+                  : 'Referências Relacionadas'
+              }</h6>
+              <ul class="list-group list-group-flush">
+                ${(currentLang === 'en'
+                  ? langData.related_references
+                  : langData.referencias_relacionadas
+                )
+                  .map(
+                    ref => `
+                    <li class="list-group-item">
+                      <i class="fas fa-link text-primary me-2"></i>${ref}
+                    </li>
+                  `
                   )
                   .join('')}
               </ul>
             </div>
           </div>
-
-          <!-- Detailed Analysis -->
-          <div class="card mb-3">
-            <div class="card-header bg-light">
-              <h4 class="h6 mb-0">
-                ${
-                  currentLang === 'en'
-                    ? 'Detailed Analysis'
-                    : 'Análise Detalhada'
-                }
-              </h4>
-            </div>
-            <div class="card-body">
-              <p class="mb-0">${
-                currentLang === 'en'
-                  ? langData.detailed_analysis
-                  : langData.analise_detalhada
-              }</p>
-            </div>
-          </div>
         </div>
 
-        <div class="feedback-section mt-4 text-center" data-verification-id="${
+        <!-- Seção de Feedback -->
+        <div class="feedback-section mt-4" data-verification-id="${
           verification.id
         }">
-          <div class="small text-muted mb-2">
-            ${
-              currentLang === 'en'
-                ? 'Was this analysis helpful?'
-                : 'Esta análise foi útil?'
-            }
-          </div>
-          <div class="btn-group btn-group-sm" role="group" aria-label="Feedback">
-            <button class="btn btn-outline-success btn-feedback" data-feedback="positive">
-              <i class="fas fa-thumbs-up"></i>
-            </button>
-            <button class="btn btn-outline-danger btn-feedback" data-feedback="negative">
-              <i class="fas fa-thumbs-down"></i>
-            </button>
-          </div>
         </div>
       </div>
     </div>
   `
 
+  // Adicionar a seção de feedback
   const feedbackSection = elements.result.querySelector('.feedback-section')
   if (feedbackSection) {
-    feedbackSection.dataset.verificationId = verification.id
+    feedbackSection.innerHTML = displayFeedbackSection(verification)
     feedbackSection.querySelectorAll('.btn-feedback').forEach(button => {
       button.addEventListener('click', function () {
         handleFeedback(this, feedbackSection)
@@ -476,6 +676,107 @@ function displayResults(verification) {
 
   elements.resultSection.classList.remove('d-none')
 }
+
+// Funções auxiliares para classificação visual
+function getIndicatorClass(value) {
+  if (value <= 0.3) return 'success'
+  if (value <= 0.7) return 'warning'
+  return 'danger'
+}
+
+function getCredibilityClass(value) {
+  if (value >= 0.7) return 'success'
+  if (value >= 0.4) return 'warning'
+  return 'danger'
+}
+
+// Adicionar estilos CSS necessários
+document.head.insertAdjacentHTML(
+  'beforeend',
+  `
+  <style>
+    .score-circle {
+      width: 120px;
+      height: 120px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto;
+      border: 4px solid;
+      transition: all 0.3s ease;
+    }
+
+    .score-circle.success {
+      border-color: #198754;
+      color: #198754;
+      background-color: rgba(25, 135, 84, 0.1);
+    }
+
+    .score-circle.warning {
+      border-color: #ffc107;
+      color: #ffc107;
+      background-color: rgba(255, 193, 7, 0.1);
+    }
+
+    .score-circle.danger {
+      border-color: #dc3545;
+      color: #dc3545;
+      background-color: rgba(220, 53, 69, 0.1);
+    }
+
+    .credibility-meter {
+      border-radius: 1rem;
+      overflow: hidden;
+    }
+
+    .progress {
+      border-radius: 0.5rem;
+    }
+
+    .card {
+      transition: transform 0.2s ease-in-out;
+    }
+
+    .card:hover {
+      transform: translateY(-2px);
+    }
+
+    .list-group-item {
+      border-left: none;
+      border-right: none;
+      padding: 1rem;
+      transition: background-color 0.2s ease;
+    }
+
+    .list-group-item:hover {
+      background-color: rgba(0, 0, 0, 0.02);
+    }
+
+    .indicator-card {
+      border: none;
+      border-radius: 1rem;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    .card-header {
+      border-bottom: 2px solid rgba(0, 0, 0, 0.1);
+    }
+
+    .result-card {
+      max-width: 900px;
+      margin: 0 auto;
+    }
+
+    @media (max-width: 768px) {
+      .score-circle {
+        width: 100px;
+        height: 100px;
+      }
+    }
+  </style>
+`
+)
 
 // Sistema de Feedback
 function handleFeedback(button, feedbackSection) {
