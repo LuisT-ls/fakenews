@@ -477,6 +477,7 @@ function displayResults(verification) {
   elements.resultSection.classList.remove('d-none')
 }
 
+// Sistema de Feedback
 function handleFeedback(button, feedbackSection) {
   const verificationId = feedbackSection.dataset.verificationId
   const feedbackType = button.dataset.feedback
@@ -494,19 +495,101 @@ function handleFeedback(button, feedbackSection) {
     feedbackType === 'positive' ? 'btn-success' : 'btn-danger'
   )
 
-  // Substituir os botões por uma mensagem de agradecimento
+  // Substituir os botões por uma mensagem de agradecimento com animação suave
+  feedbackSection.style.opacity = '0'
   setTimeout(() => {
     feedbackSection.innerHTML = `
       <div class="text-muted small">
         <i class="fas fa-check-circle text-success"></i>
-        Obrigado pelo seu feedback!
+        ${
+          document.documentElement.lang === 'en'
+            ? 'Thank you for your feedback!'
+            : 'Obrigado pelo seu feedback!'
+        }
       </div>
     `
-  }, 1000)
+    feedbackSection.style.opacity = '1'
+  }, 300)
 
   // Salvar o feedback
-  submitFeedback(verificationId, feedbackType)
+  saveFeedback(verificationId, feedbackType)
 }
+
+function saveFeedback(verificationId, feedbackType) {
+  // Log do feedback (para desenvolvimento)
+  console.log('Feedback registrado:', {
+    verificationId,
+    type: feedbackType,
+    timestamp: new Date().toISOString()
+  })
+
+  // Mostrar notificação de agradecimento
+  const message =
+    document.documentElement.lang === 'en'
+      ? 'Thank you for your feedback!'
+      : 'Obrigado pelo seu feedback!'
+  showNotification(message, 'success')
+
+  // Atualizar o histórico local se necessário
+  const verification = verificationHistory.find(v => v.id === verificationId)
+  if (verification) {
+    verification.feedback = feedbackType
+    localStorage.setItem(
+      'verificationHistory',
+      JSON.stringify(verificationHistory)
+    )
+  }
+}
+
+// Atualização da função displayResults para incluir a seção de feedback
+function displayFeedbackSection(verification) {
+  const currentLang = document.documentElement.lang
+  return `
+    <div class="feedback-section mt-4 text-center" data-verification-id="${
+      verification.id
+    }">
+      <div class="small text-muted mb-2">
+        ${
+          currentLang === 'en'
+            ? 'Was this analysis helpful?'
+            : 'Esta análise foi útil?'
+        }
+      </div>
+      <div class="btn-group btn-group-sm" role="group" aria-label="Feedback">
+        <button class="btn btn-outline-success btn-feedback" data-feedback="positive">
+          <i class="fas fa-thumbs-up"></i>
+        </button>
+        <button class="btn btn-outline-danger btn-feedback" data-feedback="negative">
+          <i class="fas fa-thumbs-down"></i>
+        </button>
+      </div>
+    </div>
+  `
+}
+
+// Adicionar estilos CSS para animações suaves
+document.head.insertAdjacentHTML(
+  'beforeend',
+  `
+  <style>
+    .feedback-section {
+      transition: opacity 0.3s ease-in-out;
+    }
+    
+    .btn-feedback {
+      transition: all 0.2s ease-in-out;
+    }
+    
+    .btn-feedback:hover {
+      transform: scale(1.1);
+    }
+    
+    .feedback-section .text-muted {
+      transition: opacity 0.3s ease-in-out;
+    }
+  </style>
+`
+)
 
 function submitFeedback(verificationId, feedbackType) {
   showNotification('Obrigado pelo seu feedback!', 'success')
