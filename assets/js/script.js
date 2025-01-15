@@ -465,11 +465,14 @@ function displayResults(verification) {
   `
 
   const feedbackSection = elements.result.querySelector('.feedback-section')
-  feedbackSection.querySelectorAll('.btn-feedback').forEach(button => {
-    button.addEventListener('click', function () {
-      handleFeedback(this, feedbackSection)
+  if (feedbackSection) {
+    feedbackSection.dataset.verificationId = verification.id
+    feedbackSection.querySelectorAll('.btn-feedback').forEach(button => {
+      button.addEventListener('click', function () {
+        handleFeedback(this, feedbackSection)
+      })
     })
-  })
+  }
 
   elements.resultSection.classList.remove('d-none')
 }
@@ -502,7 +505,17 @@ function handleFeedback(button, feedbackSection) {
   }, 1000)
 
   // Salvar o feedback
-  submitFeedback(feedbackType)
+  submitFeedback(verificationId, feedbackType)
+}
+
+function submitFeedback(verificationId, feedbackType) {
+  showNotification('Obrigado pelo seu feedback!', 'success')
+
+  console.log('Feedback submetido:', {
+    verificationId,
+    type: feedbackType,
+    timestamp: new Date().toISOString()
+  })
 }
 
 // Função para gerar seções de análise
