@@ -30,6 +30,19 @@
   border-bottom: 1px solid rgba(0, 0, 0, 0.1);
 }
 
+.score-circle {
+  width: 100px;
+  height: 100px;
+  line-height: 100px;
+  font-size: 1.5rem;
+  border-radius: var(--radius-full);
+  background-color: var(--primary-color);
+  color: var(--light-color);
+  display: inline-block;
+  text-align: center;
+  font-weight: bold;
+}
+
 /* Toast Card Styles */
 .toast {
   background: #ffffff;

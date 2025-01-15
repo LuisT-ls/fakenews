@@ -54,10 +54,24 @@
   margin: 0 0.25rem;
 }
 
+.share-buttons button {
+  transition: background-color var(--transition-speed),
+    color var(--transition-speed);
+}
+
+.share-buttons button:hover {
+  background-color: var(--primary-dark);
+  color: var(--light-color);
+}
+
 /* Large Button Modifier */
 .btn-lg {
   padding: 0.875rem 1.75rem;
   font-size: 1.1rem;
+}
+
+#verifyButton .spinner-border {
+  border-width: 3px;
 }
 
 /* Dark Mode Button Styles */

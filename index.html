@@ -452,23 +452,24 @@
         </section>
 
         <!-- Área de Verificação -->
-        <section class="col-lg-8">
-          <article class="bg-white rounded-3 shadow-lg p-4 mb-5">
-            <h2 class="h4 mb-4">
-              <i class="fas fa-search me-2"></i>
-              Verificar Conteúdo
+        <section class="col-lg-8 mx-auto">
+          <article
+            class="bg-white rounded-3 shadow-lg p-4 mb-5 border border-light-subtle"
+          >
+            <h2 class="h4 mb-4 text-primary">
+              <i class="fas fa-search me-2"></i> Verificar Conteúdo
             </h2>
             <div class="form-group mb-4">
-              <label for="userInput" class="form-label text-muted">
+              <label for="userInput" class="form-label fw-bold text-muted">
                 Digite ou cole aqui o texto que deseja verificar:
               </label>
               <textarea
                 id="userInput"
                 class="form-control form-control-lg critical-input"
                 rows="6"
+                placeholder="Cole o texto aqui..."
               ></textarea>
             </div>
-
             <div class="text-center">
               <button
                 id="verifyButton"
@@ -492,7 +493,7 @@
             class="bg-white rounded-3 shadow-lg p-4 mb-5 d-none"
             aria-live="polite"
           >
-            <h2 class="h4 mb-4">Resultado da Análise</h2>
+            <h2 class="h4 mb-4 text-success">Resultado da Análise</h2>
             <div id="result"></div>
             <div class="mt-4">
               <h3 class="h5 mb-3">Compartilhe esta verificação:</h3>
@@ -516,9 +517,8 @@
             class="bg-white rounded-3 shadow-lg p-4 mb-5"
           >
             <div class="d-flex justify-content-between align-items-center mb-4">
-              <h2 class="h4 mb-0">
-                <i class="fas fa-history me-2"></i>
-                Histórico de Verificações
+              <h2 class="h4 mb-0 text-dark">
+                <i class="fas fa-history me-2"></i> Histórico de Verificações
               </h2>
               <button
                 id="clearHistoryBtn"
