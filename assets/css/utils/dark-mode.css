@@ -189,8 +189,6 @@
   color: var(--dark-color) !important;
 }
 
-[data-theme='dark']
-  .mb-1.text-truncate:hover
-  .list-group-item.list-group-item-info:hover {
-  color: var(--body-bg) !important;
+[data-theme='dark'] .mb-1.text-truncate:hover {
+  color: #1e293b !important;
 }
