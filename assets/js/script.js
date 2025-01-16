@@ -6,7 +6,6 @@ const elements = {
   userInput: document.getElementById('userInput'),
   verifyButton: document.getElementById('verifyButton'),
   resultSection: document.getElementById('result-section'),
-  result: document.getElementById('result'),
   verificationsHistory: document.getElementById('verificationsHistory'),
   themeSwitcher: document.getElementById('themeSwitcher'),
   spinner: document.querySelector('.spinner-border'),
@@ -305,32 +304,31 @@ function initThemeSwitch() {
 }
 
 // Processo de verificação
-async function handleVerification() {
-  const text = elements.userInput.value.trim()
-  if (!text) return
-
-  showLoadingState(true)
-
+async function handleVerification(event) {
   try {
-    const geminiResult = await checkWithGemini(text)
-    const verification = {
-      id: Date.now(),
-      timestamp: new Date().toISOString(),
-      text: text.substring(0, 200) + (text.length > 200 ? '...' : ''),
-      geminiAnalysis: geminiResult,
-      overallScore: geminiResult.score
+    elements.spinner?.classList.remove('d-none')
+    elements.verifyButton?.setAttribute('disabled', 'disabled')
+
+    const text = elements.userInput?.value.trim()
+    if (!text) {
+      throw new Error('Por favor, insira um texto para verificar')
     }
 
-    displayResults(verification)
-    saveVerification(verification)
+    const verificationData = await performVerification(text)
+    if (!verificationData) {
+      throw new Error('Não foi possível realizar a verificação')
+    }
+
+    displayResults(verificationData)
   } catch (error) {
     console.error('Erro durante a verificação:', error)
     showNotification(
-      'Ocorreu um erro durante a verificação. Tente novamente.',
-      'danger'
+      error.message || 'Ocorreu um erro durante a verificação',
+      'error'
     )
   } finally {
-    showLoadingState(false)
+    elements.spinner?.classList.add('d-none')
+    elements.verifyButton?.removeAttribute('disabled')
   }
 }
 
@@ -394,12 +392,23 @@ function updateLinguisticIndicators(indicators = {}) {
 
 // Função para atualizar credibilidade da fonte
 function updateCredibility(credibility) {
-  if (!credibility) {
-    console.warn('Dados de credibilidade não definidos')
-    credibility = { level: 0, analysis: 'Informação não disponível' }
+  // Valores padrão para credibilidade
+  const defaultCredibility = {
+    level: 0,
+    analysis: 'Informação não disponível',
+    recommendations: []
   }
 
-  const credValue = Math.round((credibility.level || 0) * 100)
+  // Uso de valores fornecidos ou os padrões
+  const {
+    level = 0,
+    analysis = 'Informação não disponível',
+    recommendations = []
+  } = credibility || defaultCredibility
+
+  // Atualizar elementos da UI com verificação de existência
+  const credValue = Math.round(level * 100)
+
   const credBar = document.querySelector('.credibility-bar')
   const credValueElement = document.querySelector('.credibility-value')
   const analysisElement = document.querySelector('.credibility-analysis')
@@ -419,6 +428,7 @@ function updateCredibility(credibility) {
         ? 'bg-orange'
         : 'bg-danger'
 
+    // Remover classes antigas e adicionar a nova
     credBar.className = `progress-bar ${colorClass}`
   }
 
@@ -427,8 +437,7 @@ function updateCredibility(credibility) {
   }
 
   if (analysisElement) {
-    analysisElement.textContent =
-      credibility.analysis || 'Análise não disponível'
+    analysisElement.textContent = analysis
   }
 }
 
@@ -510,7 +519,7 @@ function displayResults(verification) {
     `
     }
 
-    elements.result.innerHTML = `
+    elements.resultSection.innerHTML = `
     <div class="container my-4">
       <div class="result-card bg-white p-4 border rounded shadow-sm">
         <!-- Cabeçalho com Score -->
