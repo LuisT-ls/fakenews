@@ -94,13 +94,13 @@ function updateCharCount() {
 // Handler global de clicks
 function shareContent(platform) {
   // Pegar o texto da análise do elemento de resultado
-  const resultElement = document.getElementById('result')
-  if (!resultElement) return
+  const resultSectionElement = document.getElementById('result-section')
+  if (!resultSectionElement) return
 
   // Extrair informações relevantes do resultado
-  const scoreElement = resultElement.querySelector('.display-4')
-  const classificacaoElement = resultElement.querySelector('.h5')
-  const analiseElement = resultElement.querySelector('.card p')
+  const scoreElement = resultSectionElement.querySelector('.display-4')
+  const classificacaoElement = resultSectionElement.querySelector('.h5')
+  const analiseElement = resultSectionElement.querySelector('.card p')
 
   if (!scoreElement || !classificacaoElement || !analiseElement) return
 
@@ -503,7 +503,7 @@ function displayResults(verification) {
 
     // Verificar se elements.result existe antes de tentar definir innerHTML
     const resultElement = document.getElementById('result')
-    if (!resultElement) {
+    if (!resultSectionElement) {
       console.error('Elemento de resultado não encontrado')
       return
     }
@@ -843,7 +843,7 @@ function displayResults(verification) {
   `
 
     // Adicionar a seção de feedback com verificações
-    const feedbackSection = resultElement.querySelector('.feedback-section')
+    const feedbackSection = resultSectionElement.querySelector('.feedback-section')
     if (feedbackSection) {
       feedbackSection.innerHTML = displayFeedbackSection(verification)
       feedbackSection.querySelectorAll('.btn-feedback').forEach(button => {
