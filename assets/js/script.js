@@ -461,13 +461,15 @@ function displayResults(verification) {
       return
     }
 
-    if (!elements.resultSection) {
+    // Obter a referência do elemento resultSection logo no início
+    const resultSectionElement = document.getElementById('result-section')
+    if (!resultSectionElement) {
       console.error('Seção de resultados não encontrada no DOM')
       return
     }
 
-    // Mostrar a seção de resultados primeiro
-    elements.resultSection.classList.remove('d-none')
+    // Mostrar a seção de resultados
+    resultSectionElement.classList.remove('d-none')
 
     // Atualizar score e indicadores
     updateScoreCircle(gemini.score || 0)
@@ -494,19 +496,6 @@ function displayResults(verification) {
 
     // Atualizar elementos verificados
     updateVerifiedElements(langData, currentLang)
-
-    // Mostrar seção de resultados
-    const resultSection = document.getElementById('result-section')
-    if (resultSection) {
-      resultSection.classList.remove('d-none')
-    }
-
-    // Verificar se elements.result existe antes de tentar definir innerHTML
-    const resultElement = document.getElementById('result')
-    if (!resultSectionElement) {
-      console.error('Elemento de resultado não encontrado')
-      return
-    }
 
     // Função auxiliar para criar cards de indicadores
     const createIndicatorCard = (title, value, maxValue = 1) => {
@@ -843,7 +832,8 @@ function displayResults(verification) {
   `
 
     // Adicionar a seção de feedback com verificações
-    const feedbackSection = resultSectionElement.querySelector('.feedback-section')
+    const feedbackSection =
+      resultSectionElement.querySelector('.feedback-section')
     if (feedbackSection) {
       feedbackSection.innerHTML = displayFeedbackSection(verification)
       feedbackSection.querySelectorAll('.btn-feedback').forEach(button => {
@@ -851,12 +841,6 @@ function displayResults(verification) {
           handleFeedback(this, feedbackSection)
         })
       })
-    }
-
-    // Mostrar a seção de resultados
-    const resultSectionElement = document.getElementById('result-section')
-    if (resultSectionElement) {
-      resultSectionElement.classList.remove('d-none')
     }
   } catch (error) {
     console.error('Erro ao exibir resultados:', error)
