@@ -460,18 +460,26 @@ function displayResults(verification) {
       return
     }
 
-    // Atualizar score e indicadores com verificações de segurança
+    if (!elements.resultSection) {
+      console.error('Seção de resultados não encontrada no DOM')
+      return
+    }
+
+    // Mostrar a seção de resultados primeiro
+    elements.resultSection.classList.remove('d-none')
+
+    // Atualizar score e indicadores
     updateScoreCircle(gemini.score || 0)
-    updateLinguisticIndicators(langData?.linguistic_indicators)
-    updateCredibility(langData?.source_credibility)
+    updateLinguisticIndicators(langData?.linguistic_indicators || {})
+    updateCredibility(langData?.source_credibility || {})
 
     // Atualizar classificação
     const classificationElement = document.querySelector('.classification-text')
     if (classificationElement) {
       classificationElement.textContent =
         currentLang === 'en'
-          ? langData?.classification
-          : langData?.classificacao
+          ? langData?.classification || 'Analysis Complete'
+          : langData?.classificacao || 'Análise Concluída'
     }
 
     // Atualizar explicação do score
@@ -479,9 +487,12 @@ function displayResults(verification) {
     if (explanationElement) {
       explanationElement.textContent =
         currentLang === 'en'
-          ? langData?.score_explanation
-          : langData?.explicacao_score
+          ? langData?.score_explanation || 'Score analysis complete'
+          : langData?.explicacao_score || 'Análise de pontuação concluída'
     }
+
+    // Atualizar elementos verificados
+    updateVerifiedElements(langData)
 
     // Mostrar seção de resultados
     const resultSection = document.getElementById('result-section')
@@ -849,6 +860,38 @@ function displayResults(verification) {
   } catch (error) {
     console.error('Erro ao exibir resultados:', error)
   }
+}
+
+function updateVerifiedElements(langData) {
+  if (!langData) return
+
+  const trueElements =
+    currentLang === 'en'
+      ? langData.true_elements
+      : langData.elementos_verdadeiros
+  const falseElements =
+    currentLang === 'en' ? langData.false_elements : langData.elementos_falsos
+  const suspiciousElements =
+    currentLang === 'en'
+      ? langData.suspicious_points
+      : langData.elementos_suspeitos
+
+  // Função auxiliar para atualizar listas
+  const updateList = (elements, containerId) => {
+    const container = document.getElementById(containerId)
+    if (container && Array.isArray(elements)) {
+      container.innerHTML = elements
+        .map(
+          item =>
+            `<li class="mb-2"><i class="fas fa-check-circle me-2"></i>${item}</li>`
+        )
+        .join('')
+    }
+  }
+
+  updateList(trueElements, 'true-elements-list')
+  updateList(falseElements, 'false-elements-list')
+  updateList(suspiciousElements, 'suspicious-elements-list')
 }
 
 // Funções auxiliares para classificação visual
