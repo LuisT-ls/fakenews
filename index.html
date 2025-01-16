@@ -1089,29 +1089,41 @@
 
     <!-- Progress Ring -->
     <script>
+      // Função setProgress modificada com verificações de segurança
       function setProgress(percentage) {
         const circle = document.querySelector('.progress-ring-value')
-        const radius = circle.r.baseVal.value
-        const circumference = radius * 2 * Math.PI
+        if (!circle) {
+          console.error('Elemento do círculo de progresso não encontrado')
+          return
+        }
 
-        circle.style.strokeDasharray = `${circumference} ${circumference}`
-        const offset = circumference - (percentage / 100) * circumference
-        circle.style.strokeDashoffset = offset
+        try {
+          const radius = circle.r.baseVal.value
+          const circumference = radius * 2 * Math.PI
 
-        // Atualiza o valor numérico
-        document.getElementById('percentageValue').textContent =
-          Math.round(percentage)
+          circle.style.strokeDasharray = `${circumference} ${circumference}`
+          const offset = circumference - (percentage / 100) * circumference
+          circle.style.strokeDashoffset = offset
 
-        // Atualiza a cor baseada no valor
-        if (percentage >= 70) {
-          circle.classList.add('score-high')
-          circle.classList.remove('score-medium', 'score-low')
-        } else if (percentage >= 40) {
-          circle.classList.add('score-medium')
-          circle.classList.remove('score-high', 'score-low')
-        } else {
-          circle.classList.add('score-low')
-          circle.classList.remove('score-high', 'score-medium')
+          // Atualiza o valor numérico com verificação de segurança
+          const percentageElement = document.getElementById('percentageValue')
+          if (percentageElement) {
+            percentageElement.textContent = Math.round(percentage)
+          }
+
+          // Atualiza a cor baseada no valor
+          if (percentage >= 70) {
+            circle.classList.add('score-high')
+            circle.classList.remove('score-medium', 'score-low')
+          } else if (percentage >= 40) {
+            circle.classList.add('score-medium')
+            circle.classList.remove('score-high', 'score-low')
+          } else {
+            circle.classList.add('score-low')
+            circle.classList.remove('score-high', 'score-medium')
+          }
+        } catch (error) {
+          console.error('Erro ao configurar o progresso:', error)
         }
       }
     </script>

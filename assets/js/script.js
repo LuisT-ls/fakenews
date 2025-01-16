@@ -436,7 +436,6 @@ function displayResults(verification) {
     const gemini = verification.geminiAnalysis
     const langData = currentLang === 'en' ? gemini.en : gemini.pt
     const scorePercentage = Math.round(gemini.score * 100)
-    setProgress(scorePercentage)
     const scoreClass = getScoreClass(gemini.score)
 
     if (!langData) {
