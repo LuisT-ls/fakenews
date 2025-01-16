@@ -184,3 +184,7 @@
 [data-theme='dark'] .text-muted {
   color: var(--text-muted) !important;
 }
+
+[data-theme='dark'] .h4.mb-0.text-dark {
+  color: var(--dark-color) !important;
+}
