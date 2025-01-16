@@ -304,31 +304,32 @@ function initThemeSwitch() {
 }
 
 // Processo de verificação
-async function handleVerification(event) {
+async function handleVerification() {
+  const text = elements.userInput.value.trim()
+  if (!text) return
+
+  showLoadingState(true)
+
   try {
-    elements.spinner?.classList.remove('d-none')
-    elements.verifyButton?.setAttribute('disabled', 'disabled')
-
-    const text = elements.userInput?.value.trim()
-    if (!text) {
-      throw new Error('Por favor, insira um texto para verificar')
+    const geminiResult = await checkWithGemini(text)
+    const verification = {
+      id: Date.now(),
+      timestamp: new Date().toISOString(),
+      text: text.substring(0, 200) + (text.length > 200 ? '...' : ''),
+      geminiAnalysis: geminiResult,
+      overallScore: geminiResult.score
     }
 
-    const verificationData = await performVerification(text)
-    if (!verificationData) {
-      throw new Error('Não foi possível realizar a verificação')
-    }
-
-    displayResults(verificationData)
+    displayResults(verification)
+    saveVerification(verification)
   } catch (error) {
     console.error('Erro durante a verificação:', error)
     showNotification(
-      error.message || 'Ocorreu um erro durante a verificação',
-      'error'
+      'Ocorreu um erro durante a verificação. Tente novamente.',
+      'danger'
     )
   } finally {
-    elements.spinner?.classList.add('d-none')
-    elements.verifyButton?.removeAttribute('disabled')
+    showLoadingState(false)
   }
 }
 
