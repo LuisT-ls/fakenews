@@ -365,31 +365,11 @@ function updateScoreCircle(score) {
 }
 
 // Função para atualizar indicadores linguísticos
-function updateLinguisticIndicators(indicators) {
-  // Sensacionalismo
-  const sensValue = Math.round(indicators.sensationalism * 100)
-  document.querySelector('.sensationalism-value').textContent = `${sensValue}%`
-  document.querySelector('.sensationalism-bar').style.width = `${sensValue}%`
+function updateLinguisticIndicators(indicators = {}) {
+  // Definir valores padrão caso indicators seja undefined
+  const { sensationalism = 0, emotional_appeal = 0, urgency = 0 } = indicators
 
-  // Apelo Emocional
-  const emoValue = Math.round(indicators.emotional_appeal * 100)
-  document.querySelector('.emotional-value').textContent = `${emoValue}%`
-  document.querySelector('.emotional-bar').style.width = `${emoValue}%`
-
-  // Urgência
-  const urgValue = Math.round(indicators.urgency * 100)
-  document.querySelector('.urgency-value').textContent = `${urgValue}%`
-  document.querySelector('.urgency-bar').style.width = `${urgValue}%`
-  if (!indicators) {
-    console.warn('Indicadores linguísticos não definidos')
-    indicators = {
-      sensationalism: 0,
-      emotional_appeal: 0,
-      urgency: 0
-    }
-  }
-
-  // Função auxiliar para atualizar cada indicador
+  // Função auxiliar para atualizar cada indicador com verificação de elementos
   const updateIndicator = (name, value) => {
     const normalizedValue =
       typeof value === 'number' ? Math.min(Math.max(value, 0), 1) : 0
@@ -402,10 +382,14 @@ function updateLinguisticIndicators(indicators) {
     if (barElement) barElement.style.width = `${percentage}%`
   }
 
-  // Atualizar cada indicador individualmente
-  updateIndicator('sensationalism', indicators.sensationalism)
-  updateIndicator('emotional', indicators.emotional_appeal)
-  updateIndicator('urgency', indicators.urgency)
+  try {
+    // Atualizar cada indicador individualmente
+    updateIndicator('sensationalism', sensationalism)
+    updateIndicator('emotional', emotional_appeal)
+    updateIndicator('urgency', urgency)
+  } catch (error) {
+    console.warn('Erro ao atualizar indicadores:', error)
+  }
 }
 
 // Função para atualizar credibilidade da fonte
@@ -454,15 +438,20 @@ function displayResults(verification) {
     console.error('Dados de verificação inválidos')
     return
   }
-  const currentLang = document.documentElement.lang
-  const gemini = verification.geminiAnalysis
-  const langData = currentLang === 'en' ? gemini.en : gemini.pt
-  const scorePercentage = Math.round(gemini.score * 100)
-  const scoreClass = getScoreClass(gemini.score)
-
   try {
+    const currentLang = document.documentElement.lang
+    const gemini = verification.geminiAnalysis
+    const langData = currentLang === 'en' ? gemini.en : gemini.pt
+    const scorePercentage = Math.round(gemini.score * 100)
+    const scoreClass = getScoreClass(gemini.score)
+
+    if (!langData) {
+      console.error('Dados de linguagem não encontrados')
+      return
+    }
+
     // Atualizar score e indicadores com verificações de segurança
-    updateScoreCircle(gemini.score)
+    updateScoreCircle(gemini.score || 0)
     updateLinguisticIndicators(langData?.linguistic_indicators)
     updateCredibility(langData?.source_credibility)
 
@@ -483,20 +472,24 @@ function displayResults(verification) {
           ? langData?.score_explanation
           : langData?.explicacao_score
     }
-  } catch (error) {
-    console.error('Erro ao atualizar elementos da UI:', error)
-  }
 
-  // Mostrar seção de resultados
-  const resultSection = document.getElementById('result-section')
-  if (resultSection) {
-    resultSection.classList.remove('d-none')
-  }
+    // Mostrar seção de resultados
+    const resultSection = document.getElementById('result-section')
+    if (resultSection) {
+      resultSection.classList.remove('d-none')
+    }
 
-  // Função auxiliar para criar cards de indicadores
-  const createIndicatorCard = (title, value, maxValue = 1) => {
-    const percentage = Math.round((value / maxValue) * 100)
-    return `
+    // Verificar se elements.result existe antes de tentar definir innerHTML
+    const resultElement = document.getElementById('result')
+    if (!resultElement) {
+      console.error('Elemento de resultado não encontrado')
+      return
+    }
+
+    // Função auxiliar para criar cards de indicadores
+    const createIndicatorCard = (title, value, maxValue = 1) => {
+      const percentage = Math.round((value / maxValue) * 100)
+      return `
       <div class="col-md-4 mb-3">
         <div class="card h-100">
           <div class="card-body">
@@ -515,9 +508,9 @@ function displayResults(verification) {
         </div>
       </div>
     `
-  }
+    }
 
-  elements.result.innerHTML = `
+    elements.result.innerHTML = `
     <div class="container my-4">
       <div class="result-card bg-white p-4 border rounded shadow-sm">
         <!-- Cabeçalho com Score -->
@@ -526,8 +519,8 @@ function displayResults(verification) {
             <span class="display-4">${scorePercentage}%</span>
           </div>
           <h3 class="h5 mt-3 text-${scoreClass}">${
-    currentLang === 'en' ? langData.classification : langData.classificacao
-  }</h3>
+      currentLang === 'en' ? langData.classification : langData.classificacao
+    }</h3>
         </div>
 
         <!-- Análise Linguística -->
@@ -827,18 +820,25 @@ function displayResults(verification) {
     </div>
   `
 
-  // Adicionar a seção de feedback
-  const feedbackSection = elements.result.querySelector('.feedback-section')
-  if (feedbackSection) {
-    feedbackSection.innerHTML = displayFeedbackSection(verification)
-    feedbackSection.querySelectorAll('.btn-feedback').forEach(button => {
-      button.addEventListener('click', function () {
-        handleFeedback(this, feedbackSection)
+    // Adicionar a seção de feedback com verificações
+    const feedbackSection = resultElement.querySelector('.feedback-section')
+    if (feedbackSection) {
+      feedbackSection.innerHTML = displayFeedbackSection(verification)
+      feedbackSection.querySelectorAll('.btn-feedback').forEach(button => {
+        button.addEventListener('click', function () {
+          handleFeedback(this, feedbackSection)
+        })
       })
-    })
-  }
+    }
 
-  elements.resultSection.classList.remove('d-none')
+    // Mostrar a seção de resultados
+    const resultSectionElement = document.getElementById('result-section')
+    if (resultSectionElement) {
+      resultSectionElement.classList.remove('d-none')
+    }
+  } catch (error) {
+    console.error('Erro ao exibir resultados:', error)
+  }
 }
 
 // Funções auxiliares para classificação visual
