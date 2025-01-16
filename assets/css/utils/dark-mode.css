@@ -188,3 +188,9 @@
 [data-theme='dark'] .h4.mb-0.text-dark {
   color: var(--dark-color) !important;
 }
+
+[data-theme='dark']
+  .mb-1.text-truncate:hover
+  .list-group-item.list-group-item-info:hover {
+  color: var(--body-bg) !important;
+}
