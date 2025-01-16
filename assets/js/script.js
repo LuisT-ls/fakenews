@@ -322,7 +322,6 @@ async function handleVerification() {
       overallScore: geminiResult.score
     }
 
-    displayResults(verification)
     saveVerification(verification)
   } catch (error) {
     console.error('Erro durante a verificação:', error)
