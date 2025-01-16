@@ -426,408 +426,356 @@ function updateCredibility(credibility) {
   }
 }
 
-// Funções de UI
-function displayResults(verification) {
-  if (!verification || !verification.geminiAnalysis) {
-    console.error('Dados de verificação inválidos')
-    return
+// Funções de UI// Funções auxiliares necessárias
+function calculateConfidenceLevel(langData) {
+  const { source_credibility, linguistic_indicators } = langData
+  const sourceWeight = 0.6
+  const linguisticWeight = 0.4
+
+  const sourceScore = source_credibility?.level || 0
+  const linguisticScore =
+    ((linguistic_indicators?.sensationalism || 0) +
+      (linguistic_indicators?.emotional_appeal || 0) +
+      (linguistic_indicators?.urgency || 0)) /
+    3
+
+  return Math.round(
+    (sourceScore * sourceWeight + linguisticScore * linguisticWeight) * 100
+  )
+}
+
+function createRadialProgress(score, color) {
+  const circumference = 2 * Math.PI * 54 // r=54
+  const offset = circumference - (score / 100) * circumference
+
+  return `
+    <svg class="radial-progress" width="120" height="120" viewBox="0 0 120 120">
+      <circle cx="60" cy="60" r="54" fill="none" stroke="#e9ecef" stroke-width="12"/>
+      <circle
+        class="progress-circle"
+        cx="60"
+        cy="60"
+        r="54"
+        fill="none"
+        stroke="${color}"
+        stroke-width="12"
+        stroke-dasharray="${circumference}"
+        stroke-dashoffset="${offset}"
+        transform="rotate(-90 60 60)"
+      />
+      <text x="60" y="60" text-anchor="middle" dominant-baseline="middle" class="score-text">
+        ${score}%
+      </text>
+    </svg>
+  `
+}
+
+function calculateSourceCredibility(langData) {
+  const source = langData.source_credibility || {}
+  return Math.round((source.level || 0) * 100)
+}
+
+function calculateTemporalRelevance(langData) {
+  const temporal = langData.temporal_context || {}
+  const currentness = temporal.currentness_score || 0.5
+  const relevance = temporal.relevance_score || 0.5
+  return Math.round(((currentness + relevance) / 2) * 100)
+}
+
+function calculatePropagationRisk(langData) {
+  const viral = langData.viral_potential || 0.5
+  const reach = langData.reach_score || 0.5
+  return Math.round(((viral + reach) / 2) * 100)
+}
+
+function calculateFactualAccuracy(langData) {
+  const trueElements = (langData.true_elements || []).length
+  const falseElements = (langData.false_elements || []).length
+  const total = trueElements + falseElements
+  return total ? Math.round((trueElements / total) * 100) : 50
+}
+
+function calculateBiasLevel(langData) {
+  const indicators = langData.linguistic_indicators || {}
+  return Math.round(
+    ((indicators.bias || 0) * 0.7 + (indicators.emotional_appeal || 0) * 0.3) *
+      100
+  )
+}
+
+function formatMetricName(key) {
+  return key.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase())
+}
+
+function getMetricClass(value) {
+  if (value >= 80) return 'metric-high'
+  if (value >= 60) return 'metric-medium-high'
+  if (value >= 40) return 'metric-medium'
+  if (value >= 20) return 'metric-medium-low'
+  return 'metric-low'
+}
+
+function getItemIcon(type) {
+  const icons = {
+    verified: 'fa-check-circle',
+    suspicious: 'fa-exclamation-triangle',
+    false: 'fa-times-circle',
+    info: 'fa-info-circle'
   }
-  try {
-    const gemini = verification.geminiAnalysis
-    const langData = currentLang === 'en' ? gemini.en : gemini.pt
-    const scorePercentage = Math.round(gemini.score * 100)
-    const scoreClass = getScoreClass(gemini.score)
+  return icons[type] || 'fa-circle'
+}
 
-    if (!langData) {
-      console.error('Dados de linguagem não encontrados')
-      return
-    }
+function generateDetailedAnalysis(langData, metrics) {
+  return {
+    'Content Reliability': [
+      {
+        type: 'info',
+        text: `Overall content reliability score: ${metrics.factualAccuracy}%`,
+        evidence: langData.analysis_summary
+      },
+      {
+        type: metrics.factualAccuracy >= 70 ? 'verified' : 'suspicious',
+        text: `Factual accuracy assessment based on ${
+          (langData.true_elements || []).length +
+          (langData.false_elements || []).length
+        } verified claims`
+      }
+    ],
+    'Source Assessment': [
+      {
+        type: metrics.sourceCredibility >= 70 ? 'verified' : 'suspicious',
+        text: `Source credibility: ${metrics.sourceCredibility}%`,
+        evidence: langData.source_credibility?.analysis
+      }
+    ],
+    'Risk Factors': [
+      {
+        type: metrics.contentRisk >= 70 ? 'false' : 'info',
+        text: `Content risk level: ${metrics.contentRisk}%`,
+        evidence:
+          'Based on sensationalism, emotional appeal, and urgency factors'
+      },
+      {
+        type: metrics.propagationRisk >= 70 ? 'false' : 'info',
+        text: `Propagation risk: ${metrics.propagationRisk}%`,
+        evidence: 'Assessment of potential viral spread and reach'
+      }
+    ]
+  }
+}
 
-    // Obter a referência do elemento resultSection logo no início
-    const resultSectionElement = document.getElementById('result-section')
-    if (!resultSectionElement) {
-      console.error('Seção de resultados não encontrada no DOM')
-      return
-    }
+function analyzeSource(langData) {
+  return {
+    credibilityScore: langData.source_credibility?.level || 0,
+    verificationStatus:
+      langData.source_credibility?.verification_status || 'unknown',
+    domainAge: langData.source_credibility?.domain_age,
+    previousReliability:
+      langData.source_credibility?.historical_reliability || 0,
+    transparencyScore: langData.source_credibility?.transparency || 0
+  }
+}
 
-    // Mostrar a seção de resultados
-    resultSectionElement.classList.remove('d-none')
+function renderSourceMetrics(sourceData) {
+  const metrics = [
+    { label: 'Domain Trust', value: sourceData.credibilityScore },
+    { label: 'Historical Reliability', value: sourceData.previousReliability },
+    { label: 'Transparency', value: sourceData.transparencyScore }
+  ]
 
-    // Atualizar score e indicadores
-    updateScoreCircle(gemini.score || 0)
-    updateLinguisticIndicators(langData?.linguistic_indicators || {})
-    updateCredibility(langData?.source_credibility || {})
-
-    // Atualizar classificação
-    const classificationElement = document.querySelector('.classification-text')
-    if (classificationElement) {
-      classificationElement.textContent =
-        currentLang === 'en'
-          ? langData?.classification || 'Analysis Complete'
-          : langData?.classificacao || 'Análise Concluída'
-    }
-
-    // Atualizar explicação do score
-    const explanationElement = document.querySelector('.score-explanation')
-    if (explanationElement) {
-      explanationElement.textContent =
-        currentLang === 'en'
-          ? langData?.score_explanation || 'Score analysis complete'
-          : langData?.explicacao_score || 'Análise de pontuação concluída'
-    }
-
-    // Atualizar elementos verificados
-    updateVerifiedElements(langData, currentLang)
-
-    // Função auxiliar para criar cards de indicadores
-    const createIndicatorCard = (title, value, maxValue = 1) => {
-      const percentage = Math.round((value / maxValue) * 100)
-      return `
-      <div class="col-md-4 mb-3">
-        <div class="card h-100">
-          <div class="card-body">
-            <h6 class="card-title">${title}</h6>
-            <div class="progress mb-2" style="height: 10px;">
-              <div class="progress-bar bg-${getIndicatorClass(value)}"
-                   role="progressbar"
-                   style="width: ${percentage}%"
-                   aria-valuenow="${percentage}"
-                   aria-valuemin="0"
-                   aria-valuemax="100">
-              </div>
-            </div>
-            <small class="text-muted">${percentage}%</small>
+  return `
+    <div class="source-metrics-grid">
+      ${metrics
+        .map(
+          metric => `
+        <div class="source-metric-card">
+          <h6>${metric.label}</h6>
+          <div class="progress">
+            <div class="progress-bar" style="width: ${
+              metric.value * 100
+            }%"></div>
           </div>
+          <span class="metric-value">${Math.round(metric.value * 100)}%</span>
         </div>
-      </div>
-    `
-    }
+      `
+        )
+        .join('')}
+    </div>
+  `
+}
 
-    elements.resultSection.innerHTML = `
-    <div class="container my-4">
-      <div class="result-card bg-white p-4 border rounded shadow-sm">
-        <!-- Cabeçalho com Score -->
-        <div class="text-center mb-4">
-          <div class="score-circle ${scoreClass}">
-            <span class="display-4">${scorePercentage}%</span>
-          </div>
-          <h3 class="h5 mt-3 text-${scoreClass}">${
-      currentLang === 'en' ? langData.classification : langData.classificacao
-    }</h3>
-        </div>
+function renderSourceVerification(sourceData) {
+  const status = sourceData.verificationStatus
+  const statusClasses = {
+    verified: 'text-success',
+    unverified: 'text-warning',
+    unknown: 'text-secondary',
+    suspicious: 'text-danger'
+  }
 
-        <!-- Análise Linguística -->
-        <div class="card mb-4">
-          <div class="card-header bg-light">
-            <h4 class="h6 mb-0">
-              <i class="fas fa-language me-2"></i>
-              ${
-                currentLang === 'en'
-                  ? 'Linguistic Analysis'
-                  : 'Análise Linguística'
-              }
-            </h4>
-          </div>
-          <div class="card-body">
-            <div class="row">
-              ${createIndicatorCard(
-                currentLang === 'en' ? 'Sensationalism' : 'Sensacionalismo',
-                langData.linguistic_indicators?.sensationalism || 0
-              )}
-              ${createIndicatorCard(
-                currentLang === 'en' ? 'Emotional Appeal' : 'Apelo Emocional',
-                langData.linguistic_indicators?.emotional_appeal || 0
-              )}
-              ${createIndicatorCard(
-                currentLang === 'en' ? 'Urgency' : 'Urgência',
-                langData.linguistic_indicators?.urgency || 0
-              )}
-            </div>
-            <p class="mt-3 mb-0 text-muted">
-              ${
-                currentLang === 'en'
-                  ? langData.linguistic_indicators?.explanation
-                  : langData.indicadores_linguisticos?.explicacao
-              }
-            </p>
-          </div>
-        </div>
+  return `
+    <div class="source-verification-status ${statusClasses[status]}">
+      <i class="fas fa-${
+        status === 'verified' ? 'check-circle' : 'question-circle'
+      } me-2"></i>
+      <span>Status: ${status.charAt(0).toUpperCase() + status.slice(1)}</span>
+      ${
+        sourceData.domainAge
+          ? `<small class="ms-3">Domain Age: ${sourceData.domainAge}</small>`
+          : ''
+      }
+    </div>
+  `
+}
 
-        <!-- Credibilidade da Fonte -->
-        <div class="card mb-4">
-          <div class="card-header bg-light">
-            <h4 class="h6 mb-0">
-              <i class="fas fa-shield-alt me-2"></i>
-              ${
-                currentLang === 'en'
-                  ? 'Source Credibility'
-                  : 'Credibilidade da Fonte'
-              }
-            </h4>
-          </div>
-          <div class="card-body">
-            <div class="credibility-meter mb-3">
-              <div class="progress" style="height: 1.5rem;">
-                <div class="progress-bar bg-${getCredibilityClass(
-                  langData.source_credibility?.level || 0
-                )}"
-                     role="progressbar"
-                     style="width: ${Math.round(
-                       (langData.source_credibility?.level || 0) * 100
-                     )}%">
-                  ${Math.round(
-                    (langData.source_credibility?.level || 0) * 100
-                  )}%
-                </div>
-              </div>
-            </div>
-            <p class="mb-3">
-              ${
-                currentLang === 'en'
-                  ? langData.source_credibility?.analysis
-                  : langData.credibilidade_fonte?.analise
-              }
-            </p>
-            <ul class="list-group list-group-flush">
-              ${(currentLang === 'en'
-                ? langData.source_credibility?.recommendations
-                : langData.credibilidade_fonte?.recomendacoes
+function renderFactChecking(langData) {
+  return `
+    <div class="fact-checking-section">
+      <h4>Fact Checking Results</h4>
+      <div class="fact-grid">
+        <div class="verified-facts">
+          <h5><i class="fas fa-check-circle text-success me-2"></i>Verified Facts</h5>
+          <ul class="fact-list">
+            ${(langData.true_elements || [])
+              .map(
+                fact => `
+              <li class="fact-item verified">${fact}</li>
+            `
               )
-                .map(
-                  rec =>
-                    `<li class="list-group-item"><i class="fas fa-check-circle text-success me-2"></i>${rec}</li>`
-                )
-                .join('')}
-            </ul>
-          </div>
+              .join('')}
+          </ul>
         </div>
-
-        <!-- Contexto Temporal -->
-        <div class="card mb-4">
-          <div class="card-header bg-light">
-            <h4 class="h6 mb-0">
-              <i class="fas fa-clock me-2"></i>
-              ${currentLang === 'en' ? 'Temporal Context' : 'Contexto Temporal'}
-            </h4>
-          </div>
-          <div class="card-body">
-            <div class="row">
-              <div class="col-md-6">
-                <h6>${currentLang === 'en' ? 'Currentness' : 'Atualidade'}</h6>
-                <p class="text-muted">
-                  ${
-                    currentLang === 'en'
-                      ? langData.temporal_context?.currentness
-                      : langData.contexto_temporal?.atualidade
-                  }
-                </p>
-              </div>
-              <div class="col-md-6">
-                <h6>${currentLang === 'en' ? 'Relevance' : 'Relevância'}</h6>
-                <p class="text-muted">
-                  ${
-                    currentLang === 'en'
-                      ? langData.temporal_context?.relevance
-                      : langData.contexto_temporal?.relevancia
-                  }
-                </p>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Análise Detalhada -->
-        <div class="card mb-4">
-          <div class="card-header bg-light">
-            <h4 class="h6 mb-0">
-              <i class="fas fa-search-plus me-2"></i>
-              ${
-                currentLang === 'en' ? 'Detailed Analysis' : 'Análise Detalhada'
-              }
-            </h4>
-          </div>
-          <div class="card-body">
-            <p class="mb-4">
-              ${
-                currentLang === 'en'
-                  ? langData.detailed_analysis
-                  : langData.analise_detalhada
-              }
-            </p>
-
-            <!-- Elementos Verificados -->
-            <div class="mb-3">
-              <h6 class="text-success">
-                <i class="fas fa-check me-2"></i>
-                ${
-                  currentLang === 'en'
-                    ? 'Verified Elements'
-                    : 'Elementos Verificados'
-                }
-              </h6>
-              <ul class="list-unstyled">
-                ${(currentLang === 'en'
-                  ? langData.true_elements
-                  : langData.elementos_verdadeiros
-                )
-                  .map(
-                    item =>
-                      `<li class="mb-2"><i class="fas fa-check-circle text-success me-2"></i>${item}</li>`
-                  )
-                  .join('')}
-              </ul>
-            </div>
-
-            <!-- Elementos Falsos -->
-            <div class="mb-3">
-              <h6 class="text-danger">
-                <i class="fas fa-times me-2"></i>
-                ${currentLang === 'en' ? 'False Elements' : 'Elementos Falsos'}
-              </h6>
-              <ul class="list-unstyled">
-                ${(currentLang === 'en'
-                  ? langData.false_elements
-                  : langData.elementos_falsos
-                )
-                  .map(
-                    item =>
-                      `<li class="mb-2"><i class="fas fa-times-circle text-danger me-2"></i>${item}</li>`
-                  )
-                  .join('')}
-              </ul>
-            </div>
-
-            <!-- Pontos Suspeitos -->
-            <div class="mb-3">
-              <h6 class="text-warning">
-                <i class="fas fa-exclamation-triangle me-2"></i>
-                ${
-                  currentLang === 'en'
-                    ? 'Suspicious Points'
-                    : 'Pontos Suspeitos'
-                }
-              </h6>
-              <ul class="list-unstyled">
-                ${(currentLang === 'en'
-                  ? langData.suspicious_points
-                  : langData.elementos_suspeitos
-                )
-                  .map(
-                    item =>
-                      `<li class="mb-2"><i class="fas fa-exclamation-circle text-warning me-2"></i>${item}</li>`
-                  )
-                  .join('')}
-              </ul>
-            </div>
-          </div>
-        </div>
-
-        <!-- Recomendações e Considerações Adicionais -->
-        <div class="card mb-4">
-          <div class="card-header bg-light">
-            <h4 class="h6 mb-0">
-<i class="fas fa-lightbulb me-2"></i>
-              ${
-                currentLang === 'en'
-                  ? 'Recommendations & Additional Considerations'
-                  : 'Recomendações e Considerações Adicionais'
-              }
-            </h4>
-          </div>
-          <div class="card-body">
-            <!-- Recomendações -->
-            <div class="mb-4">
-              <h6>${
-                currentLang === 'en' ? 'Recommendations' : 'Recomendações'
-              }</h6>
-              <ul class="list-group list-group-flush">
-                ${(currentLang === 'en'
-                  ? langData.recommendations
-                  : langData.recomendacoes
-                )
-                  .map(
-                    rec => `
-                    <li class="list-group-item">
-                      <i class="fas fa-check-circle text-success me-2"></i>${rec}
-                    </li>
-                  `
-                  )
-                  .join('')}
-              </ul>
-            </div>
-
-            <!-- Considerações Adicionais -->
-            <div class="mb-4">
-              <h6>${
-                currentLang === 'en'
-                  ? 'Additional Considerations'
-                  : 'Considerações Adicionais'
-              }</h6>
-              <ul class="list-group list-group-flush">
-                ${(currentLang === 'en'
-                  ? langData.additional_considerations
-                  : langData.consideracoes_adicionais
-                )
-                  .map(
-                    consideration => `
-                    <li class="list-group-item">
-                      <i class="fas fa-info-circle text-info me-2"></i>${consideration}
-                    </li>
-                  `
-                  )
-                  .join('')}
-              </ul>
-            </div>
-
-            <!-- Referências Relacionadas -->
-            <div>
-              <h6>${
-                currentLang === 'en'
-                  ? 'Related References'
-                  : 'Referências Relacionadas'
-              }</h6>
-              <ul class="list-group list-group-flush">
-                ${(currentLang === 'en'
-                  ? langData.related_references
-                  : langData.referencias_relacionadas
-                )
-                  .map(
-                    ref => `
-                    <li class="list-group-item">
-                      <i class="fas fa-link text-primary me-2"></i>${ref}
-                    </li>
-                  `
-                  )
-                  .join('')}
-              </ul>
-            </div>
-          </div>
-        </div>
-
-        <!-- Seção de Feedback -->
-        <div class="feedback-section mt-4" data-verification-id="${
-          verification.id
-        }">
+        <div class="disputed-facts">
+          <h5><i class="fas fa-times-circle text-danger me-2"></i>Disputed Claims</h5>
+          <ul class="fact-list">
+            ${(langData.false_elements || [])
+              .map(
+                fact => `
+              <li class="fact-item disputed">${fact}</li>
+            `
+              )
+              .join('')}
+          </ul>
         </div>
       </div>
     </div>
   `
-
-    // Adicionar a seção de feedback com verificações
-    const feedbackSection =
-      resultSectionElement.querySelector('.feedback-section')
-    if (feedbackSection) {
-      feedbackSection.innerHTML = displayFeedbackSection(verification)
-      feedbackSection.querySelectorAll('.btn-feedback').forEach(button => {
-        button.addEventListener('click', function () {
-          handleFeedback(this, feedbackSection)
-        })
-      })
-    }
-  } catch (error) {
-    console.error('Erro ao exibir resultados:', error)
-  }
 }
+
+function renderRecommendations(langData) {
+  const recommendations = langData.recommendations || []
+  return `
+    <div class="recommendations-section">
+      <h4>Recommendations</h4>
+      <div class="recommendations-grid">
+        ${recommendations
+          .map(
+            rec => `
+          <div class="recommendation-card">
+            <i class="fas fa-lightbulb text-warning me-2"></i>
+            <p>${rec}</p>
+          </div>
+        `
+          )
+          .join('')}
+      </div>
+    </div>
+  `
+}
+
+function initializeInteractiveFeatures(container, verificationId) {
+  // Adiciona listeners para elementos interativos
+  container.querySelectorAll('.evidence').forEach(evidence => {
+    evidence.addEventListener('click', () => {
+      evidence.classList.toggle('expanded')
+    })
+  })
+
+  // Inicializa tooltips
+  const tooltips = container.querySelectorAll('[data-toggle="tooltip"]')
+  tooltips.forEach(tooltip => {
+    new bootstrap.Tooltip(tooltip)
+  })
+}
+
+function updateAnimations(metrics) {
+  // Atualiza animações baseadas nos valores métricos
+  document.querySelectorAll('.bar-fill').forEach(bar => {
+    bar.style.setProperty(
+      '--target-width',
+      `${bar.parentElement.dataset.value}%`
+    )
+  })
+}
+
+// Estilos adicionais necessários
+const additionalStyles = `
+  .radial-progress {
+    transform: rotate(-90deg);
+  }
+
+  .progress-circle {
+    transition: stroke-dashoffset 1s ease-out;
+  }
+
+  .score-text {
+    transform: rotate(90deg);
+    font-size: 24px;
+    font-weight: bold;
+  }
+
+  .source-metrics-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+    margin: 1rem 0;
+  }
+
+  .fact-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 2rem;
+    margin: 1rem 0;
+  }
+
+  .fact-item {
+    padding: 0.5rem;
+    border-radius: 0.25rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .fact-item.verified {
+    background-color: rgba(40, 167, 69, 0.1);
+  }
+
+  .fact-item.disputed {
+    background-color: rgba(220, 53, 69, 0.1);
+  }
+
+  .recommendations-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1rem;
+    margin: 1rem 0;
+  }
+
+  .recommendation-card {
+    background: white;
+    padding: 1rem;
+    border-radius: 0.5rem;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  }
+
+  .expanded {
+    max-height: none;
+    opacity: 1;
+  }
+`
+
+document.head.insertAdjacentHTML(
+  'beforeend',
+  `<style>${additionalStyles}</style>`
+)
 
 function updateVerifiedElements(langData) {
   if (!langData) return
