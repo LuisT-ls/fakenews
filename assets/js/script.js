@@ -133,14 +133,13 @@ function handleGlobalClicks(e) {
 
 async function checkWithGemini(text) {
   try {
+    // Obter chave API
     const keyResponse = await fetch(
       'https://fakenews-sigma.vercel.app/api/getApiKey',
       {
         method: 'GET',
         credentials: 'include',
-        headers: {
-          'Content-Type': 'application/json'
-        }
+        headers: { 'Content-Type': 'application/json' }
       }
     )
 
@@ -151,11 +150,11 @@ async function checkWithGemini(text) {
 
     const { apiKey } = await keyResponse.json()
 
-    // Get current language
+    // Linguagem atual
     const currentLang = document.documentElement.lang || 'pt'
-
-    // Adjust prompt based on language
     const promptLang = currentLang === 'pt' ? 'em português' : 'in English'
+
+    // Prompt
     const prompt = `Detailed analysis of the following text to verify its truthfulness. Please provide the response ${promptLang}:
     "${text}"
 
@@ -174,6 +173,7 @@ Return only a valid JSON object with this exact structure, without any additiona
   "recomendacoes": ["array"]
 }`
 
+    // Fazer requisição para a API
     const response = await fetch(
       `https://generativelanguage.googleapis.com/v1/models/gemini-pro:generateContent?key=${apiKey}`,
       {
@@ -194,11 +194,17 @@ Return only a valid JSON object with this exact structure, without any additiona
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`)
 
     const data = await response.json()
-    if (!data.candidates?.[0]?.content?.parts?.[0]?.text) {
+
+    // Validação e limpeza da resposta
+    const rawText = data.candidates?.[0]?.content?.parts?.[0]?.text?.trim()
+    if (!rawText) {
       throw new Error('Resposta inválida da API')
     }
 
-    return JSON.parse(data.candidates[0].content.parts[0].text.trim())
+    const cleanText = rawText.replace(/```json|```/g, '').trim()
+
+    // Fazer parse do JSON
+    return JSON.parse(cleanText)
   } catch (error) {
     console.error('Erro na análise:', error)
     throw error
