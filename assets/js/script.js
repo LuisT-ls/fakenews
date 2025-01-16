@@ -11,7 +11,8 @@ const elements = {
   themeSwitcher: document.getElementById('themeSwitcher'),
   spinner: document.querySelector('.spinner-border'),
   notificationToast: document.getElementById('notificationToast'),
-  clearHistoryBtn: document.getElementById('clearHistoryBtn')
+  clearHistoryBtn: document.getElementById('clearHistoryBtn'),
+  charCount: document.getElementById('charCount')
 }
 
 // Inicialização com Event Delegation
@@ -21,25 +22,26 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Event Delegation
   document.addEventListener('click', handleGlobalClicks)
-  elements.userInput.addEventListener('input', () => {
+
+  // Listener para o botão de verificação
+  elements.userInput?.addEventListener('input', () => {
+    updateCharCount()
     elements.verifyButton.disabled = !elements.userInput.value.trim()
   })
 
+  // Listener para limpar histórico
   document
     .getElementById('confirmClearHistory')
     ?.addEventListener('click', () => {
-      // Limpa o histórico
       verificationHistory = []
       localStorage.removeItem('verificationHistory')
       updateHistoryDisplay()
 
-      // Fecha o modal
       const modal = bootstrap.Modal.getInstance(
         document.getElementById('clearHistoryModal')
       )
-      modal.hide()
+      modal?.hide()
 
-      // Mostra notificação de sucesso
       showNotification('Histórico apagado com sucesso!', 'success')
     })
 
@@ -53,21 +55,22 @@ document.addEventListener('DOMContentLoaded', () => {
     showNotification('Conexão restabelecida!')
   )
 
+  // Expand/Collapse functionality
   const trigger = document.querySelector('.expand-trigger')
   const content = document.querySelector('.expand-content')
 
-  trigger.addEventListener('click', function () {
+  trigger?.addEventListener('click', function () {
     this.classList.toggle('active')
-    content.classList.toggle('show')
+    content?.classList.toggle('show')
 
-    // Smooth scroll to content when expanding
-    if (content.classList.contains('show')) {
+    if (content?.classList.contains('show')) {
       setTimeout(() => {
         content.scrollIntoView({ behavior: 'smooth', block: 'start' })
       }, 100)
     }
   })
 
+  // Handle skeletons
   const skeletons = document.querySelectorAll('.skeleton-text')
   skeletons.forEach(skeleton => {
     const content = skeleton.dataset.content
@@ -75,7 +78,17 @@ document.addEventListener('DOMContentLoaded', () => {
       skeleton.outerHTML = content
     }
   })
+
+  // Inicializar contagem de caracteres
+  updateCharCount()
 })
+
+function updateCharCount() {
+  if (!elements.userInput || !elements.charCount) return
+
+  const count = elements.userInput.value.length
+  elements.charCount.textContent = count.toLocaleString()
+}
 
 // Handler global de clicks
 function shareContent(platform) {
@@ -323,27 +336,32 @@ async function handleVerification() {
 
 // Função para atualizar o círculo de score
 function updateScoreCircle(score) {
+  if (typeof score !== 'number' || score < 0 || score > 1) {
+    console.warn('Score inválido:', score)
+    score = 0
+  }
+
   const circle = document.getElementById('score-circle')
-  const circumference = 2 * Math.PI * 54 // r = 54
+  if (!circle) return
+
+  const circumference = 2 * Math.PI * 54
   const offset = circumference - score * circumference
   circle.style.strokeDasharray = `${circumference} ${circumference}`
   circle.style.strokeDashoffset = offset
 
-  // Atualizar cor baseado no score
   let color
-  if (score >= 0.8) color = '#28a745' // Verde
-  else if (score >= 0.6) color = '#17a2b8' // Azul
-  else if (score >= 0.4) color = '#ffc107' // Amarelo
-  else if (score >= 0.2) color = '#fd7e14' // Laranja
-  else color = '#dc3545' // Vermelho
+  if (score >= 0.8) color = '#28a745'
+  else if (score >= 0.6) color = '#17a2b8'
+  else if (score >= 0.4) color = '#ffc107'
+  else if (score >= 0.2) color = '#fd7e14'
+  else color = '#dc3545'
 
   circle.style.stroke = color
 
-  // Atualizar valor numérico
-  const scorePercentage = Math.round(score * 100)
-  document.querySelector(
-    '.score-percentage'
-  ).textContent = `${scorePercentage}%`
+  const scoreElement = document.querySelector('.score-percentage')
+  if (scoreElement) {
+    scoreElement.textContent = `${Math.round(score * 100)}%`
+  }
 }
 
 // Função para atualizar indicadores linguísticos
@@ -362,45 +380,118 @@ function updateLinguisticIndicators(indicators) {
   const urgValue = Math.round(indicators.urgency * 100)
   document.querySelector('.urgency-value').textContent = `${urgValue}%`
   document.querySelector('.urgency-bar').style.width = `${urgValue}%`
+  if (!indicators) {
+    console.warn('Indicadores linguísticos não definidos')
+    indicators = {
+      sensationalism: 0,
+      emotional_appeal: 0,
+      urgency: 0
+    }
+  }
+
+  // Função auxiliar para atualizar cada indicador
+  const updateIndicator = (name, value) => {
+    const normalizedValue =
+      typeof value === 'number' ? Math.min(Math.max(value, 0), 1) : 0
+    const percentage = Math.round(normalizedValue * 100)
+
+    const valueElement = document.querySelector(`.${name}-value`)
+    const barElement = document.querySelector(`.${name}-bar`)
+
+    if (valueElement) valueElement.textContent = `${percentage}%`
+    if (barElement) barElement.style.width = `${percentage}%`
+  }
+
+  // Atualizar cada indicador individualmente
+  updateIndicator('sensationalism', indicators.sensationalism)
+  updateIndicator('emotional', indicators.emotional_appeal)
+  updateIndicator('urgency', indicators.urgency)
 }
 
 // Função para atualizar credibilidade da fonte
 function updateCredibility(credibility) {
-  const credValue = Math.round(credibility.level * 100)
+  if (!credibility) {
+    console.warn('Dados de credibilidade não definidos')
+    credibility = { level: 0, analysis: 'Informação não disponível' }
+  }
+
+  const credValue = Math.round((credibility.level || 0) * 100)
   const credBar = document.querySelector('.credibility-bar')
   const credValueElement = document.querySelector('.credibility-value')
+  const analysisElement = document.querySelector('.credibility-analysis')
 
-  credBar.style.width = `${credValue}%`
-  credValueElement.textContent = `${credValue}%`
+  if (credBar) {
+    credBar.style.width = `${credValue}%`
 
-  // Atualizar cor baseado no nível
-  let colorClass
-  if (credValue >= 80) colorClass = 'bg-success'
-  else if (credValue >= 60) colorClass = 'bg-info'
-  else if (credValue >= 40) colorClass = 'bg-warning'
-  else if (credValue >= 20) colorClass = 'bg-orange'
-  else colorClass = 'bg-danger'
+    // Atualizar classe de cor
+    const colorClass =
+      credValue >= 80
+        ? 'bg-success'
+        : credValue >= 60
+        ? 'bg-info'
+        : credValue >= 40
+        ? 'bg-warning'
+        : credValue >= 20
+        ? 'bg-orange'
+        : 'bg-danger'
 
-  // Remover classes antigas e adicionar nova
-  credBar.className = `progress-bar ${colorClass}`
+    credBar.className = `progress-bar ${colorClass}`
+  }
 
-  // Atualizar análise
-  document.querySelector('.credibility-analysis').textContent =
-    credibility.analysis
+  if (credValueElement) {
+    credValueElement.textContent = `${credValue}%`
+  }
+
+  if (analysisElement) {
+    analysisElement.textContent =
+      credibility.analysis || 'Análise não disponível'
+  }
 }
 
 // Funções de UI
 function displayResults(verification) {
+  if (!verification || !verification.geminiAnalysis) {
+    console.error('Dados de verificação inválidos')
+    return
+  }
   const currentLang = document.documentElement.lang
   const gemini = verification.geminiAnalysis
   const langData = currentLang === 'en' ? gemini.en : gemini.pt
   const scorePercentage = Math.round(gemini.score * 100)
   const scoreClass = getScoreClass(gemini.score)
 
-  // Atualizar score e indicadores
-  updateScoreCircle(gemini.score)
-  updateLinguisticIndicators(langData.linguistic_indicators)
-  updateCredibility(langData.source_credibility)
+  try {
+    // Atualizar score e indicadores com verificações de segurança
+    updateScoreCircle(gemini.score)
+    updateLinguisticIndicators(langData?.linguistic_indicators)
+    updateCredibility(langData?.source_credibility)
+
+    // Atualizar classificação
+    const classificationElement = document.querySelector('.classification-text')
+    if (classificationElement) {
+      classificationElement.textContent =
+        currentLang === 'en'
+          ? langData?.classification
+          : langData?.classificacao
+    }
+
+    // Atualizar explicação do score
+    const explanationElement = document.querySelector('.score-explanation')
+    if (explanationElement) {
+      explanationElement.textContent =
+        currentLang === 'en'
+          ? langData?.score_explanation
+          : langData?.explicacao_score
+    }
+  } catch (error) {
+    console.error('Erro ao atualizar elementos da UI:', error)
+  }
+
+  // Mostrar seção de resultados
+  const resultSection = document.getElementById('result-section')
+  if (resultSection) {
+    resultSection.classList.remove('d-none')
+  }
 
   // Função auxiliar para criar cards de indicadores
   const createIndicatorCard = (title, value, maxValue = 1) => {
