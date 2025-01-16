@@ -57,6 +57,66 @@
   overflow: hidden;
 }
 
+/* Progress Ring Styles */
+.progress-ring-container {
+  position: relative;
+  width: 200px;
+  height: 200px;
+  margin: 0 auto;
+}
+
+.progress-ring {
+  transform: rotate(-90deg);
+  transform-origin: 50% 50%;
+  transition: stroke-dashoffset 0.5s ease-in-out;
+}
+
+.progress-ring-circle {
+  fill: none;
+  stroke-width: 12;
+  stroke-linecap: round;
+  transition: all 0.5s ease-in-out;
+}
+
+.progress-ring-bg {
+  stroke: #e9ecef;
+}
+
+.progress-ring-value {
+  stroke: #4caf50;
+}
+
+.score-value {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  text-align: center;
+  font-size: 2.5rem;
+  font-weight: bold;
+  color: #2c3e50;
+}
+
+.score-label {
+  display: block;
+  font-size: 1rem;
+  color: #6c757d;
+  margin-top: 5px;
+}
+
+/* Classes de cor baseadas no score */
+.score-high {
+  stroke: #28a745;
+}
+
+.score-medium {
+  stroke: #ffc107;
+}
+
+.score-low {
+  stroke: #dc3545;
+}
+
 /* Dark Mode Card Styles */
 [data-theme='dark'] .bg-white {
   background-color: #1e293b !important;

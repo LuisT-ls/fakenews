@@ -366,81 +366,63 @@ function updateScoreCircle(score) {
 }
 
 // Função para atualizar indicadores linguísticos
-function updateLinguisticIndicators(indicators = {}) {
-  // Definir valores padrão caso indicators seja undefined
-  const { sensationalism = 0, emotional_appeal = 0, urgency = 0 } = indicators
-
-  // Função auxiliar para atualizar cada indicador com verificação de elementos
-  const updateIndicator = (name, value) => {
-    const normalizedValue =
-      typeof value === 'number' ? Math.min(Math.max(value, 0), 1) : 0
-    const percentage = Math.round(normalizedValue * 100)
-
-    const valueElement = document.querySelector(`.${name}-value`)
-    const barElement = document.querySelector(`.${name}-bar`)
-
-    if (valueElement) valueElement.textContent = `${percentage}%`
-    if (barElement) barElement.style.width = `${percentage}%`
+function updateLinguisticIndicators(indicators) {
+  // Atualizar Sensacionalismo
+  const sensationalismValue = document.querySelector('.sensationalism-value')
+  const sensationalismBar = document.querySelector('.sensationalism-bar')
+  if (sensationalismValue && sensationalismBar) {
+    const sensationalismPercent = Math.round(
+      (indicators.sensationalism || 0) * 100
+    )
+    sensationalismValue.textContent = `${sensationalismPercent}%`
+    sensationalismBar.style.width = `${sensationalismPercent}%`
   }
 
-  try {
-    // Atualizar cada indicador individualmente
-    updateIndicator('sensationalism', sensationalism)
-    updateIndicator('emotional', emotional_appeal)
-    updateIndicator('urgency', urgency)
-  } catch (error) {
-    console.warn('Erro ao atualizar indicadores:', error)
+  // Atualizar Apelo Emocional
+  const emotionalValue = document.querySelector('.emotional-value')
+  const emotionalBar = document.querySelector('.emotional-bar')
+  if (emotionalValue && emotionalBar) {
+    const emotionalPercent = Math.round(
+      (indicators.emotional_appeal || 0) * 100
+    )
+    emotionalValue.textContent = `${emotionalPercent}%`
+    emotionalBar.style.width = `${emotionalPercent}%`
+  }
+
+  // Atualizar Urgência
+  const urgencyValue = document.querySelector('.urgency-value')
+  const urgencyBar = document.querySelector('.urgency-bar')
+  if (urgencyValue && urgencyBar) {
+    const urgencyPercent = Math.round((indicators.urgency || 0) * 100)
+    urgencyValue.textContent = `${urgencyPercent}%`
+    urgencyBar.style.width = `${urgencyPercent}%`
   }
 }
 
 // Função para atualizar credibilidade da fonte
 function updateCredibility(credibility) {
-  // Valores padrão para credibilidade
-  const defaultCredibility = {
-    level: 0,
-    analysis: 'Informação não disponível',
-    recommendations: []
+  const credibilityBar = document.querySelector('.credibility-bar')
+  const credibilityValue = document.querySelector('.credibility-value')
+  const credibilityAnalysis = document.querySelector('.credibility-analysis')
+
+  if (credibilityBar && credibilityValue) {
+    const credibilityPercent = Math.round((credibility.level || 0) * 100)
+    credibilityBar.style.width = `${credibilityPercent}%`
+    credibilityValue.textContent = `${credibilityPercent}%`
+
+    // Definir a cor baseada no nível de credibilidade
+    if (credibilityPercent >= 70) {
+      credibilityBar.classList.add('bg-success')
+    } else if (credibilityPercent >= 40) {
+      credibilityBar.classList.add('bg-warning')
+    } else {
+      credibilityBar.classList.add('bg-danger')
+    }
   }
 
-  // Uso de valores fornecidos ou os padrões
-  const {
-    level = 0,
-    analysis = 'Informação não disponível',
-    recommendations = []
-  } = credibility || defaultCredibility
-
-  // Atualizar elementos da UI com verificação de existência
-  const credValue = Math.round(level * 100)
-
-  const credBar = document.querySelector('.credibility-bar')
-  const credValueElement = document.querySelector('.credibility-value')
-  const analysisElement = document.querySelector('.credibility-analysis')
-
-  if (credBar) {
-    credBar.style.width = `${credValue}%`
-
-    // Atualizar classe de cor
-    const colorClass =
-      credValue >= 80
-        ? 'bg-success'
-        : credValue >= 60
-        ? 'bg-info'
-        : credValue >= 40
-        ? 'bg-warning'
-        : credValue >= 20
-        ? 'bg-orange'
-        : 'bg-danger'
-
-    // Remover classes antigas e adicionar a nova
-    credBar.className = `progress-bar ${colorClass}`
-  }
-
-  if (credValueElement) {
-    credValueElement.textContent = `${credValue}%`
-  }
-
-  if (analysisElement) {
-    analysisElement.textContent = analysis
+  // Atualizar a análise de credibilidade
+  if (credibilityAnalysis && credibility.analysis) {
+    credibilityAnalysis.textContent = credibility.analysis
   }
 }
 
@@ -454,6 +436,7 @@ function displayResults(verification) {
     const gemini = verification.geminiAnalysis
     const langData = currentLang === 'en' ? gemini.en : gemini.pt
     const scorePercentage = Math.round(gemini.score * 100)
+    setProgress(scorePercentage)
     const scoreClass = getScoreClass(gemini.score)
 
     if (!langData) {
