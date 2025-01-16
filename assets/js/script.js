@@ -6,15 +6,13 @@ const elements = {
   userInput: document.getElementById('userInput'),
   verifyButton: document.getElementById('verifyButton'),
   resultSection: document.getElementById('result-section'),
+  result: document.getElementById('result'),
   verificationsHistory: document.getElementById('verificationsHistory'),
   themeSwitcher: document.getElementById('themeSwitcher'),
   spinner: document.querySelector('.spinner-border'),
   notificationToast: document.getElementById('notificationToast'),
-  clearHistoryBtn: document.getElementById('clearHistoryBtn'),
-  charCount: document.getElementById('charCount')
+  clearHistoryBtn: document.getElementById('clearHistoryBtn')
 }
-
-const currentLang = document.documentElement.lang || 'pt'
 
 // Inicialização com Event Delegation
 document.addEventListener('DOMContentLoaded', () => {
@@ -23,26 +21,25 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Event Delegation
   document.addEventListener('click', handleGlobalClicks)
-
-  // Listener para o botão de verificação
-  elements.userInput?.addEventListener('input', () => {
-    updateCharCount()
+  elements.userInput.addEventListener('input', () => {
     elements.verifyButton.disabled = !elements.userInput.value.trim()
   })
 
-  // Listener para limpar histórico
   document
     .getElementById('confirmClearHistory')
     ?.addEventListener('click', () => {
+      // Limpa o histórico
       verificationHistory = []
       localStorage.removeItem('verificationHistory')
       updateHistoryDisplay()
 
+      // Fecha o modal
       const modal = bootstrap.Modal.getInstance(
         document.getElementById('clearHistoryModal')
       )
-      modal?.hide()
+      modal.hide()
 
+      // Mostra notificação de sucesso
       showNotification('Histórico apagado com sucesso!', 'success')
     })
 
@@ -56,22 +53,21 @@ document.addEventListener('DOMContentLoaded', () => {
     showNotification('Conexão restabelecida!')
   )
 
-  // Expand/Collapse functionality
   const trigger = document.querySelector('.expand-trigger')
   const content = document.querySelector('.expand-content')
 
-  trigger?.addEventListener('click', function () {
+  trigger.addEventListener('click', function () {
     this.classList.toggle('active')
-    content?.classList.toggle('show')
+    content.classList.toggle('show')
 
-    if (content?.classList.contains('show')) {
+    // Smooth scroll to content when expanding
+    if (content.classList.contains('show')) {
       setTimeout(() => {
         content.scrollIntoView({ behavior: 'smooth', block: 'start' })
       }, 100)
     }
   })
 
-  // Handle skeletons
   const skeletons = document.querySelectorAll('.skeleton-text')
   skeletons.forEach(skeleton => {
     const content = skeleton.dataset.content
@@ -79,28 +75,18 @@ document.addEventListener('DOMContentLoaded', () => {
       skeleton.outerHTML = content
     }
   })
-
-  // Inicializar contagem de caracteres
-  updateCharCount()
 })
-
-function updateCharCount() {
-  if (!elements.userInput || !elements.charCount) return
-
-  const count = elements.userInput.value.length
-  elements.charCount.textContent = count.toLocaleString()
-}
 
 // Handler global de clicks
 function shareContent(platform) {
   // Pegar o texto da análise do elemento de resultado
-  const resultSectionElement = document.getElementById('result-section')
-  if (!resultSectionElement) return
+  const resultElement = document.getElementById('result')
+  if (!resultElement) return
 
   // Extrair informações relevantes do resultado
-  const scoreElement = resultSectionElement.querySelector('.display-4')
-  const classificacaoElement = resultSectionElement.querySelector('.h5')
-  const analiseElement = resultSectionElement.querySelector('.card p')
+  const scoreElement = resultElement.querySelector('.display-4')
+  const classificacaoElement = resultElement.querySelector('.h5')
+  const analiseElement = resultElement.querySelector('.card p')
 
   if (!scoreElement || !classificacaoElement || !analiseElement) return
 
@@ -165,11 +151,10 @@ async function checkWithGemini(text) {
 
     const { apiKey } = await keyResponse.json()
 
-    const prompt = `Analyze the following text for truthfulness and provide a comprehensive bilingual response (Portuguese and English). Consider linguistic patterns, source credibility, emotional manipulation, and fact verification:
+    const prompt = `Analyze the following text for truthfulness and provide a bilingual response (Portuguese and English):
+    "${text}"
 
-"${text}"
-
-Return only a valid JSON object with this exact structure (no markdown formatting):
+Return only a valid JSON object with this exact structure, without any additional text:
 {
   "score": [0-1],
   "pt": {
@@ -178,25 +163,8 @@ Return only a valid JSON object with this exact structure (no markdown formattin
     "elementos_verdadeiros": ["array"],
     "elementos_falsos": ["array"],
     "elementos_suspeitos": ["array"],
-    "indicadores_linguisticos": {
-      "sensacionalismo": [0-1],
-      "apelo_emocional": [0-1],
-      "urgencia": [0-1],
-      "explicacao": "string"
-    },
-    "credibilidade_fonte": {
-      "nivel": [0-1],
-      "analise": "string",
-      "recomendacoes": ["array"]
-    },
-    "contexto_temporal": {
-      "atualidade": "string",
-      "relevancia": "string"
-    },
     "recomendacoes": ["array"],
-    "analise_detalhada": "string",
-    "consideracoes_adicionais": ["array"],
-    "referencias_relacionadas": ["array"]
+    "analise_detalhada": "string"
   },
   "en": {
     "classification": ["Proven True", "Partially True", "Not Verifiable", "Probably False", "Proven False"],
@@ -204,25 +172,8 @@ Return only a valid JSON object with this exact structure (no markdown formattin
     "true_elements": ["array"],
     "false_elements": ["array"],
     "suspicious_points": ["array"],
-    "linguistic_indicators": {
-      "sensationalism": [0-1],
-      "emotional_appeal": [0-1],
-      "urgency": [0-1],
-      "explanation": "string"
-    },
-    "source_credibility": {
-      "level": [0-1],
-      "analysis": "string",
-      "recommendations": ["array"]
-    },
-    "temporal_context": {
-      "currentness": "string",
-      "relevance": "string"
-    },
     "recommendations": ["array"],
-    "detailed_analysis": "string",
-    "additional_considerations": ["array"],
-    "related_references": ["array"]
+    "detailed_analysis": "string"
   }
 }`
 
@@ -238,25 +189,7 @@ Return only a valid JSON object with this exact structure (no markdown formattin
             topP: 0.1,
             topK: 16,
             maxOutputTokens: 2048
-          },
-          safetySettings: [
-            {
-              category: 'HARM_CATEGORY_HARASSMENT',
-              threshold: 'BLOCK_MEDIUM_AND_ABOVE'
-            },
-            {
-              category: 'HARM_CATEGORY_HATE_SPEECH',
-              threshold: 'BLOCK_MEDIUM_AND_ABOVE'
-            },
-            {
-              category: 'HARM_CATEGORY_SEXUALLY_EXPLICIT',
-              threshold: 'BLOCK_MEDIUM_AND_ABOVE'
-            },
-            {
-              category: 'HARM_CATEGORY_DANGEROUS_CONTENT',
-              threshold: 'BLOCK_MEDIUM_AND_ABOVE'
-            }
-          ]
+          }
         })
       }
     )
@@ -268,18 +201,7 @@ Return only a valid JSON object with this exact structure (no markdown formattin
       throw new Error('Resposta inválida da API')
     }
 
-    // Clean up the response text
-    let responseText = data.candidates[0].content.parts[0].text.trim()
-    responseText = responseText.replace(/```json\s*/, '')
-    responseText = responseText.replace(/```\s*$/, '')
-    responseText = responseText.trim()
-
-    try {
-      return JSON.parse(responseText)
-    } catch (parseError) {
-      console.error('Response text that failed to parse:', responseText)
-      throw new Error(`Failed to parse JSON response: ${parseError.message}`)
-    }
+    return JSON.parse(data.candidates[0].content.parts[0].text.trim())
   } catch (error) {
     console.error('Erro na análise:', error)
     throw error
@@ -322,6 +244,7 @@ async function handleVerification() {
       overallScore: geminiResult.score
     }
 
+    displayResults(verification)
     saveVerification(verification)
   } catch (error) {
     console.error('Erro durante a verificação:', error)
@@ -334,582 +257,212 @@ async function handleVerification() {
   }
 }
 
-// Função para atualizar o círculo de score
-function updateScoreCircle(score) {
-  if (typeof score !== 'number' || score < 0 || score > 1) {
-    console.warn('Score inválido:', score)
-    score = 0
-  }
+// Funções de UI
+function displayResults(verification) {
+  const currentLang = document.documentElement.lang
 
-  const circle = document.getElementById('score-circle')
-  if (!circle) return
-
-  const circumference = 2 * Math.PI * 54
-  const offset = circumference - score * circumference
-  circle.style.strokeDasharray = `${circumference} ${circumference}`
-  circle.style.strokeDashoffset = offset
-
-  let color
-  if (score >= 0.8) color = '#28a745'
-  else if (score >= 0.6) color = '#17a2b8'
-  else if (score >= 0.4) color = '#ffc107'
-  else if (score >= 0.2) color = '#fd7e14'
-  else color = '#dc3545'
-
-  circle.style.stroke = color
-
-  const scoreElement = document.querySelector('.score-percentage')
-  if (scoreElement) {
-    scoreElement.textContent = `${Math.round(score * 100)}%`
-  }
-}
-
-// Função para atualizar indicadores linguísticos
-function updateLinguisticIndicators(indicators) {
-  // Atualizar Sensacionalismo
-  const sensationalismValue = document.querySelector('.sensationalism-value')
-  const sensationalismBar = document.querySelector('.sensationalism-bar')
-  if (sensationalismValue && sensationalismBar) {
-    const sensationalismPercent = Math.round(
-      (indicators.sensationalism || 0) * 100
+  if (!verification.geminiAnalysis) {
+    const errorMessage = translateDynamicContent(
+      'Não foi possível realizar a análise. Tente novamente.',
+      currentLang
     )
-    sensationalismValue.textContent = `${sensationalismPercent}%`
-    sensationalismBar.style.width = `${sensationalismPercent}%`
+    elements.result.innerHTML = `<div class="alert alert-danger">${errorMessage}</div>`
+    elements.resultSection.classList.remove('d-none')
+    return
   }
 
-  // Atualizar Apelo Emocional
-  const emotionalValue = document.querySelector('.emotional-value')
-  const emotionalBar = document.querySelector('.emotional-bar')
-  if (emotionalValue && emotionalBar) {
-    const emotionalPercent = Math.round(
-      (indicators.emotional_appeal || 0) * 100
-    )
-    emotionalValue.textContent = `${emotionalPercent}%`
-    emotionalBar.style.width = `${emotionalPercent}%`
-  }
+  const gemini = verification.geminiAnalysis
+  const langData = currentLang === 'en' ? gemini.en : gemini.pt
+  const scorePercentage = Math.round(gemini.score * 100)
+  const scoreClass = getScoreClass(gemini.score)
 
-  // Atualizar Urgência
-  const urgencyValue = document.querySelector('.urgency-value')
-  const urgencyBar = document.querySelector('.urgency-bar')
-  if (urgencyValue && urgencyBar) {
-    const urgencyPercent = Math.round((indicators.urgency || 0) * 100)
-    urgencyValue.textContent = `${urgencyPercent}%`
-    urgencyBar.style.width = `${urgencyPercent}%`
-  }
-}
+  elements.result.innerHTML = `
+    <div class="container my-4">
+      <div class="result-card bg-white p-4 border rounded shadow-sm">
+        <h2 class="text-center mb-4">${
+          currentLang === 'en' ? 'Analysis Result' : 'Resultado da Análise'
+        }</h2>
+        
+        <div class="score-section text-center mb-4">
+          <div class="display-4 mb-2 text-${scoreClass}">${scorePercentage}%</div>
+          <h3 class="h5 text-${scoreClass}">${
+    currentLang === 'en' ? langData.classification : langData.classificacao
+  }</h3>
+        </div>
 
-// Função para atualizar credibilidade da fonte
-function updateCredibility(credibility) {
-  const credibilityBar = document.querySelector('.credibility-bar')
-  const credibilityValue = document.querySelector('.credibility-value')
-  const credibilityAnalysis = document.querySelector('.credibility-analysis')
-
-  if (credibilityBar && credibilityValue) {
-    const credibilityPercent = Math.round((credibility.level || 0) * 100)
-    credibilityBar.style.width = `${credibilityPercent}%`
-    credibilityValue.textContent = `${credibilityPercent}%`
-
-    // Definir a cor baseada no nível de credibilidade
-    if (credibilityPercent >= 70) {
-      credibilityBar.classList.add('bg-success')
-    } else if (credibilityPercent >= 40) {
-      credibilityBar.classList.add('bg-warning')
-    } else {
-      credibilityBar.classList.add('bg-danger')
-    }
-  }
-
-  // Atualizar a análise de credibilidade
-  if (credibilityAnalysis && credibility.analysis) {
-    credibilityAnalysis.textContent = credibility.analysis
-  }
-}
-
-// Funções de UI// Funções auxiliares necessárias
-function calculateConfidenceLevel(langData) {
-  const { source_credibility, linguistic_indicators } = langData
-  const sourceWeight = 0.6
-  const linguisticWeight = 0.4
-
-  const sourceScore = source_credibility?.level || 0
-  const linguisticScore =
-    ((linguistic_indicators?.sensationalism || 0) +
-      (linguistic_indicators?.emotional_appeal || 0) +
-      (linguistic_indicators?.urgency || 0)) /
-    3
-
-  return Math.round(
-    (sourceScore * sourceWeight + linguisticScore * linguisticWeight) * 100
-  )
-}
-
-function createRadialProgress(score, color) {
-  const circumference = 2 * Math.PI * 54 // r=54
-  const offset = circumference - (score / 100) * circumference
-
-  return `
-    <svg class="radial-progress" width="120" height="120" viewBox="0 0 120 120">
-      <circle cx="60" cy="60" r="54" fill="none" stroke="#e9ecef" stroke-width="12"/>
-      <circle
-        class="progress-circle"
-        cx="60"
-        cy="60"
-        r="54"
-        fill="none"
-        stroke="${color}"
-        stroke-width="12"
-        stroke-dasharray="${circumference}"
-        stroke-dashoffset="${offset}"
-        transform="rotate(-90 60 60)"
-      />
-      <text x="60" y="60" text-anchor="middle" dominant-baseline="middle" class="score-text">
-        ${score}%
-      </text>
-    </svg>
-  `
-}
-
-function calculateSourceCredibility(langData) {
-  const source = langData.source_credibility || {}
-  return Math.round((source.level || 0) * 100)
-}
-
-function calculateTemporalRelevance(langData) {
-  const temporal = langData.temporal_context || {}
-  const currentness = temporal.currentness_score || 0.5
-  const relevance = temporal.relevance_score || 0.5
-  return Math.round(((currentness + relevance) / 2) * 100)
-}
-
-function calculatePropagationRisk(langData) {
-  const viral = langData.viral_potential || 0.5
-  const reach = langData.reach_score || 0.5
-  return Math.round(((viral + reach) / 2) * 100)
-}
-
-function calculateFactualAccuracy(langData) {
-  const trueElements = (langData.true_elements || []).length
-  const falseElements = (langData.false_elements || []).length
-  const total = trueElements + falseElements
-  return total ? Math.round((trueElements / total) * 100) : 50
-}
-
-function calculateBiasLevel(langData) {
-  const indicators = langData.linguistic_indicators || {}
-  return Math.round(
-    ((indicators.bias || 0) * 0.7 + (indicators.emotional_appeal || 0) * 0.3) *
-      100
-  )
-}
-
-function formatMetricName(key) {
-  return key.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase())
-}
-
-function getMetricClass(value) {
-  if (value >= 80) return 'metric-high'
-  if (value >= 60) return 'metric-medium-high'
-  if (value >= 40) return 'metric-medium'
-  if (value >= 20) return 'metric-medium-low'
-  return 'metric-low'
-}
-
-function getItemIcon(type) {
-  const icons = {
-    verified: 'fa-check-circle',
-    suspicious: 'fa-exclamation-triangle',
-    false: 'fa-times-circle',
-    info: 'fa-info-circle'
-  }
-  return icons[type] || 'fa-circle'
-}
-
-function generateDetailedAnalysis(langData, metrics) {
-  return {
-    'Content Reliability': [
-      {
-        type: 'info',
-        text: `Overall content reliability score: ${metrics.factualAccuracy}%`,
-        evidence: langData.analysis_summary
-      },
-      {
-        type: metrics.factualAccuracy >= 70 ? 'verified' : 'suspicious',
-        text: `Factual accuracy assessment based on ${
-          (langData.true_elements || []).length +
-          (langData.false_elements || []).length
-        } verified claims`
-      }
-    ],
-    'Source Assessment': [
-      {
-        type: metrics.sourceCredibility >= 70 ? 'verified' : 'suspicious',
-        text: `Source credibility: ${metrics.sourceCredibility}%`,
-        evidence: langData.source_credibility?.analysis
-      }
-    ],
-    'Risk Factors': [
-      {
-        type: metrics.contentRisk >= 70 ? 'false' : 'info',
-        text: `Content risk level: ${metrics.contentRisk}%`,
-        evidence:
-          'Based on sensationalism, emotional appeal, and urgency factors'
-      },
-      {
-        type: metrics.propagationRisk >= 70 ? 'false' : 'info',
-        text: `Propagation risk: ${metrics.propagationRisk}%`,
-        evidence: 'Assessment of potential viral spread and reach'
-      }
-    ]
-  }
-}
-
-function analyzeSource(langData) {
-  return {
-    credibilityScore: langData.source_credibility?.level || 0,
-    verificationStatus:
-      langData.source_credibility?.verification_status || 'unknown',
-    domainAge: langData.source_credibility?.domain_age,
-    previousReliability:
-      langData.source_credibility?.historical_reliability || 0,
-    transparencyScore: langData.source_credibility?.transparency || 0
-  }
-}
-
-function renderSourceMetrics(sourceData) {
-  const metrics = [
-    { label: 'Domain Trust', value: sourceData.credibilityScore },
-    { label: 'Historical Reliability', value: sourceData.previousReliability },
-    { label: 'Transparency', value: sourceData.transparencyScore }
-  ]
-
-  return `
-    <div class="source-metrics-grid">
-      ${metrics
-        .map(
-          metric => `
-        <div class="source-metric-card">
-          <h6>${metric.label}</h6>
-          <div class="progress">
-            <div class="progress-bar" style="width: ${
-              metric.value * 100
-            }%"></div>
+        <div class="progress mb-4" style="height: 25px;">
+          <div class="progress-bar bg-${scoreClass}"
+               role="progressbar"
+               style="width: ${scorePercentage}%"
+               aria-valuenow="${scorePercentage}"
+               aria-valuemin="0"
+               aria-valuemax="100">
+            ${scorePercentage}%
           </div>
-          <span class="metric-value">${Math.round(metric.value * 100)}%</span>
         </div>
-      `
-        )
-        .join('')}
-    </div>
-  `
-}
 
-function renderSourceVerification(sourceData) {
-  const status = sourceData.verificationStatus
-  const statusClasses = {
-    verified: 'text-success',
-    unverified: 'text-warning',
-    unknown: 'text-secondary',
-    suspicious: 'text-danger'
-  }
-
-  return `
-    <div class="source-verification-status ${statusClasses[status]}">
-      <i class="fas fa-${
-        status === 'verified' ? 'check-circle' : 'question-circle'
-      } me-2"></i>
-      <span>Status: ${status.charAt(0).toUpperCase() + status.slice(1)}</span>
-      ${
-        sourceData.domainAge
-          ? `<small class="ms-3">Domain Age: ${sourceData.domainAge}</small>`
-          : ''
-      }
-    </div>
-  `
-}
-
-function renderFactChecking(langData) {
-  return `
-    <div class="fact-checking-section">
-      <h4>Fact Checking Results</h4>
-      <div class="fact-grid">
-        <div class="verified-facts">
-          <h5><i class="fas fa-check-circle text-success me-2"></i>Verified Facts</h5>
-          <ul class="fact-list">
-            ${(langData.true_elements || [])
-              .map(
-                fact => `
-              <li class="fact-item verified">${fact}</li>
-            `
-              )
-              .join('')}
-          </ul>
+        <div class="explanation-section mb-4">
+          <div class="alert alert-secondary">
+            <i class="fas fa-info-circle me-2"></i>
+            ${
+              currentLang === 'en'
+                ? langData.score_explanation
+                : langData.explicacao_score
+            }
+          </div>
         </div>
-        <div class="disputed-facts">
-          <h5><i class="fas fa-times-circle text-danger me-2"></i>Disputed Claims</h5>
-          <ul class="fact-list">
-            ${(langData.false_elements || [])
-              .map(
-                fact => `
-              <li class="fact-item disputed">${fact}</li>
-            `
-              )
-              .join('')}
-          </ul>
+
+        <div class="analysis-sections">
+          <!-- Verified Elements -->
+          <div class="card mb-3">
+            <div class="card-header bg-light">
+              <h4 class="h6 mb-0">
+                ${
+                  currentLang === 'en'
+                    ? 'Verified Elements'
+                    : 'Elementos Verificados'
+                }
+              </h4>
+            </div>
+            <div class="card-body">
+              <ul class="list-unstyled mb-0">
+                ${(currentLang === 'en'
+                  ? langData.true_elements
+                  : langData.elementos_verdadeiros
+                )
+                  .map(
+                    item =>
+                      `<li class="mb-2"><i class="fas fa-check text-success me-2"></i>${item}</li>`
+                  )
+                  .join('')}
+              </ul>
+            </div>
+          </div>
+
+          <!-- False Elements -->
+          <div class="card mb-3">
+            <div class="card-header bg-light">
+              <h4 class="h6 mb-0">
+                ${currentLang === 'en' ? 'False Elements' : 'Elementos Falsos'}
+              </h4>
+            </div>
+            <div class="card-body">
+              <ul class="list-unstyled mb-0">
+                ${(currentLang === 'en'
+                  ? langData.false_elements
+                  : langData.elementos_falsos
+                )
+                  .map(
+                    item =>
+                      `<li class="mb-2"><i class="fas fa-times text-danger me-2"></i>${item}</li>`
+                  )
+                  .join('')}
+              </ul>
+            </div>
+          </div>
+
+          <!-- Suspicious Points -->
+          <div class="card mb-3">
+            <div class="card-header bg-light">
+              <h4 class="h6 mb-0">
+                ${
+                  currentLang === 'en'
+                    ? 'Suspicious Points'
+                    : 'Pontos Suspeitos'
+                }
+              </h4>
+            </div>
+            <div class="card-body">
+              <ul class="list-unstyled mb-0">
+                ${(currentLang === 'en'
+                  ? langData.suspicious_points
+                  : langData.elementos_suspeitos
+                )
+                  .map(
+                    item =>
+                      `<li class="mb-2"><i class="fas fa-exclamation-triangle text-warning me-2"></i>${item}</li>`
+                  )
+                  .join('')}
+              </ul>
+            </div>
+          </div>
+
+          <!-- Recommendations -->
+          <div class="card mb-3">
+            <div class="card-header bg-light">
+              <h4 class="h6 mb-0">
+                ${currentLang === 'en' ? 'Recommendations' : 'Recomendações'}
+              </h4>
+            </div>
+            <div class="card-body">
+              <ul class="list-unstyled mb-0">
+                ${(currentLang === 'en'
+                  ? langData.recommendations
+                  : langData.recomendacoes
+                )
+                  .map(
+                    item =>
+                      `<li class="mb-2"><i class="fas fa-lightbulb text-info me-2"></i>${item}</li>`
+                  )
+                  .join('')}
+              </ul>
+            </div>
+          </div>
+
+          <!-- Detailed Analysis -->
+          <div class="card mb-3">
+            <div class="card-header bg-light">
+              <h4 class="h6 mb-0">
+                ${
+                  currentLang === 'en'
+                    ? 'Detailed Analysis'
+                    : 'Análise Detalhada'
+                }
+              </h4>
+            </div>
+            <div class="card-body">
+              <p class="mb-0">${
+                currentLang === 'en'
+                  ? langData.detailed_analysis
+                  : langData.analise_detalhada
+              }</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="feedback-section mt-4 text-center" data-verification-id="${
+          verification.id
+        }">
+          <div class="small text-muted mb-2">
+            ${
+              currentLang === 'en'
+                ? 'Was this analysis helpful?'
+                : 'Esta análise foi útil?'
+            }
+          </div>
+          <div class="btn-group btn-group-sm" role="group" aria-label="Feedback">
+            <button class="btn btn-outline-success btn-feedback" data-feedback="positive">
+              <i class="fas fa-thumbs-up"></i>
+            </button>
+            <button class="btn btn-outline-danger btn-feedback" data-feedback="negative">
+              <i class="fas fa-thumbs-down"></i>
+            </button>
+          </div>
         </div>
       </div>
     </div>
   `
-}
 
-function renderRecommendations(langData) {
-  const recommendations = langData.recommendations || []
-  return `
-    <div class="recommendations-section">
-      <h4>Recommendations</h4>
-      <div class="recommendations-grid">
-        ${recommendations
-          .map(
-            rec => `
-          <div class="recommendation-card">
-            <i class="fas fa-lightbulb text-warning me-2"></i>
-            <p>${rec}</p>
-          </div>
-        `
-          )
-          .join('')}
-      </div>
-    </div>
-  `
-}
-
-function initializeInteractiveFeatures(container, verificationId) {
-  // Adiciona listeners para elementos interativos
-  container.querySelectorAll('.evidence').forEach(evidence => {
-    evidence.addEventListener('click', () => {
-      evidence.classList.toggle('expanded')
+  const feedbackSection = elements.result.querySelector('.feedback-section')
+  feedbackSection.querySelectorAll('.btn-feedback').forEach(button => {
+    button.addEventListener('click', function () {
+      handleFeedback(this, feedbackSection)
     })
   })
 
-  // Inicializa tooltips
-  const tooltips = container.querySelectorAll('[data-toggle="tooltip"]')
-  tooltips.forEach(tooltip => {
-    new bootstrap.Tooltip(tooltip)
-  })
+  elements.resultSection.classList.remove('d-none')
 }
 
-function updateAnimations(metrics) {
-  // Atualiza animações baseadas nos valores métricos
-  document.querySelectorAll('.bar-fill').forEach(bar => {
-    bar.style.setProperty(
-      '--target-width',
-      `${bar.parentElement.dataset.value}%`
-    )
-  })
-}
-
-// Estilos adicionais necessários
-const additionalStyles = `
-  .radial-progress {
-    transform: rotate(-90deg);
-  }
-
-  .progress-circle {
-    transition: stroke-dashoffset 1s ease-out;
-  }
-
-  .score-text {
-    transform: rotate(90deg);
-    font-size: 24px;
-    font-weight: bold;
-  }
-
-  .source-metrics-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: 1rem;
-    margin: 1rem 0;
-  }
-
-  .fact-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-    gap: 2rem;
-    margin: 1rem 0;
-  }
-
-  .fact-item {
-    padding: 0.5rem;
-    border-radius: 0.25rem;
-    margin-bottom: 0.5rem;
-  }
-
-  .fact-item.verified {
-    background-color: rgba(40, 167, 69, 0.1);
-  }
-
-  .fact-item.disputed {
-    background-color: rgba(220, 53, 69, 0.1);
-  }
-
-  .recommendations-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-    gap: 1rem;
-    margin: 1rem 0;
-  }
-
-  .recommendation-card {
-    background: white;
-    padding: 1rem;
-    border-radius: 0.5rem;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-  }
-
-  .expanded {
-    max-height: none;
-    opacity: 1;
-  }
-`
-
-document.head.insertAdjacentHTML(
-  'beforeend',
-  `<style>${additionalStyles}</style>`
-)
-
-function updateVerifiedElements(langData) {
-  if (!langData) return
-
-  const trueElements =
-    currentLang === 'en'
-      ? langData.true_elements
-      : langData.elementos_verdadeiros
-  const falseElements =
-    currentLang === 'en' ? langData.false_elements : langData.elementos_falsos
-  const suspiciousElements =
-    currentLang === 'en'
-      ? langData.suspicious_points
-      : langData.elementos_suspeitos
-
-  // Função auxiliar para atualizar listas
-  const updateList = (elements, containerId) => {
-    const container = document.getElementById(containerId)
-    if (container && Array.isArray(elements)) {
-      container.innerHTML = elements
-        .map(
-          item =>
-            `<li class="mb-2"><i class="fas fa-check-circle me-2"></i>${item}</li>`
-        )
-        .join('')
-    }
-  }
-
-  updateList(trueElements, 'true-elements-list')
-  updateList(falseElements, 'false-elements-list')
-  updateList(suspiciousElements, 'suspicious-elements-list')
-}
-
-// Funções auxiliares para classificação visual
-function getIndicatorClass(value) {
-  if (value <= 0.3) return 'success'
-  if (value <= 0.7) return 'warning'
-  return 'danger'
-}
-
-function getCredibilityClass(value) {
-  if (value >= 0.7) return 'success'
-  if (value >= 0.4) return 'warning'
-  return 'danger'
-}
-
-// Adicionar estilos CSS necessários
-document.head.insertAdjacentHTML(
-  'beforeend',
-  `
-  <style>
-    .score-circle {
-      width: 120px;
-      height: 120px;
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      margin: 0 auto;
-      border: 4px solid;
-      transition: all 0.3s ease;
-    }
-
-    .score-circle.success {
-      border-color: #198754;
-      color: #198754;
-      background-color: rgba(25, 135, 84, 0.1);
-    }
-
-    .score-circle.warning {
-      border-color: #ffc107;
-      color: #ffc107;
-      background-color: rgba(255, 193, 7, 0.1);
-    }
-
-    .score-circle.danger {
-      border-color: #dc3545;
-      color: #dc3545;
-      background-color: rgba(220, 53, 69, 0.1);
-    }
-
-    .credibility-meter {
-      border-radius: 1rem;
-      overflow: hidden;
-    }
-
-    .progress {
-      border-radius: 0.5rem;
-    }
-
-    .card {
-      transition: transform 0.2s ease-in-out;
-    }
-
-    .card:hover {
-      transform: translateY(-2px);
-    }
-
-    .list-group-item {
-      border-left: none;
-      border-right: none;
-      padding: 1rem;
-      transition: background-color 0.2s ease;
-    }
-
-    .list-group-item:hover {
-      background-color: rgba(0, 0, 0, 0.02);
-    }
-
-    .indicator-card {
-      border: none;
-      border-radius: 1rem;
-      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-    }
-
-    .card-header {
-      border-bottom: 2px solid rgba(0, 0, 0, 0.1);
-    }
-
-    .result-card {
-      max-width: 900px;
-      margin: 0 auto;
-    }
-
-    @media (max-width: 768px) {
-      .score-circle {
-        width: 100px;
-        height: 100px;
-      }
-    }
-  </style>
-`
-)
-
-// Sistema de Feedback
 function handleFeedback(button, feedbackSection) {
   const verificationId = feedbackSection.dataset.verificationId
   const feedbackType = button.dataset.feedback
@@ -927,110 +480,18 @@ function handleFeedback(button, feedbackSection) {
     feedbackType === 'positive' ? 'btn-success' : 'btn-danger'
   )
 
-  // Substituir os botões por uma mensagem de agradecimento com animação suave
-  feedbackSection.style.opacity = '0'
+  // Substituir os botões por uma mensagem de agradecimento
   setTimeout(() => {
     feedbackSection.innerHTML = `
       <div class="text-muted small">
         <i class="fas fa-check-circle text-success"></i>
-        ${
-          document.documentElement.lang === 'en'
-            ? 'Thank you for your feedback!'
-            : 'Obrigado pelo seu feedback!'
-        }
+        Obrigado pelo seu feedback!
       </div>
     `
-    feedbackSection.style.opacity = '1'
-  }, 300)
+  }, 1000)
 
   // Salvar o feedback
-  saveFeedback(verificationId, feedbackType)
-}
-
-function saveFeedback(verificationId, feedbackType) {
-  // Log do feedback (para desenvolvimento)
-  console.log('Feedback registrado:', {
-    verificationId,
-    type: feedbackType,
-    timestamp: new Date().toISOString()
-  })
-
-  // Mostrar notificação de agradecimento
-  const message =
-    document.documentElement.lang === 'en'
-      ? 'Thank you for your feedback!'
-      : 'Obrigado pelo seu feedback!'
-  showNotification(message, 'success')
-
-  // Atualizar o histórico local se necessário
-  const verification = verificationHistory.find(v => v.id === verificationId)
-  if (verification) {
-    verification.feedback = feedbackType
-    localStorage.setItem(
-      'verificationHistory',
-      JSON.stringify(verificationHistory)
-    )
-  }
-}
-
-// Atualização da função displayResults para incluir a seção de feedback
-function displayFeedbackSection(verification) {
-  const currentLang = document.documentElement.lang
-  return `
-    <div class="feedback-section mt-4 text-center" data-verification-id="${
-      verification.id
-    }">
-      <div class="small text-muted mb-2">
-        ${
-          currentLang === 'en'
-            ? 'Was this analysis helpful?'
-            : 'Esta análise foi útil?'
-        }
-      </div>
-      <div class="btn-group btn-group-sm" role="group" aria-label="Feedback">
-        <button class="btn btn-outline-success btn-feedback" data-feedback="positive">
-          <i class="fas fa-thumbs-up"></i>
-        </button>
-        <button class="btn btn-outline-danger btn-feedback" data-feedback="negative">
-          <i class="fas fa-thumbs-down"></i>
-        </button>
-      </div>
-    </div>
-  `
-}
-
-// Adicionar estilos CSS para animações suaves
-document.head.insertAdjacentHTML(
-  'beforeend',
-  `
-  <style>
-    .feedback-section {
-      transition: opacity 0.3s ease-in-out;
-    }
-    
-    .btn-feedback {
-      transition: all 0.2s ease-in-out;
-    }
-    
-    .btn-feedback:hover {
-      transform: scale(1.1);
-    }
-    
-    .feedback-section .text-muted {
-      transition: opacity 0.3s ease-in-out;
-    }
-  </style>
-`
-)
-
-function submitFeedback(verificationId, feedbackType) {
-  showNotification('Obrigado pelo seu feedback!', 'success')
-
-  console.log('Feedback submetido:', {
-    verificationId,
-    type: feedbackType,
-    timestamp: new Date().toISOString()
-  })
+  submitFeedback(feedbackType)
 }
 
 // Função para gerar seções de análise
