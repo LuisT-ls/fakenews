@@ -52,6 +52,11 @@
 .share-buttons .btn {
   padding: 0.5rem 1rem;
   margin: 0 0.25rem;
+  transition: all 0.2s ease;
+}
+
+.share-buttons .btn:hover {
+  transform: translateY(-2px);
 }
 
 .share-buttons button {
@@ -72,6 +77,27 @@
 
 #verifyButton .spinner-border {
   border-width: 3px;
+}
+
+/* Histórico */
+.list-group-item {
+  transition: background-color 0.2s ease;
+}
+
+.list-group-item:hover {
+  background-color: #f8f9fa;
+}
+
+/* Animações */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 /* Dark Mode Button Styles */

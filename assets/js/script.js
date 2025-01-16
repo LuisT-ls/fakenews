@@ -321,6 +321,74 @@ async function handleVerification() {
   }
 }
 
+// Função para atualizar o círculo de score
+function updateScoreCircle(score) {
+  const circle = document.getElementById('score-circle')
+  const circumference = 2 * Math.PI * 54 // r = 54
+  const offset = circumference - score * circumference
+  circle.style.strokeDasharray = `${circumference} ${circumference}`
+  circle.style.strokeDashoffset = offset
+
+  // Atualizar cor baseado no score
+  let color
+  if (score >= 0.8) color = '#28a745' // Verde
+  else if (score >= 0.6) color = '#17a2b8' // Azul
+  else if (score >= 0.4) color = '#ffc107' // Amarelo
+  else if (score >= 0.2) color = '#fd7e14' // Laranja
+  else color = '#dc3545' // Vermelho
+
+  circle.style.stroke = color
+
+  // Atualizar valor numérico
+  const scorePercentage = Math.round(score * 100)
+  document.querySelector(
+    '.score-percentage'
+  ).textContent = `${scorePercentage}%`
+}
+
+// Função para atualizar indicadores linguísticos
+function updateLinguisticIndicators(indicators) {
+  // Sensacionalismo
+  const sensValue = Math.round(indicators.sensationalism * 100)
+  document.querySelector('.sensationalism-value').textContent = `${sensValue}%`
+  document.querySelector('.sensationalism-bar').style.width = `${sensValue}%`
+
+  // Apelo Emocional
+  const emoValue = Math.round(indicators.emotional_appeal * 100)
+  document.querySelector('.emotional-value').textContent = `${emoValue}%`
+  document.querySelector('.emotional-bar').style.width = `${emoValue}%`
+
+  // Urgência
+  const urgValue = Math.round(indicators.urgency * 100)
+  document.querySelector('.urgency-value').textContent = `${urgValue}%`
+  document.querySelector('.urgency-bar').style.width = `${urgValue}%`
+}
+
+// Função para atualizar credibilidade da fonte
+function updateCredibility(credibility) {
+  const credValue = Math.round(credibility.level * 100)
+  const credBar = document.querySelector('.credibility-bar')
+  const credValueElement = document.querySelector('.credibility-value')
+
+  credBar.style.width = `${credValue}%`
+  credValueElement.textContent = `${credValue}%`
+
+  // Atualizar cor baseado no nível
+  let colorClass
+  if (credValue >= 80) colorClass = 'bg-success'
+  else if (credValue >= 60) colorClass = 'bg-info'
+  else if (credValue >= 40) colorClass = 'bg-warning'
+  else if (credValue >= 20) colorClass = 'bg-orange'
+  else colorClass = 'bg-danger'
+
+  // Remover classes antigas e adicionar nova
+  credBar.className = `progress-bar ${colorClass}`
+
+  // Atualizar análise
+  document.querySelector('.credibility-analysis').textContent =
+    credibility.analysis
+}
+
 // Funções de UI
 function displayResults(verification) {
   const currentLang = document.documentElement.lang
@@ -328,6 +396,11 @@ function displayResults(verification) {
   const langData = currentLang === 'en' ? gemini.en : gemini.pt
   const scorePercentage = Math.round(gemini.score * 100)
   const scoreClass = getScoreClass(gemini.score)
+
+  // Atualizar score e indicadores
+  updateScoreCircle(gemini.score)
+  updateLinguisticIndicators(langData.linguistic_indicators)
+  updateCredibility(langData.source_credibility)
 
   // Função auxiliar para criar cards de indicadores
   const createIndicatorCard = (title, value, maxValue = 1) => {

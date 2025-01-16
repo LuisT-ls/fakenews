@@ -457,26 +457,36 @@
             class="bg-white rounded-3 shadow-lg p-4 mb-5 border border-light-subtle"
           >
             <h2 class="h4 mb-4 text-primary">
-              <i class="fas fa-search me-2"></i> Verificar Conteúdo
+              <i class="fas fa-shield-check me-2"></i> Verificador de Fake News
             </h2>
             <div class="form-group mb-4">
               <label for="userInput" class="form-label fw-bold text-muted">
                 Digite ou cole aqui o texto que deseja verificar:
               </label>
-              <textarea
-                id="userInput"
-                class="form-control form-control-lg critical-input"
-                rows="6"
-                placeholder="Cole o texto aqui..."
-              ></textarea>
+              <div class="input-wrapper position-relative">
+                <textarea
+                  id="userInput"
+                  class="form-control form-control-lg critical-input"
+                  rows="6"
+                  placeholder="Cole o texto aqui..."
+                ></textarea>
+                <div
+                  class="character-count position-absolute bottom-0 end-0 p-2 text-muted small"
+                >
+                  <span id="charCount">0</span> caracteres
+                </div>
+              </div>
             </div>
             <div class="text-center">
               <button
                 id="verifyButton"
-                class="btn btn-primary btn-lg px-5"
+                class="btn btn-primary btn-lg px-5 position-relative overflow-hidden"
                 aria-label="Verificar texto"
               >
-                <span>Verificar Agora</span>
+                <span class="d-flex align-items-center justify-content-center">
+                  <i class="fas fa-magnifying-glass me-2"></i>
+                  <span>Verificar Agora</span>
+                </span>
                 <div
                   class="spinner-border spinner-border-sm ms-2 d-none"
                   role="status"
@@ -493,18 +503,167 @@
             class="bg-white rounded-3 shadow-lg p-4 mb-5 d-none"
             aria-live="polite"
           >
-            <h2 class="h4 mb-4 text-success">Resultado da Análise</h2>
-            <div id="result"></div>
-            <div class="mt-4">
+            <div class="result-header border-bottom pb-4 mb-4">
+              <h2 class="h4 mb-3 text-primary">Resultado da Análise</h2>
+              <div class="verification-summary d-flex align-items-center gap-4">
+                <div class="verification-score flex-shrink-0">
+                  <!-- Novo indicador de pontuação -->
+                  <div class="score-indicator position-relative">
+                    <svg width="120" height="120" viewBox="0 0 120 120">
+                      <circle
+                        cx="60"
+                        cy="60"
+                        r="54"
+                        fill="none"
+                        stroke="#e9ecef"
+                        stroke-width="12"
+                      />
+                      <circle
+                        id="score-circle"
+                        cx="60"
+                        cy="60"
+                        r="54"
+                        fill="none"
+                        stroke="#28a745"
+                        stroke-width="12"
+                        stroke-dasharray="339.292"
+                        stroke-dashoffset="0"
+                        transform="rotate(-90 60 60)"
+                      />
+                    </svg>
+                    <div
+                      class="score-value position-absolute top-50 start-50 translate-middle text-center"
+                    >
+                      <span class="h2 mb-0 fw-bold score-percentage">0%</span>
+                      <span class="d-block small text-muted"
+                        >Confiabilidade</span
+                      >
+                    </div>
+                  </div>
+                </div>
+                <div class="verification-details flex-grow-1">
+                  <h3 class="h5 mb-2 classification-text">
+                    Análise em Andamento
+                  </h3>
+                  <p class="mb-0 text-muted score-explanation">
+                    Aguardando resultados...
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <!-- Análise Linguística -->
+            <div class="analysis-section mb-4">
+              <h3 class="h5 mb-3">
+                <i class="fas fa-language me-2"></i>
+                Análise Linguística
+              </h3>
+              <div class="row g-3">
+                <div class="col-md-4">
+                  <div class="analysis-card p-3 border rounded-3 h-100">
+                    <div
+                      class="d-flex justify-content-between align-items-center mb-2"
+                    >
+                      <h4 class="h6 mb-0">Sensacionalismo</h4>
+                      <span
+                        class="badge bg-primary rounded-pill sensationalism-value"
+                        >0%</span
+                      >
+                    </div>
+                    <div class="progress" style="height: 8px">
+                      <div
+                        class="progress-bar bg-primary sensationalism-bar"
+                        role="progressbar"
+                        style="width: 0%"
+                      ></div>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-md-4">
+                  <div class="analysis-card p-3 border rounded-3 h-100">
+                    <div
+                      class="d-flex justify-content-between align-items-center mb-2"
+                    >
+                      <h4 class="h6 mb-0">Apelo Emocional</h4>
+                      <span
+                        class="badge bg-warning rounded-pill emotional-value"
+                        >0%</span
+                      >
+                    </div>
+                    <div class="progress" style="height: 8px">
+                      <div
+                        class="progress-bar bg-warning emotional-bar"
+                        role="progressbar"
+                        style="width: 0%"
+                      ></div>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-md-4">
+                  <div class="analysis-card p-3 border rounded-3 h-100">
+                    <div
+                      class="d-flex justify-content-between align-items-center mb-2"
+                    >
+                      <h4 class="h6 mb-0">Urgência</h4>
+                      <span class="badge bg-danger rounded-pill urgency-value"
+                        >0%</span
+                      >
+                    </div>
+                    <div class="progress" style="height: 8px">
+                      <div
+                        class="progress-bar bg-danger urgency-bar"
+                        role="progressbar"
+                        style="width: 0%"
+                      ></div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Credibilidade da Fonte -->
+            <div class="credibility-section mb-4">
+              <h3 class="h5 mb-3">
+                <i class="fas fa-shield-alt me-2"></i>
+                Credibilidade da Fonte
+              </h3>
+              <div class="credibility-card p-3 border rounded-3">
+                <div class="d-flex align-items-center mb-3">
+                  <div class="credibility-meter flex-grow-1">
+                    <div class="progress" style="height: 12px">
+                      <div
+                        class="progress-bar credibility-bar"
+                        role="progressbar"
+                        style="width: 0%"
+                      ></div>
+                    </div>
+                  </div>
+                  <span class="badge ms-3 credibility-value">0%</span>
+                </div>
+                <p class="credibility-analysis mb-0 text-muted"></p>
+              </div>
+            </div>
+
+            <!-- Compartilhamento -->
+            <div class="share-section mt-4 text-center">
               <h3 class="h5 mb-3">Compartilhe esta verificação:</h3>
               <menu class="share-buttons d-flex gap-2 justify-content-center">
-                <button class="btn btn-outline-primary" data-share="twitter">
+                <button
+                  class="btn btn-outline-primary btn-sm"
+                  data-share="twitter"
+                >
                   <i class="fab fa-twitter me-2"></i>Twitter
                 </button>
-                <button class="btn btn-outline-primary" data-share="whatsapp">
+                <button
+                  class="btn btn-outline-success btn-sm"
+                  data-share="whatsapp"
+                >
                   <i class="fab fa-whatsapp me-2"></i>WhatsApp
                 </button>
-                <button class="btn btn-outline-primary" data-share="telegram">
+                <button
+                  class="btn btn-outline-info btn-sm"
+                  data-share="telegram"
+                >
                   <i class="fab fa-telegram me-2"></i>Telegram
                 </button>
               </menu>
@@ -522,10 +681,10 @@
               </h2>
               <button
                 id="clearHistoryBtn"
-                class="btn btn-outline-danger btn-sm d-flex align-items-center"
+                class="btn btn-outline-danger btn-sm"
               >
-                <i class="fas fa-trash-alt"></i>
-                <span class="btn-text ms-2">Limpar Histórico</span>
+                <i class="fas fa-trash-alt me-2"></i>
+                <span>Limpar Histórico</span>
               </button>
             </div>
             <div id="verificationsHistory" class="list-group">

@@ -43,6 +43,71 @@
   margin-bottom: 0;
 }
 
+/* Estilos gerais */
+.input-wrapper {
+  border-radius: 0.5rem;
+  background: #fff;
+}
+
+.critical-input {
+  resize: vertical;
+  min-height: 150px;
+  font-size: 1rem;
+  line-height: 1.6;
+  border: 2px solid #e9ecef;
+  transition: border-color 0.2s ease;
+}
+
+.critical-input:focus {
+  border-color: #0d6efd;
+  box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+}
+
+/* Indicador de Score */
+.score-indicator {
+  width: 120px;
+  height: 120px;
+}
+
+.score-indicator svg {
+  transform: rotate(-90deg);
+  overflow: visible;
+}
+
+#score-circle {
+  transition: stroke-dashoffset 1s ease-in-out;
+}
+
+.score-value {
+  width: 100%;
+}
+
+/* Cards de Análise */
+.analysis-card {
+  background: #fff;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.analysis-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.1);
+}
+
+.progress {
+  background-color: #e9ecef;
+  overflow: hidden;
+}
+
+.progress-bar {
+  transition: width 1s ease-in-out;
+}
+
+/* Badges personalizados */
+.badge {
+  font-size: 0.875rem;
+  padding: 0.35em 0.65em;
+}
+
 /* Dark Mode Form Styles */
 [data-theme='dark'] .form-control {
   background-color: #0f172a;
