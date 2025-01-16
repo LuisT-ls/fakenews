@@ -14,6 +14,8 @@ const elements = {
   charCount: document.getElementById('charCount')
 }
 
+const currentLang = document.documentElement.lang || 'pt'
+
 // Inicialização com Event Delegation
 document.addEventListener('DOMContentLoaded', () => {
   loadVerificationHistory()
@@ -449,7 +451,6 @@ function displayResults(verification) {
     return
   }
   try {
-    const currentLang = document.documentElement.lang
     const gemini = verification.geminiAnalysis
     const langData = currentLang === 'en' ? gemini.en : gemini.pt
     const scorePercentage = Math.round(gemini.score * 100)
@@ -492,7 +493,7 @@ function displayResults(verification) {
     }
 
     // Atualizar elementos verificados
-    updateVerifiedElements(langData)
+    updateVerifiedElements(langData, currentLang)
 
     // Mostrar seção de resultados
     const resultSection = document.getElementById('result-section')
