@@ -621,6 +621,13 @@ document.head.insertAdjacentHTML(
 // Feedback
 function submitFeedback(type) {
   showNotification('Obrigado pelo seu feedback!', 'success')
+  const feedbackModal = document.getElementById('feedbackModal')
+  if (feedbackModal) {
+    const modalInstance = bootstrap.Modal.getInstance(feedbackModal)
+    if (modalInstance) {
+      modalInstance.hide()
+    }
+  }
   console.log(`Feedback ${type} recebido e processado`)
 }
 
