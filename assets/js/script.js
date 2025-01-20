@@ -154,9 +154,18 @@ async function checkWithGemini(text) {
     const currentLang = document.documentElement.lang || 'pt'
     const promptLang = currentLang === 'pt' ? 'em português' : 'in English'
 
-    // Prompt
-    const prompt = `Detailed analysis of the following text to verify its truthfulness. Please provide the response ${promptLang}:
-    "${text}"
+    // Data atual para comparação
+    const currentDate = new Date()
+    const analysisDate = new Date(2022, 11, 31) // Fim de 2022
+
+    // Prompt atualizado com consciência temporal
+    const prompt = `Analise detalhadamente o seguinte texto para verificar sua veracidade. 
+    Observe que sua base de conhecimento vai até 2022, então para eventos após essa data, 
+    indique claramente essa limitação na análise e foque nos elementos verificáveis do texto
+    que não dependem do período temporal. Forneça a resposta ${promptLang}:
+    
+    Data atual: ${currentDate.toISOString()}
+    Texto para análise: "${text}"
 
 Return only a valid JSON object with this exact structure, without any additional text:
 {
@@ -170,7 +179,12 @@ Return only a valid JSON object with this exact structure, without any additiona
   "fontes_confiaveis": ["array"],
   "indicadores_desinformacao": ["array"],
   "analise_detalhada": "string",
-  "recomendacoes": ["array"]
+  "recomendacoes": ["array"],
+  "limitacao_temporal": {
+    "afeta_analise": boolean,
+    "elementos_nao_verificaveis": ["array"],
+    "sugestoes_verificacao": ["array"]
+  }
 }`
 
     // Fazer requisição para a API
@@ -194,17 +208,30 @@ Return only a valid JSON object with this exact structure, without any additiona
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`)
 
     const data = await response.json()
-
-    // Validação e limpeza da resposta
     const rawText = data.candidates?.[0]?.content?.parts?.[0]?.text?.trim()
+
     if (!rawText) {
       throw new Error('Resposta inválida da API')
     }
 
     const cleanText = rawText.replace(/```json|```/g, '').trim()
+    const result = JSON.parse(cleanText)
 
-    // Fazer parse do JSON
-    return JSON.parse(cleanText)
+    // Ajustar score e classificação baseado na limitação temporal
+    if (result.limitacao_temporal?.afeta_analise) {
+      // Se houver limitação temporal significativa, ajustar para "Não Verificável"
+      // apenas se a limitação for o fator principal
+      if (
+        result.elementos_nao_verificaveis?.length >
+        result.elementos_verdadeiros?.length
+      ) {
+        result.classificacao = 'Não Verificável'
+        result.score = 0.5
+        result.confiabilidade = 0.5
+      }
+    }
+
+    return result
   } catch (error) {
     console.error('Erro na análise:', error)
     throw error
@@ -283,6 +310,88 @@ function displayResults(verification) {
     gemini.classificacao,
     currentLang
   )
+
+  // Componente de alerta temporal
+  const temporalAlert = gemini.limitacao_temporal?.afeta_analise
+    ? `
+    <div class="alert alert-warning mb-4">
+      <i class="fas fa-clock me-2"></i>
+      <strong>Aviso de Limitação Temporal:</strong>
+      <p class="mb-2">Esta análise possui elementos posteriores a 2022 que não podem ser completamente verificados.</p>
+      ${
+        gemini.limitacao_temporal.elementos_nao_verificaveis?.length
+          ? `<div class="mb-2">
+            <strong>Elementos não verificáveis:</strong>
+            <ul class="mb-0">
+              ${gemini.limitacao_temporal.elementos_nao_verificaveis
+                .map(elem => `<li>${elem}</li>`)
+                .join('')}
+            </ul>
+          </div>`
+          : ''
+      }
+      ${
+        gemini.limitacao_temporal.sugestoes_verificacao?.length
+          ? `<div>
+            <strong>Sugestões para verificação:</strong>
+            <ul class="mb-0">
+              ${gemini.limitacao_temporal.sugestoes_verificacao
+                .map(sug => `<li>${sug}</li>`)
+                .join('')}
+            </ul>
+          </div>`
+          : ''
+      }
+    </div>`
+    : ''
+
+  elements.result.innerHTML = `
+    <div class="result-card p-4 border rounded shadow-sm">
+      ${temporalAlert}
+      <div class="mb-4 text-center">
+        <div class="display-4 text-${scoreClass}">${scorePercentage}%</div>
+        <h3 class="h5">${translatedClassification}</h3>
+      </div>
+
+      <div class="progress mb-4" style="height: 25px;">
+        <div class="progress-bar bg-${scoreClass}"
+             role="progressbar"
+             style="width: ${scorePercentage}%"
+             aria-valuenow="${scorePercentage}"
+             aria-valuemin="0"
+             aria-valuemax="100">
+        </div>
+      </div>
+
+      <div class="alert alert-secondary">
+        <i class="fas fa-info-circle me-2"></i>
+        ${gemini.explicacao_score}
+      </div>
+
+      ${generateAnalysisSections(gemini)}
+      
+      <div class="card mb-3">
+        <div class="card-body">
+          <h4 class="h6 mb-3">Análise Detalhada</h4>
+          <p class="mb-0">${gemini.analise_detalhada}</p>
+        </div>
+      </div>
+
+      <div class="feedback-section mt-4 text-center" data-verification-id="${
+        verification.id
+      }">
+        <div class="small text-muted mb-2">Esta análise foi útil?</div>
+        <div class="btn-group btn-group-sm" role="group" aria-label="Feedback">
+          <button class="btn btn-outline-success btn-feedback" data-feedback="positive">
+            <i class="fas fa-thumbs-up"></i>
+          </button>
+          <button class="btn btn-outline-danger btn-feedback" data-feedback="negative">
+            <i class="fas fa-thumbs-down"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+  `
 
   elements.result.innerHTML = `
     <div class="result-card p-4 border rounded shadow-sm">
