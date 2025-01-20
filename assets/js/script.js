@@ -11,9 +11,7 @@ const elements = {
   themeSwitcher: document.getElementById('themeSwitcher'),
   spinner: document.querySelector('.spinner-border'),
   notificationToast: document.getElementById('notificationToast'),
-  clearHistoryBtn: document.getElementById('clearHistoryBtn'),
-  clearInputButton: null,
-  clearResultsButton: null
+  clearHistoryBtn: document.getElementById('clearHistoryBtn')
 }
 
 // Inicialização com Event Delegation
@@ -21,83 +19,10 @@ document.addEventListener('DOMContentLoaded', () => {
   loadVerificationHistory()
   initThemeSwitch()
 
-  const buttonGroup = document.createElement('div')
-  buttonGroup.className = 'btn-group gap-2 d-flex justify-content-center'
-  elements.verifyButton.parentNode.replaceChild(
-    buttonGroup,
-    elements.verifyButton
-  )
-  buttonGroup.appendChild(elements.verifyButton)
-
-  // Criar botão de limpar input
-  const clearInputButton = document.createElement('button')
-  clearInputButton.id = 'clearInputButton'
-  clearInputButton.className = 'btn btn-outline-secondary btn-lg px-4 d-none'
-  clearInputButton.innerHTML =
-    '<i class="fas fa-times"></i><span class="ms-2">Limpar</span>'
-  buttonGroup.appendChild(clearInputButton)
-  elements.clearInputButton = clearInputButton // Armazenar referência
-
-  // Criar botão de limpar resultados
-  const clearResultsButton = document.createElement('button')
-  clearResultsButton.className = 'btn btn-link text-danger float-end p-0'
-  clearResultsButton.innerHTML = '<i class="fas fa-times"></i>'
-  const resultHeader = elements.resultSection.querySelector('h2')
-  resultHeader.parentNode.insertBefore(
-    clearResultsButton,
-    resultHeader.nextSibling
-  )
-  elements.clearResultsButton = clearResultsButton // Armazenar referência
-
-  // Adicionar event listeners
-  elements.userInput.addEventListener('input', () => {
-    const hasValue = elements.userInput.value.trim().length > 0
-    elements.verifyButton.disabled = !hasValue
-    elements.clearInputButton.classList.toggle('d-none', !hasValue)
-  })
-
-  elements.clearInputButton.addEventListener('click', () => {
-    elements.userInput.value = ''
-    elements.verifyButton.disabled = true
-    elements.clearInputButton.classList.add('d-none')
-    elements.userInput.focus()
-  })
-
-  elements.clearResultsButton.addEventListener('click', () => {
-    elements.resultSection.classList.add('result-fade-out')
-    setTimeout(() => {
-      elements.resultSection.classList.add('d-none')
-      elements.result.innerHTML = ''
-      elements.resultSection.classList.remove('result-fade-out')
-    }, 300)
-  })
-
   // Event Delegation
   document.addEventListener('click', handleGlobalClicks)
   elements.userInput.addEventListener('input', () => {
     elements.verifyButton.disabled = !elements.userInput.value.trim()
-  })
-
-  elements.userInput.addEventListener('input', () => {
-    const hasValue = elements.userInput.value.trim().length > 0
-    elements.verifyButton.disabled = !hasValue
-    clearInputButton.classList.toggle('d-none', !hasValue)
-  })
-
-  clearInputButton.addEventListener('click', () => {
-    elements.userInput.value = ''
-    elements.verifyButton.disabled = true
-    clearInputButton.classList.add('d-none')
-    elements.userInput.focus()
-  })
-
-  clearResultsButton.addEventListener('click', () => {
-    elements.resultSection.classList.add('result-fade-out')
-    setTimeout(() => {
-      elements.resultSection.classList.add('d-none')
-      elements.result.innerHTML = ''
-      elements.resultSection.classList.remove('result-fade-out')
-    }, 300)
   })
 
   document
@@ -523,13 +448,6 @@ function displayResults(verification) {
   })
 
   elements.resultSection.classList.remove('d-none')
-  elements.clearInputButton.classList.toggle(
-    'd-none',
-    !elements.userInput.value.trim()
-  )
-
-  // Show clear input button if input has value
-  clearInputButton.classList.toggle('d-none', !elements.userInput.value.trim())
 }
 
 function handleFeedback(button, feedbackSection) {
@@ -623,7 +541,6 @@ function getScoreClass(score) {
 
 function showLoadingState(loading) {
   elements.verifyButton.disabled = loading
-  elements.clearInputButton.disabled = loading
   elements.spinner.classList.toggle('d-none', !loading)
   elements.verifyButton.querySelector('span').textContent = loading
     ? 'Verificando...'
