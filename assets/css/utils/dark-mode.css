@@ -28,13 +28,43 @@
 
 /* List Groups */
 [data-theme='dark'] .list-group-item {
-  background-color: #1e293b;
-  color: #e2e8f0;
+  background-color: var(--dark-surface);
+  border-color: var(--dark-border);
+  color: var(--dark-color);
 }
 
-[data-theme='dark'] #verificationsHistory .list-group-item small,
-[data-theme='dark'] #verificationsHistory .list-group-item .text-muted {
-  color: #94a3b8 !important;
+[data-theme='dark'] .list-group-item:hover {
+  background-color: var(--dark-bg);
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 1px var(--primary-color);
+}
+
+[data-theme='dark'] .list-group-item {
+  background-color: var(--dark-surface);
+  border-color: var(--dark-border);
+  color: var(--dark-color);
+}
+
+[data-theme='dark'] .list-group-item:hover {
+  background-color: var(--dark-bg);
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 1px var(--primary-color);
+}
+
+/* Specific styles for history items */
+[data-theme='dark'] #verificationsHistory .list-group-item {
+  background-color: var(--dark-surface);
+  border-color: var(--dark-border);
+}
+
+[data-theme='dark'] #verificationsHistory .list-group-item:hover {
+  background-color: var(--dark-bg);
+  border-color: var(--primary-color);
+}
+
+/* Style for text elements in dark mode */
+[data-theme='dark'] .list-group-item .text-muted {
+  color: var(--text-muted) !important;
 }
 
 /* Results Section */

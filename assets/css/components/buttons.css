@@ -79,13 +79,19 @@
   border-width: 3px;
 }
 
-/* Histórico */
+/* Base styles for list items */
 .list-group-item {
-  transition: background-color 0.2s ease;
+  background-color: var(--light-color);
+  border-color: rgba(0, 0, 0, 0.125);
+  transition: all var(--transition-speed) ease-in-out;
 }
 
+/* Light mode hover effects */
 .list-group-item:hover {
-  background-color: #f8f9fa;
+  background-color: rgba(0, 0, 0, 0.02);
+  border-color: rgba(0, 0, 0, 0.15);
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-sm);
 }
 
 /* Animações */
