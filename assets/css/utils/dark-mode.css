@@ -63,7 +63,7 @@
 }
 
 [data-theme='dark'] #verificationsHistory .mb-1.text-truncate:hover {
-  color: var(--text-muted) !important;
+  color: var(--dark-color) !important;
 }
 
 /* Style for text elements in dark mode */
