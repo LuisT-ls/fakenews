@@ -21,6 +21,10 @@ footer a.text-white-50 {
   transition: all 0.3s ease;
 }
 
+footer .list-unstyled li {
+  margin-bottom: 0.5rem;
+}
+
 /* Section Titles */
 footer h4 {
   font-weight: 600;
