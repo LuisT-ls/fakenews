@@ -34,7 +34,7 @@
 }
 
 [data-theme='dark'] .list-group-item:hover {
-  background-color: var(--dark-bg);
+  background-color: #1e293b;
   border-color: var(--primary-color);
   box-shadow: 0 0 0 1px var(--primary-color);
 }
@@ -60,6 +60,10 @@
 [data-theme='dark'] #verificationsHistory .list-group-item:hover {
   background-color: var(--dark-bg);
   border-color: var(--primary-color);
+}
+
+[data-theme='dark'] #verificationsHistory .mb-1.text-truncate:hover {
+  color: var(--text-muted) !important;
 }
 
 /* Style for text elements in dark mode */
