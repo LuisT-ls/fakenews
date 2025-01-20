@@ -75,7 +75,148 @@ document.addEventListener('DOMContentLoaded', () => {
       skeleton.outerHTML = content
     }
   })
+
+  const clearInputButton = document.getElementById('clearInputButton')
+  const userInput = document.getElementById('userInput')
+  const resultSection = document.getElementById('result-section')
+
+  // Mostrar/esconder botão de limpar input baseado no conteúdo
+  userInput.addEventListener('input', () => {
+    const hasText = userInput.value.trim().length > 0
+    clearInputButton.classList.toggle('d-none', !hasText)
+    elements.verifyButton.disabled = !hasText
+  })
+
+  // Limpar input quando o botão for clicado
+  clearInputButton.addEventListener('click', () => {
+    userInput.value = ''
+    clearInputButton.classList.add('d-none')
+    elements.verifyButton.disabled = true
+    userInput.focus()
+  })
+
+  // Modificar função displayResults para incluir controles
+  const originalDisplayResults = displayResults
+  displayResults = verification => {
+    resultSection.querySelector('h2').remove() // Remover título original
+    resultSection.insertAdjacentHTML('afterbegin', resultControls)
+
+    originalDisplayResults(verification)
+
+    // Adicionar event listeners para os novos controles
+    const collapseBtn = document.getElementById('collapseResults')
+    const clearBtn = document.getElementById('clearResults')
+    const resultContent = document.getElementById('result')
+
+    let isCollapsed = false
+
+    collapseBtn.addEventListener('click', () => {
+      isCollapsed = !isCollapsed
+      resultContent.style.maxHeight = isCollapsed ? '100px' : 'none'
+      resultContent.style.overflow = isCollapsed ? 'hidden' : 'visible'
+      collapseBtn.querySelector('i').className = isCollapsed
+        ? 'fas fa-chevron-down'
+        : 'fas fa-chevron-up'
+      collapseBtn.title = isCollapsed
+        ? 'Expandir resultados'
+        : 'Recolher resultados'
+    })
+
+    clearBtn.addEventListener('click', () => {
+      resultSection.style.opacity = '0'
+      resultSection.style.transform = 'translateY(-20px)'
+
+      setTimeout(() => {
+        resultSection.classList.add('d-none')
+        resultSection.style.opacity = ''
+        resultSection.style.transform = ''
+        userInput.value = ''
+        clearInputButton.classList.add('d-none')
+        elements.verifyButton.disabled = true
+      }, 300)
+    })
+  }
 })
+
+document.head.insertAdjacentHTML(
+  'beforeend',
+  `
+  <style>
+    #result-section {
+      transition: opacity 0.3s ease, transform 0.3s ease;
+    }
+    
+    .result-controls {
+      border-bottom: 1px solid rgba(0,0,0,0.1);
+      margin: -1.5rem -1.5rem 1.5rem -1.5rem;
+      padding: 1rem 1.5rem;
+    }
+    
+    #result {
+      transition: max-height 0.3s ease;
+    }
+    
+    .btn-link {
+      text-decoration: none;
+      padding: 0.375rem;
+      border-radius: 0.25rem;
+    }
+    
+    .btn-link:hover {
+      background-color: rgba(0,0,0,0.05);
+    }
+    
+    #clearInputButton {
+      border-left: none;
+      padding-left: 1rem;
+      padding-right: 1rem;
+    }
+    
+    #clearInputButton:hover {
+      background-color: #e2e6ea;
+    }
+    
+    .progress {
+      background-color: rgba(0,0,0,0.05);
+    }
+  </style>
+`
+)
+
+// Adicionar novo botão de limpar input
+document.querySelector('.text-center').innerHTML = `
+  <div class="btn-group">
+    <button id="verifyButton" class="btn btn-primary btn-lg px-5" aria-label="Verificar texto">
+      <span>Verificar Agora</span>
+      <div class="spinner-border spinner-border-sm ms-2 d-none" role="status">
+        <span class="visually-hidden">Verificando...</span>
+      </div>
+    </button>
+    <button id="clearInputButton" class="btn btn-outline-secondary btn-lg d-none" aria-label="Limpar texto">
+      <i class="fas fa-times"></i>
+    </button>
+  </div>
+`
+
+// Adicionar controles interativos para o resultado
+const resultControls = `
+  <div class="result-controls position-sticky bg-white py-2" style="top: 0; z-index: 100;">
+    <div class="d-flex justify-content-between align-items-center">
+      <h2 class="h4 mb-0">Resultado da Análise</h2>
+      <div class="controls-wrapper">
+        <button class="btn btn-link text-muted btn-sm me-2" id="collapseResults" title="Recolher resultados">
+          <i class="fas fa-chevron-up"></i>
+        </button>
+        <button class="btn btn-link text-muted btn-sm" id="clearResults" title="Limpar resultados">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+    </div>
+    <div class="progress mt-2" style="height: 2px;">
+      <div class="progress-bar bg-primary" role="progressbar" style="width: 100%"></div>
+    </div>
+  </div>
+`
 
 // Handler global de clicks
 function shareContent(platform) {
