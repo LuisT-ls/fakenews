@@ -46,7 +46,7 @@
 }
 
 [data-theme='dark'] .list-group-item:hover {
-  background-color: var(--dark-bg);
+  background-color: var(--dark-surface);
   border-color: var(--primary-color);
   box-shadow: 0 0 0 1px var(--primary-color);
 }
@@ -58,7 +58,7 @@
 }
 
 [data-theme='dark'] #verificationsHistory .list-group-item:hover {
-  background-color: var(--dark-bg);
+  background-color: var(--dark-surface);
   border-color: var(--primary-color);
 }
 
