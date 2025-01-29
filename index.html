@@ -74,12 +74,21 @@
       property="og:description"
       content="Ferramenta online para ajudar na identificação de fake news e desinformação. Verifique a veracidade de notícias rapidamente."
     />
-    <meta
-      property="og:image"
-      content="https://fakenews-sigma.vercel.app/imagem-de-preview.jpg"
+    <link
+      rel="preload"
+      as="image"
+      href="https://fakenews-sigma.vercel.app/imagem-de-preview.jpg"
     />
     <meta property="og:url" content="https://fakenews-sigma.vercel.app/" />
     <meta property="og:type" content="website" />
+
+    <!-- Open Search -->
+    <link
+      rel="search"
+      type="application/opensearchdescription+xml"
+      title="Verificador de Fake News"
+      href="/opensearch.xml"
+    />
 
     <!-- Meta Tags Bing -->
     <meta name="msvalidate.01" content="D084F47552A4F2369EB267F97FAC6117" />
