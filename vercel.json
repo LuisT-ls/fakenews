@@ -1,4 +1,6 @@
 {
+  "name": "Sigma",
+  "scope": "luistls-projects",
   "routes": [
     {
       "handle": "filesystem"
