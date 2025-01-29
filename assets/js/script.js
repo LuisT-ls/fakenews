@@ -753,3 +753,81 @@ document.head.insertAdjacentHTML(
   </style>
 `
 )
+
+// Contraste
+function setContrast(type) {
+  if (type === 'high') {
+    document.body.classList.add('high-contrast')
+    localStorage.setItem('contrast', 'high')
+  } else {
+    document.body.classList.remove('high-contrast')
+    localStorage.setItem('contrast', 'normal')
+  }
+}
+
+// Tamanho da Fonte
+let currentFontSize = 100
+function changeFontSize(action) {
+  if (action === 'increase' && currentFontSize < 140) {
+    currentFontSize += 20
+  } else if (action === 'decrease' && currentFontSize > 60) {
+    // Limite mínimo de 60%
+    currentFontSize -= 20
+  } else if (action === 'reset') {
+    currentFontSize = 100
+  }
+
+  document.body.style.fontSize = `${currentFontSize}%`
+  localStorage.setItem('fontSize', currentFontSize)
+}
+
+// Espaçamento de Texto
+function changeLineSpacing(type) {
+  if (type === 'large') {
+    document.body.classList.add('large-spacing')
+    localStorage.setItem('lineSpacing', 'large')
+  } else {
+    document.body.classList.remove('large-spacing')
+    localStorage.setItem('lineSpacing', 'normal')
+  }
+}
+
+// Destacar Links
+function toggleHighlightLinks(enabled) {
+  if (enabled) {
+    document.body.classList.add('highlight-links')
+    localStorage.setItem('highlightLinks', 'true')
+  } else {
+    document.body.classList.remove('highlight-links')
+    localStorage.setItem('highlightLinks', 'false')
+  }
+}
+
+// Carregar preferências salvas
+document.addEventListener('DOMContentLoaded', () => {
+  // Carregar contraste
+  const savedContrast = localStorage.getItem('contrast')
+  if (savedContrast === 'high') {
+    setContrast('high')
+  }
+
+  // Carregar tamanho da fonte
+  const savedFontSize = localStorage.getItem('fontSize')
+  if (savedFontSize) {
+    currentFontSize = parseInt(savedFontSize)
+    document.body.style.fontSize = `${currentFontSize}%`
+  }
+
+  // Carregar espaçamento
+  const savedLineSpacing = localStorage.getItem('lineSpacing')
+  if (savedLineSpacing === 'large') {
+    changeLineSpacing('large')
+  }
+
+  // Carregar destaque de links
+  const savedHighlightLinks = localStorage.getItem('highlightLinks')
+  if (savedHighlightLinks === 'true') {
+    document.getElementById('highlightLinksToggle').checked = true
+    toggleHighlightLinks(true)
+  }
+})

@@ -5,6 +5,7 @@
 /* Import Layout Components */
 @import url('./layout/header.css');
 @import url('./layout/footer.css');
+@import url('./layout/autocontraste.css');
 
 /* Import UI Components */
 @import url('./components/buttons.css');
@@ -26,14 +27,12 @@ body {
   transition: background-color var(--transition-speed);
 }
 
-/* Container max-width overrides if needed */
 .container {
   max-width: 1200px;
   margin: 0 auto;
   padding: 0 1rem;
 }
 
-/* Any additional global styles that don't fit in component files */
 .visually-hidden {
   position: absolute;
   width: 1px;
