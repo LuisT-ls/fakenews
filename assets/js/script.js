@@ -596,6 +596,7 @@ function showLoadingState(loading) {
  * @param {string} type - Tipo da notificação (success, info, warning, danger)
  */
 function showNotification(message, type = 'info') {
+  console.trace('Notificação chamada:', message)
   const currentLang = document.documentElement.lang
   const translatedMessage = translateDynamicContent(message, currentLang)
   const toast = new bootstrap.Toast(elements.notificationToast)
