@@ -31,6 +31,9 @@ document.addEventListener('DOMContentLoaded', () => {
     elements.verifyButton.disabled = !elements.userInput.value.trim()
   })
 
+  // Listeners de feedback
+  let feedbackGiven = false
+
   document
     .getElementById('confirmClearHistory')
     ?.addEventListener('click', () => {
@@ -47,6 +50,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
       // Mostra notificação de sucesso
       showNotification('Histórico apagado com sucesso!', 'success')
+
+      feedbackGiven = false
     })
 
   // Listeners de conectividade
@@ -793,7 +798,11 @@ document.head.insertAdjacentHTML(
  * @param {string} type - Tipo de feedback (positive/negative)
  */
 function submitFeedback(type) {
-  showNotification('Obrigado pelo seu feedback!', 'success')
+  if (!feedbackGiven) {
+    showNotification('Obrigado pelo seu feedback!', 'success')
+    feedbackGiven = true
+  }
+
   console.log(`Feedback ${type} recebido e processado`)
 }
 
