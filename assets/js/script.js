@@ -799,7 +799,7 @@ document.head.insertAdjacentHTML(
  */
 function submitFeedback(type) {
   if (!feedbackGiven) {
-    showNotification('Obrigado pelo seu feedback!', 'success')
+    showNotification('Feedback enviado com sucesso!', 'success')
     feedbackGiven = true
   }
 
