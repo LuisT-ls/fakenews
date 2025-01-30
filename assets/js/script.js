@@ -47,11 +47,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
       // Mostra notificação de sucesso
       showNotification('Histórico apagado com sucesso!', 'success')
-
-      // Aguarda um tempo para exibir a notificação de feedback
-      setTimeout(() => {
-        showNotification('Obrigado pelo seu feedback!', 'success')
-      }, 2000)
     })
 
   // Listeners de conectividade
