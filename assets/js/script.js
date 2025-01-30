@@ -1,6 +1,9 @@
 // Estado global da aplicação
 let verificationHistory = []
 
+// Listeners de feedback
+let feedbackGiven = false
+
 /**
  * Objeto que armazena referências aos elementos do DOM frequentemente utilizados
  * Centraliza o acesso aos elementos para facilitar manutenção e evitar repetição
@@ -30,9 +33,6 @@ document.addEventListener('DOMContentLoaded', () => {
   elements.userInput.addEventListener('input', () => {
     elements.verifyButton.disabled = !elements.userInput.value.trim()
   })
-
-  // Listeners de feedback
-  let feedbackGiven = false
 
   document
     .getElementById('confirmClearHistory')
