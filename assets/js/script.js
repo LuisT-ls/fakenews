@@ -1,7 +1,10 @@
 // Estado global da aplicação
 let verificationHistory = []
 
-// Elementos do DOM
+/**
+ * Objeto que armazena referências aos elementos do DOM frequentemente utilizados
+ * Centraliza o acesso aos elementos para facilitar manutenção e evitar repetição
+ */
 const elements = {
   userInput: document.getElementById('userInput'),
   verifyButton: document.getElementById('verifyButton'),
@@ -14,7 +17,10 @@ const elements = {
   clearHistoryBtn: document.getElementById('clearHistoryBtn')
 }
 
-// Inicialização com Event Delegation
+/**
+ * Inicializa a aplicação quando o DOM é carregado
+ * Configura event listeners, carrega histórico e inicializa componentes
+ */
 document.addEventListener('DOMContentLoaded', () => {
   loadVerificationHistory()
   initThemeSwitch()
@@ -77,7 +83,10 @@ document.addEventListener('DOMContentLoaded', () => {
   })
 })
 
-// Handler global de clicks
+/**
+ * Compartilha o conteúdo da análise em diferentes plataformas sociais
+ * @param {string} platform - Plataforma de compartilhamento (twitter, whatsapp, telegram)
+ */
 function shareContent(platform) {
   // Pegar o texto da análise do elemento de resultado
   const resultElement = document.getElementById('result')
@@ -117,6 +126,10 @@ function shareContent(platform) {
   window.open(platformUrls[platform], '_blank')
 }
 
+/**
+ * Gerencia clicks globais da aplicação usando event delegation
+ * @param {Event} e - Evento de click
+ */
 function handleGlobalClicks(e) {
   const target = e.target
   const shareButton = target.closest('[data-share]')
@@ -131,6 +144,11 @@ function handleGlobalClicks(e) {
   }
 }
 
+/**
+ * Realiza a verificação do texto usando a API do Gemini
+ * @param {string} text - Texto a ser verificado
+ * @returns {Promise<Object>} Resultado da análise
+ */
 async function checkWithGemini(text) {
   try {
     // Obter chave API
@@ -238,7 +256,9 @@ Return only a valid JSON object with this exact structure, without any additiona
   }
 }
 
-// Gerenciamento do tema
+/**
+ * Inicializa e configura o switch de tema (claro/escuro)
+ */
 function initThemeSwitch() {
   const theme = localStorage.getItem('theme') || 'light'
   document.documentElement.setAttribute('data-theme', theme)
@@ -257,7 +277,10 @@ function initThemeSwitch() {
   })
 }
 
-// Processo de verificação
+/**
+ * Gerencia o processo de verificação do texto
+ * Coordena a interação com a API e atualização da UI
+ */
 async function handleVerification() {
   const text = elements.userInput.value.trim()
   if (!text) return
@@ -287,7 +310,10 @@ async function handleVerification() {
   }
 }
 
-// Funções de UI
+/**
+ * Exibe os resultados da verificação na interface
+ * @param {Object} verification - Objeto contendo os resultados da verificação
+ */
 function displayResults(verification) {
   const currentLang = document.documentElement.lang
 
@@ -450,6 +476,11 @@ function displayResults(verification) {
   elements.resultSection.classList.remove('d-none')
 }
 
+/**
+ * Gerencia o feedback do usuário sobre a análise
+ * @param {HTMLElement} button - Botão de feedback clicado
+ * @param {HTMLElement} feedbackSection - Seção de feedback no DOM
+ */
 function handleFeedback(button, feedbackSection) {
   const verificationId = feedbackSection.dataset.verificationId
   const feedbackType = button.dataset.feedback
@@ -481,7 +512,11 @@ function handleFeedback(button, feedbackSection) {
   submitFeedback(feedbackType)
 }
 
-// Função para gerar seções de análise
+/**
+ * Gera as seções HTML para cada parte da análise
+ * @param {Object} gemini - Resultado da análise do Gemini
+ * @returns {string} HTML das seções de análise
+ */
 function generateAnalysisSections(gemini) {
   const sections = [
     {
@@ -534,11 +569,19 @@ function generateAnalysisSections(gemini) {
     .join('')
 }
 
-// Utilitários
+/**
+ * Determina a classe CSS baseada no score
+ * @param {number} score - Score da verificação (0-1)
+ * @returns {string} Classe CSS correspondente
+ */
 function getScoreClass(score) {
   return score >= 0.7 ? 'success' : score >= 0.4 ? 'warning' : 'danger'
 }
 
+/**
+ * Controla o estado de loading da interface
+ * @param {boolean} loading - Estado de carregamento
+ */
 function showLoadingState(loading) {
   elements.verifyButton.disabled = loading
   elements.spinner.classList.toggle('d-none', !loading)
@@ -547,6 +590,11 @@ function showLoadingState(loading) {
     : 'Verificar Agora'
 }
 
+/**
+ * Exibe notificações toast
+ * @param {string} message - Mensagem a ser exibida
+ * @param {string} type - Tipo da notificação (success, info, warning, danger)
+ */
 function showNotification(message, type = 'info') {
   const currentLang = document.documentElement.lang
   const translatedMessage = translateDynamicContent(message, currentLang)
@@ -557,7 +605,10 @@ function showNotification(message, type = 'info') {
   toast.show()
 }
 
-// Gerenciamento do histórico
+/**
+ * Salva uma verificação no histórico
+ * @param {Object} verification - Objeto de verificação a ser salvo
+ */
 function saveVerification(verification) {
   verificationHistory.unshift(verification)
   if (verificationHistory.length > 10) verificationHistory.pop()
@@ -568,6 +619,9 @@ function saveVerification(verification) {
   updateHistoryDisplay()
 }
 
+/**
+ * Carrega o histórico de verificações do localStorage
+ */
 function loadVerificationHistory() {
   try {
     verificationHistory =
@@ -579,6 +633,9 @@ function loadVerificationHistory() {
   }
 }
 
+/**
+ * Atualiza a exibição do histórico na interface
+ */
 function updateHistoryDisplay() {
   elements.verificationsHistory.innerHTML = verificationHistory.length
     ? verificationHistory
@@ -601,6 +658,9 @@ function updateHistoryDisplay() {
     : '<p class="text-center text-muted">Nenhuma verificação realizada</p>'
 }
 
+/**
+ * Gerencia a limpeza do histórico
+ */
 function handleClearHistory() {
   // Verifica se há itens no histórico
   if (verificationHistory.length === 0) {
@@ -727,7 +787,10 @@ document.head.insertAdjacentHTML(
 `
 )
 
-// Feedback
+/**
+ * Envia feedback do usuário
+ * @param {string} type - Tipo de feedback (positive/negative)
+ */
 function submitFeedback(type) {
   showNotification('Obrigado pelo seu feedback!', 'success')
   console.log(`Feedback ${type} recebido e processado`)
@@ -754,7 +817,10 @@ document.head.insertAdjacentHTML(
 `
 )
 
-// Contraste
+/**
+ * Define o nível de contraste da interface
+ * @param {string} type - Tipo de contraste (high/normal)
+ */
 function setContrast(type) {
   if (type === 'high') {
     document.body.classList.add('high-contrast')
@@ -767,6 +833,11 @@ function setContrast(type) {
 
 // Tamanho da Fonte
 let currentFontSize = 100
+
+/**
+ * Altera o tamanho da fonte
+ * @param {string} action - Ação a ser executada (increase/decrease/reset)
+ */
 function changeFontSize(action) {
   if (action === 'increase' && currentFontSize < 140) {
     currentFontSize += 20
@@ -781,7 +852,10 @@ function changeFontSize(action) {
   localStorage.setItem('fontSize', currentFontSize)
 }
 
-// Espaçamento de Texto
+/**
+ * Altera o espaçamento entre linhas
+ * @param {string} type - Tipo de espaçamento (large/normal)
+ */
 function changeLineSpacing(type) {
   if (type === 'large') {
     document.body.classList.add('large-spacing')
@@ -792,7 +866,10 @@ function changeLineSpacing(type) {
   }
 }
 
-// Destacar Links
+/**
+ * Ativa/desativa o destaque de links
+ * @param {boolean} enabled - Estado do destaque de links
+ */
 function toggleHighlightLinks(enabled) {
   if (enabled) {
     document.body.classList.add('highlight-links')
