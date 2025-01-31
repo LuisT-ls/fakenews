@@ -35,10 +35,16 @@ document.addEventListener('DOMContentLoaded', () => {
   })
 
   document.addEventListener('DOMContentLoaded', () => {
+    // Event listener para o botão de limpar histórico
+    const clearHistoryBtn = document.getElementById('clearHistoryBtn')
+    if (clearHistoryBtn) {
+      clearHistoryBtn.addEventListener('click', handleClearHistory)
+    }
+
+    // Event listener para o botão de confirmar limpeza no modal
     const confirmClearHistoryBtn = document.getElementById(
       'confirmClearHistory'
     )
-
     if (confirmClearHistoryBtn) {
       confirmClearHistoryBtn.addEventListener('click', () => {
         // Limpa o histórico
@@ -705,7 +711,6 @@ function updateHistoryDisplay() {
 function handleClearHistory() {
   // Verifica se há itens no histórico
   if (verificationHistory.length === 0) {
-    // Se não houver histórico, mostra um modal diferente
     const modalContent = `
       <div class="modal fade" id="emptyHistoryModal" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
@@ -738,22 +743,17 @@ function handleClearHistory() {
       </div>
     `
 
-    // Remove qualquer instância anterior do modal
     const existingModal = document.getElementById('emptyHistoryModal')
     if (existingModal) {
       existingModal.remove()
     }
 
-    // Adiciona o novo modal ao DOM
     document.body.insertAdjacentHTML('beforeend', modalContent)
-
-    // Mostra o modal
     const modal = new bootstrap.Modal(
       document.getElementById('emptyHistoryModal')
     )
     modal.show()
 
-    // Remove o modal do DOM após ser fechado
     document
       .getElementById('emptyHistoryModal')
       .addEventListener('hidden.bs.modal', function () {
@@ -763,11 +763,12 @@ function handleClearHistory() {
     return
   }
 
-  // Se houver histórico, mostra o modal de confirmação normal
-  const modal = new bootstrap.Modal(
-    document.getElementById('clearHistoryModal')
-  )
-  modal.show()
+  // Se houver histórico, mostra o modal de confirmação
+  const clearHistoryModal = document.getElementById('clearHistoryModal')
+  if (clearHistoryModal) {
+    const modal = new bootstrap.Modal(clearHistoryModal)
+    modal.show()
+  }
 }
 
 function updateHistoryDisplay() {
