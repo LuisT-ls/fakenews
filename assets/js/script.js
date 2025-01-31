@@ -34,47 +34,43 @@ document.addEventListener('DOMContentLoaded', () => {
     elements.verifyButton.disabled = !elements.userInput.value.trim()
   })
 
-  document.addEventListener('DOMContentLoaded', () => {
-    // Event listener para o botão de limpar histórico
-    const clearHistoryBtn = document.getElementById('clearHistoryBtn')
-    if (clearHistoryBtn) {
-      clearHistoryBtn.addEventListener('click', handleClearHistory)
-    }
+  // Event listener para o botão de limpar histórico
+  const clearHistoryBtn = document.getElementById('clearHistoryBtn')
+  if (clearHistoryBtn) {
+    clearHistoryBtn.addEventListener('click', handleClearHistory)
+  }
 
-    // Event listener para o botão de confirmar limpeza no modal
-    const confirmClearHistoryBtn = document.getElementById(
-      'confirmClearHistory'
-    )
-    if (confirmClearHistoryBtn) {
-      confirmClearHistoryBtn.addEventListener('click', () => {
-        // Limpa o histórico
-        verificationHistory = []
-        localStorage.removeItem('verificationHistory')
-        updateHistoryDisplay()
+  // Event listener para o botão de confirmar limpeza no modal
+  const confirmClearHistoryBtn = document.getElementById('confirmClearHistory')
+  if (confirmClearHistoryBtn) {
+    confirmClearHistoryBtn.addEventListener('click', () => {
+      // Limpa o histórico
+      verificationHistory = []
+      localStorage.removeItem('verificationHistory')
+      updateHistoryDisplay()
 
-        // Fecha o modal
-        const modal = bootstrap.Modal.getInstance(
-          document.getElementById('clearHistoryModal')
-        )
-        if (modal) {
-          modal.hide()
-        }
+      // Fecha o modal
+      const modal = bootstrap.Modal.getInstance(
+        document.getElementById('clearHistoryModal')
+      )
+      if (modal) {
+        modal.hide()
+      }
 
-        // Mostra a notificação de sucesso
-        showNotification('Histórico apagado com sucesso!', 'success')
+      // Mostra a notificação de sucesso
+      showNotification('Histórico apagado com sucesso!', 'success')
 
-        // Reseta o estado do feedback
-        feedbackGiven = false
-      })
-    }
+      // Reseta o estado do feedback
+      feedbackGiven = false
+    })
+  }
 
-    // Inicializa os toasts do Bootstrap
-    const toastElList = document.querySelectorAll('.toast')
-    toastElList.forEach(toastEl => {
-      new bootstrap.Toast(toastEl, {
-        delay: 3000,
-        animation: true
-      })
+  // Inicializa os toasts do Bootstrap
+  const toastElList = document.querySelectorAll('.toast')
+  toastElList.forEach(toastEl => {
+    new bootstrap.Toast(toastEl, {
+      delay: 3000,
+      animation: true
     })
   })
 
@@ -743,12 +739,16 @@ function handleClearHistory() {
       </div>
     `
 
+    // Remove modal existente se houver
     const existingModal = document.getElementById('emptyHistoryModal')
     if (existingModal) {
       existingModal.remove()
     }
 
+    // Adiciona o novo modal ao DOM
     document.body.insertAdjacentHTML('beforeend', modalContent)
+
+    // Inicializa e mostra o modal
     const modal = new bootstrap.Modal(
       document.getElementById('emptyHistoryModal')
     )
