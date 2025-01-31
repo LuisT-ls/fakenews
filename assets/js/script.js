@@ -34,25 +34,43 @@ document.addEventListener('DOMContentLoaded', () => {
     elements.verifyButton.disabled = !elements.userInput.value.trim()
   })
 
-  document
-    .getElementById('confirmClearHistory')
-    ?.addEventListener('click', () => {
-      // Limpa o histórico
-      verificationHistory = []
-      localStorage.removeItem('verificationHistory')
-      updateHistoryDisplay()
+  document.addEventListener('DOMContentLoaded', () => {
+    const confirmClearHistoryBtn = document.getElementById(
+      'confirmClearHistory'
+    )
 
-      // Fecha o modal
-      const modal = bootstrap.Modal.getInstance(
-        document.getElementById('clearHistoryModal')
-      )
-      modal.hide()
+    if (confirmClearHistoryBtn) {
+      confirmClearHistoryBtn.addEventListener('click', () => {
+        // Limpa o histórico
+        verificationHistory = []
+        localStorage.removeItem('verificationHistory')
+        updateHistoryDisplay()
 
-      // Mostra notificação de sucesso
-      showNotification('Histórico apagado com sucesso!', 'success')
+        // Fecha o modal
+        const modal = bootstrap.Modal.getInstance(
+          document.getElementById('clearHistoryModal')
+        )
+        if (modal) {
+          modal.hide()
+        }
 
-      feedbackGiven = false
+        // Mostra a notificação de sucesso
+        showNotification('Histórico apagado com sucesso!', 'success')
+
+        // Reseta o estado do feedback
+        feedbackGiven = false
+      })
+    }
+
+    // Inicializa os toasts do Bootstrap
+    const toastElList = document.querySelectorAll('.toast')
+    toastElList.forEach(toastEl => {
+      new bootstrap.Toast(toastEl, {
+        delay: 3000,
+        animation: true
+      })
     })
+  })
 
   // Listeners de conectividade
   window.addEventListener('offline', () =>
@@ -490,20 +508,23 @@ function handleFeedback(button, feedbackSection) {
   const verificationId = feedbackSection.dataset.verificationId
   const feedbackType = button.dataset.feedback
 
-  // Desabilitar os botões após o clique
+  // Desabilita todos os botões
   feedbackSection.querySelectorAll('.btn-feedback').forEach(btn => {
     btn.disabled = true
     btn.classList.remove('btn-outline-success', 'btn-outline-danger')
     btn.classList.add('btn-light')
   })
 
-  // Destacar o botão selecionado
+  // Destaca o botão selecionado
   button.classList.remove('btn-light')
   button.classList.add(
     feedbackType === 'positive' ? 'btn-success' : 'btn-danger'
   )
 
-  // Substituir os botões por uma mensagem de agradecimento
+  // Mostra a notificação de agradecimento
+  showNotification('Obrigado pelo seu feedback!', 'success')
+
+  // Atualiza a interface após um pequeno delay
   setTimeout(() => {
     feedbackSection.innerHTML = `
       <div class="text-muted small">
@@ -513,7 +534,7 @@ function handleFeedback(button, feedbackSection) {
     `
   }, 1000)
 
-  // Salvar o feedback
+  // Registra o feedback
   submitFeedback(feedbackType)
 }
 
@@ -601,14 +622,28 @@ function showLoadingState(loading) {
  * @param {string} type - Tipo da notificação (success, info, warning, danger)
  */
 function showNotification(message, type = 'info') {
-  console.trace('Notificação chamada:', message)
-  const currentLang = document.documentElement.lang
-  const translatedMessage = translateDynamicContent(message, currentLang)
-  const toast = new bootstrap.Toast(elements.notificationToast)
-  elements.notificationToast.querySelector('.toast-body').textContent =
-    translatedMessage
-  elements.notificationToast.className = `toast bg-${type}`
-  toast.show()
+  const toast = document.getElementById('notificationToast')
+  if (!toast) {
+    console.error('Elemento toast não encontrado')
+    return
+  }
+
+  // Configura o tipo de notificação
+  toast.className = `toast bg-${type} text-white`
+
+  // Atualiza o conteúdo
+  const toastBody = toast.querySelector('.toast-body')
+  if (toastBody) {
+    toastBody.textContent = message
+  }
+
+  // Inicializa e mostra o toast
+  const bsToast = new bootstrap.Toast(toast, {
+    delay: 3000,
+    animation: true
+  })
+
+  bsToast.show()
 }
 
 /**
@@ -799,11 +834,9 @@ document.head.insertAdjacentHTML(
  */
 function submitFeedback(type) {
   if (!feedbackGiven) {
-    showNotification('Obrigado pelo seu feedback!', 'success')
     feedbackGiven = true
+    console.log(`Feedback ${type} recebido e processado`)
   }
-
-  console.log(`Feedback ${type} recebido e processado`)
 }
 
 const userInput = document.getElementById('userInput')
