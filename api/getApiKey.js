@@ -1,3 +1,5 @@
+// API para obter a chave API de forma segura
+// api/getApiKey
 export default function handler(req, res) {
   // Permitir requisições do mesmo domínio
   const allowedOrigin = 'https://fakenews-sigma.vercel.app'
