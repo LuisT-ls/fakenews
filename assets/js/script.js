@@ -145,115 +145,276 @@ function handleGlobalClicks(e) {
 }
 
 /**
- * Realiza a verificação do texto usando a API do Gemini
+ * Realiza uma análise local do texto em busca de sinais de fake news
  * @param {string} text - Texto a ser verificado
  * @returns {Promise<Object>} Resultado da análise
  */
 async function checkWithGemini(text) {
   try {
-    // Obter chave API
-    const keyResponse = await fetch(
-      'https://fakenews-sigma.vercel.app/api/getApiKey',
+    // Em vez de chamar a API externa, vamos fazer análise local
+    const lowercaseText = text.toLowerCase()
+
+    // Identificar sinais de fake news no texto
+    const redFlags = [
       {
-        method: 'GET',
-        credentials: 'include',
-        headers: { 'Content-Type': 'application/json' }
-      }
-    )
-
-    if (!keyResponse.ok) {
-      console.error('Erro ao obter chave:', await keyResponse.text())
-      throw new Error('Não foi possível obter a chave API')
-    }
-
-    const { apiKey } = await keyResponse.json()
-
-    // Linguagem atual
-    const currentLang = document.documentElement.lang || 'pt'
-    const promptLang = currentLang === 'pt' ? 'em português' : 'in English'
-
-    // Data atual para comparação
-    const currentDate = new Date()
-    const analysisDate = new Date(2022, 11, 31) // Fim de 2022
-
-    // Prompt atualizado com consciência temporal
-    const prompt = `Analise detalhadamente o seguinte texto para verificar sua veracidade. 
-    Observe que sua base de conhecimento vai até 2022, então para eventos após essa data, 
-    indique claramente essa limitação na análise e foque nos elementos verificáveis do texto
-    que não dependem do período temporal. Forneça a resposta ${promptLang}:
-    
-    Data atual: ${currentDate.toISOString()}
-    Texto para análise: "${text}"
-
-Return only a valid JSON object with this exact structure, without any additional text:
-{
-  "score": [0-1],
-  "confiabilidade": [0-1],
-  "classificacao": ["Comprovadamente Verdadeiro", "Parcialmente Verdadeiro", "Não Verificável", "Provavelmente Falso", "Comprovadamente Falso"],
-  "explicacao_score": "string",
-  "elementos_verdadeiros": ["array"],
-  "elementos_falsos": ["array"],
-  "elementos_suspeitos": ["array"],
-  "fontes_confiaveis": ["array"],
-  "indicadores_desinformacao": ["array"],
-  "analise_detalhada": "string",
-  "recomendacoes": ["array"],
-  "limitacao_temporal": {
-    "afeta_analise": boolean,
-    "elementos_nao_verificaveis": ["array"],
-    "sugestoes_verificacao": ["array"]
-  }
-}`
-
-    // Fazer requisição para a API
-    const response = await fetch(
-      `https://generativelanguage.googleapis.com/v1/models/gemini-pro:generateContent?key=${apiKey}`,
+        pattern: /urgente[!]+/i,
+        weight: 0.15,
+        description: "Uso de 'URGENTE' com múltiplas exclamações"
+      },
       {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          contents: [{ parts: [{ text: prompt }] }],
-          generationConfig: {
-            temperature: 0.1,
-            topP: 0.1,
-            topK: 16,
-            maxOutputTokens: 2048
-          }
-        })
+        pattern: /compartilhe (antes|agora|já|imediatamente)/i,
+        weight: 0.1,
+        description: 'Pedido urgente de compartilhamento'
+      },
+      {
+        pattern:
+          /(médicos|cientistas|especialistas) (escondem|não querem que você saiba)/i,
+        weight: 0.12,
+        description: 'Alegação de conspiração por autoridades'
+      },
+      {
+        pattern:
+          /(cura|tratamento|remédio) (milagroso|secreto|censurado|que não querem que você saiba)/i,
+        weight: 0.13,
+        description: 'Alegação de cura milagrosa'
+      },
+      {
+        pattern:
+          /isso (a mídia|a imprensa|os jornais|a globo|os jornalistas) não mostra[m]?/i,
+        weight: 0.1,
+        description: 'Desconfiança generalizada da mídia'
+      },
+      {
+        pattern: /[!]{3,}/g,
+        weight: 0.08,
+        description: 'Excesso de pontuação de exclamação'
+      },
+      {
+        pattern: /[?]{3,}/g,
+        weight: 0.05,
+        description: 'Excesso de pontuação interrogativa'
+      },
+      {
+        pattern: /fonte: (whatsapp|telegram|amigo meu|grupo do)/i,
+        weight: 0.15,
+        description: 'Fontes não verificáveis'
+      },
+      {
+        pattern: /100% (comprovado|verificado|garantido)/i,
+        weight: 0.1,
+        description: 'Alegações absolutas de veracidade'
+      },
+      {
+        pattern:
+          /(governo|autoridades) (querem|estão|vão) (esconder|censurar|proibir)/i,
+        weight: 0.1,
+        description: 'Narrativa de conspiração governamental'
       }
-    )
+    ]
 
-    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`)
+    // Elementos positivos de credibilidade
+    const credibilitySignals = [
+      {
+        pattern:
+          /(segundo|de acordo com|conforme) (pesquisa|estudo|levantamento|dados)/i,
+        weight: 0.12,
+        description: 'Referência a estudos ou pesquisas'
+      },
+      {
+        pattern: /publicado (n[ao]|pel[ao]) (revista|jornal|portal|site)/i,
+        weight: 0.1,
+        description: 'Cita publicação em veículos de mídia'
+      },
+      {
+        pattern: /(em entrevista|declarou|afirmou|disse) ([aà]|para)/i,
+        weight: 0.08,
+        description: 'Atribuição clara de declarações'
+      },
+      {
+        pattern: /(segundo|conforme) dados (d[aoe]|fornecidos por)/i,
+        weight: 0.1,
+        description: 'Uso de dados com fonte'
+      },
+      {
+        pattern: /(universidade|instituto|centro de pesquisa)/i,
+        weight: 0.1,
+        description: 'Menção a instituições de pesquisa'
+      }
+    ]
 
-    const data = await response.json()
-    const rawText = data.candidates?.[0]?.content?.parts?.[0]?.text?.trim()
+    // Calcular pontuação de fake news
+    let fakeProbability = 0.5 // Começa neutro
+    let detectedRedFlags = []
+    let detectedCredibility = []
 
-    if (!rawText) {
-      throw new Error('Resposta inválida da API')
+    // Verifica sinais de alerta
+    for (const flag of redFlags) {
+      const matches = (lowercaseText.match(flag.pattern) || []).length
+      if (matches > 0) {
+        fakeProbability += (flag.weight * Math.min(matches, 3)) / 3
+        detectedRedFlags.push(flag.description)
+      }
     }
 
-    const cleanText = rawText.replace(/```json|```/g, '').trim()
-    const result = JSON.parse(cleanText)
-
-    // Ajustar score e classificação baseado na limitação temporal
-    if (result.limitacao_temporal?.afeta_analise) {
-      // Se houver limitação temporal significativa, ajustar para "Não Verificável"
-      // apenas se a limitação for o fator principal
-      if (
-        result.elementos_nao_verificaveis?.length >
-        result.elementos_verdadeiros?.length
-      ) {
-        result.classificacao = 'Não Verificável'
-        result.score = 0.5
-        result.confiabilidade = 0.5
+    // Verifica sinais de credibilidade
+    for (const signal of credibilitySignals) {
+      const matches = (lowercaseText.match(signal.pattern) || []).length
+      if (matches > 0) {
+        fakeProbability -= (signal.weight * Math.min(matches, 3)) / 3
+        detectedCredibility.push(signal.description)
       }
     }
 
-    return result
+    // Garantir que a probabilidade esteja entre 0 e 1
+    fakeProbability = Math.max(0, Math.min(1, fakeProbability))
+
+    // Inverter o valor para obter o score de confiabilidade (1 - probabilidade de fake)
+    const reliabilityScore = 1 - fakeProbability
+
+    // Determinar classificação baseada no score
+    let classification
+    if (reliabilityScore >= 0.8) {
+      classification = 'Comprovadamente Verdadeiro'
+    } else if (reliabilityScore >= 0.6) {
+      classification = 'Parcialmente Verdadeiro'
+    } else if (reliabilityScore >= 0.4) {
+      classification = 'Não Verificável'
+    } else if (reliabilityScore >= 0.2) {
+      classification = 'Provavelmente Falso'
+    } else {
+      classification = 'Comprovadamente Falso'
+    }
+
+    // Preparar resultado da análise
+    return {
+      score: reliabilityScore,
+      confiabilidade: reliabilityScore,
+      classificacao: classification,
+      explicacao_score: getScoreExplanation(reliabilityScore),
+      elementos_verdadeiros: detectedCredibility,
+      elementos_falsos: [],
+      elementos_suspeitos: detectedRedFlags,
+      fontes_confiaveis: [],
+      indicadores_desinformacao: detectedRedFlags,
+      analise_detalhada: generateDetailedAnalysis(
+        text,
+        reliabilityScore,
+        detectedRedFlags,
+        detectedCredibility
+      ),
+      recomendacoes: generateRecommendations(
+        reliabilityScore,
+        detectedRedFlags
+      ),
+      limitacao_temporal: {
+        afeta_analise: false,
+        elementos_nao_verificaveis: [],
+        sugestoes_verificacao: [
+          'Busque o conteúdo em sites de fact-checking',
+          'Verifique em mais de uma fonte confiável',
+          'Pesquise a origem da informação'
+        ]
+      }
+    }
   } catch (error) {
     console.error('Erro na análise:', error)
     throw error
   }
+}
+
+/**
+ * Gera explicação para o score obtido
+ * @param {number} score - Score de confiabilidade
+ * @returns {string} Explicação do score
+ */
+function getScoreExplanation(score) {
+  if (score >= 0.8) {
+    return 'O conteúdo apresenta alto grau de confiabilidade, com elementos que indicam informação verificável e fontes confiáveis.'
+  } else if (score >= 0.6) {
+    return 'O conteúdo apresenta boa confiabilidade, mas contém alguns elementos que merecem verificação adicional.'
+  } else if (score >= 0.4) {
+    return 'O conteúdo possui elementos tanto de confiabilidade quanto de suspeita, sendo recomendável verificação em outras fontes.'
+  } else if (score >= 0.2) {
+    return 'O conteúdo apresenta vários sinais de alerta típicos de desinformação, sendo pouco confiável.'
+  } else {
+    return 'O conteúdo apresenta múltiplos indicadores de desinformação e características comuns de fake news.'
+  }
+}
+
+/**
+ * Gera análise detalhada do texto
+ * @param {string} text - Texto analisado
+ * @param {number} score - Score de confiabilidade
+ * @param {Array} redFlags - Indicadores de fake news encontrados
+ * @param {Array} credibility - Indicadores de credibilidade encontrados
+ * @returns {string} Análise detalhada
+ */
+function generateDetailedAnalysis(text, score, redFlags, credibility) {
+  let analysis = `O texto apresenta um nível de confiabilidade ${Math.round(
+    score * 100
+  )}%. `
+
+  if (redFlags.length > 0) {
+    analysis += `Foram identificados ${
+      redFlags.length
+    } elementos que podem indicar desinformação, como: ${redFlags.join(', ')}. `
+  } else {
+    analysis += 'Não foram identificados sinais claros de desinformação. '
+  }
+
+  if (credibility.length > 0) {
+    analysis += `Por outro lado, foram encontrados ${
+      credibility.length
+    } elementos que sugerem credibilidade: ${credibility.join(', ')}. `
+  } else {
+    analysis +=
+      'Porém, não foram encontrados elementos que reforcem claramente a credibilidade do conteúdo. '
+  }
+
+  analysis += `É importante ressaltar que esta é uma análise automatizada e preliminar, baseada em padrões textuais comuns. Para uma verificação completa, recomenda-se conferir a informação em múltiplas fontes confiáveis.`
+
+  return analysis
+}
+
+/**
+ * Gera recomendações baseadas no score e indicadores
+ * @param {number} score - Score de confiabilidade
+ * @param {Array} redFlags - Indicadores de fake news encontrados
+ * @returns {Array} Lista de recomendações
+ */
+function generateRecommendations(score, redFlags) {
+  const recommendations = [
+    "Verifique a informação em sites de fact-checking como 'Aos Fatos' e 'Lupa'",
+    'Busque a notícia em veículos de imprensa reconhecidos',
+    'Verifique a data de publicação da informação'
+  ]
+
+  if (score < 0.5) {
+    recommendations.push('Tenha cautela antes de compartilhar este conteúdo')
+    recommendations.push('Pesquise sobre o tema em múltiplas fontes')
+  }
+
+  if (
+    redFlags.some(
+      flag => flag.includes('conspiração') || flag.includes('esconder')
+    )
+  ) {
+    recommendations.push(
+      'Desconfie de teorias conspiracionistas sem evidências sólidas'
+    )
+  }
+
+  if (
+    redFlags.some(
+      flag => flag.includes('URGENTE') || flag.includes('compartilhamento')
+    )
+  ) {
+    recommendations.push(
+      'Mensagens que pedem compartilhamento urgente geralmente são suspeitas'
+    )
+  }
+
+  return recommendations
 }
 
 /**
@@ -288,13 +449,13 @@ async function handleVerification() {
   showLoadingState(true)
 
   try {
-    const geminiResult = await checkWithGemini(text)
+    const analysisResult = await checkWithGemini(text)
     const verification = {
       id: Date.now(),
       timestamp: new Date().toISOString(),
       text: text.substring(0, 200) + (text.length > 200 ? '...' : ''),
-      geminiAnalysis: geminiResult,
-      overallScore: geminiResult.score
+      geminiAnalysis: analysisResult,
+      overallScore: analysisResult.score
     }
 
     displayResults(verification)
@@ -302,9 +463,48 @@ async function handleVerification() {
   } catch (error) {
     console.error('Erro durante a verificação:', error)
     showNotification(
-      'Ocorreu um erro durante a verificação. Tente novamente.',
-      'danger'
+      'Ocorreu um erro durante a verificação. Usando análise de emergência.',
+      'warning'
     )
+
+    // Análise de emergência em caso de falha total
+    const fallbackAnalysis = {
+      score: 0.5,
+      confiabilidade: 0.5,
+      classificacao: 'Não Verificável',
+      explicacao_score:
+        'Não foi possível realizar a análise completa. Esta é uma avaliação de emergência.',
+      elementos_verdadeiros: [],
+      elementos_falsos: [],
+      elementos_suspeitos: [
+        'Sistema não conseguiu analisar o conteúdo completamente'
+      ],
+      fontes_confiaveis: [],
+      indicadores_desinformacao: [],
+      analise_detalhada:
+        'O sistema não conseguiu completar a análise. Recomendamos verificar a informação em sites de fact-checking confiáveis e fontes oficiais.',
+      recomendacoes: [
+        'Verifique a informação em sites de fact-checking',
+        'Consulte fontes oficiais sobre o assunto',
+        'Busque a notícia em veículos de imprensa reconhecidos'
+      ],
+      limitacao_temporal: {
+        afeta_analise: true,
+        elementos_nao_verificaveis: ['Conteúdo completo'],
+        sugestoes_verificacao: ['Busque fontes alternativas']
+      }
+    }
+
+    const verification = {
+      id: Date.now(),
+      timestamp: new Date().toISOString(),
+      text: text.substring(0, 200) + (text.length > 200 ? '...' : ''),
+      geminiAnalysis: fallbackAnalysis,
+      overallScore: 0.5
+    }
+
+    displayResults(verification)
+    saveVerification(verification)
   } finally {
     showLoadingState(false)
   }
