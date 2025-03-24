@@ -205,19 +205,14 @@ Return only a valid JSON object with this exact structure, without any additiona
   }
 }`
 
-    // Fix: Update the request format to match the latest Gemini API requirements
+    // Fazer requisição para a API
     const response = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=${apiKey}`,
+      `https://generativelanguage.googleapis.com/v1/models/gemini-pro:generateContent?key=${apiKey}`,
       {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          contents: [
-            {
-              role: 'user',
-              parts: [{ text: prompt }]
-            }
-          ],
+          contents: [{ parts: [{ text: prompt }] }],
           generationConfig: {
             temperature: 0.1,
             topP: 0.1,
@@ -228,14 +223,7 @@ Return only a valid JSON object with this exact structure, without any additiona
       }
     )
 
-    if (!response.ok) {
-      // Add more detailed error logging
-      const errorText = await response.text()
-      console.error('API response error:', errorText)
-      throw new Error(
-        `HTTP error! status: ${response.status}, details: ${errorText}`
-      )
-    }
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`)
 
     const data = await response.json()
     const rawText = data.candidates?.[0]?.content?.parts?.[0]?.text?.trim()
