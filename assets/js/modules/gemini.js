@@ -116,7 +116,7 @@ Return only a valid JSON object with this exact structure, without any additiona
 
     // URL atualizada para a API - tentando v1beta caso v1 não funcione
     const endpoint =
-      'https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent'
+      'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent'
 
     // Fazer requisição para a API
     const response = await fetch(`${endpoint}?key=${apiKey}`, {
