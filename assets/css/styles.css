@@ -6,6 +6,7 @@
 @import url('./layout/header.css');
 @import url('./layout/footer.css');
 @import url('./layout/autocontraste.css');
+@import url('./layout/accessibility.css');
 
 /* Import UI Components */
 @import url('./components/buttons.css');

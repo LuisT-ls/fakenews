@@ -981,12 +981,24 @@
         <!-- Contraste -->
         <div class="mb-4">
           <h6 class="mb-3">Contraste</h6>
-          <div class="d-flex gap-2">
+          <div class="d-flex flex-wrap gap-2">
             <button class="btn btn-outline-primary" data-contrast="normal">
               Normal
             </button>
             <button class="btn btn-outline-primary" data-contrast="high">
               Alto Contraste
+            </button>
+            <button
+              class="btn btn-outline-primary"
+              data-contrast="black-yellow"
+            >
+              Preto/Amarelo
+            </button>
+            <button
+              class="btn btn-outline-primary"
+              data-contrast="yellow-black"
+            >
+              Amarelo/Preto
             </button>
           </div>
         </div>
@@ -1015,6 +1027,9 @@
               Normal
             </button>
             <button class="btn btn-outline-primary" data-spacing="large">
+              Médio
+            </button>
+            <button class="btn btn-outline-primary" data-spacing="larger">
               Ampliado
             </button>
           </div>
@@ -1034,8 +1049,93 @@
             </label>
           </div>
         </div>
+
+        <!-- Fonte para Dislexia -->
+        <div class="mb-4">
+          <h6 class="mb-3">Leitura Facilitada</h6>
+          <div class="form-check form-switch">
+            <input
+              class="form-check-input"
+              type="checkbox"
+              id="dyslexicFontToggle"
+            />
+            <label class="form-check-label" for="dyslexicFontToggle">
+              Fonte para Dislexia
+            </label>
+          </div>
+        </div>
+
+        <!-- Animações Reduzidas -->
+        <div class="mb-4">
+          <h6 class="mb-3">Animações</h6>
+          <div class="form-check form-switch">
+            <input
+              class="form-check-input"
+              type="checkbox"
+              id="reducedMotionToggle"
+            />
+            <label class="form-check-label" for="reducedMotionToggle">
+              Reduzir Animações
+            </label>
+          </div>
+        </div>
+
+        <!-- Cursor Ampliado -->
+        <div class="mb-4">
+          <h6 class="mb-3">Cursor</h6>
+          <div class="form-check form-switch">
+            <input
+              class="form-check-input"
+              type="checkbox"
+              id="largeCursorToggle"
+            />
+            <label class="form-check-label" for="largeCursorToggle">
+              Cursor Ampliado
+            </label>
+          </div>
+        </div>
+
+        <!-- Resetar configurações -->
+        <div class="mt-5 text-center">
+          <button id="resetAccessibilityBtn" class="btn btn-outline-danger">
+            <i class="fas fa-redo me-2"></i>
+            Restaurar Configurações Padrão
+          </button>
+        </div>
+
+        <!-- Atalhos de Teclado -->
+        <div class="mt-4">
+          <h6 class="mb-2">Atalhos de Teclado</h6>
+          <ul class="list-unstyled small">
+            <li class="mb-1">
+              <span class="badge bg-light text-dark">Ctrl+Alt+C</span> -
+              Alternar Contraste
+            </li>
+            <li class="mb-1">
+              <span class="badge bg-light text-dark">Ctrl+Alt+F</span> -
+              Alternar Fonte para Dislexia
+            </li>
+            <li class="mb-1">
+              <span class="badge bg-light text-dark">Ctrl+Alt++</span> -
+              Aumentar Fonte
+            </li>
+            <li class="mb-1">
+              <span class="badge bg-light text-dark">Ctrl+Alt+-</span> -
+              Diminuir Fonte
+            </li>
+            <li class="mb-1">
+              <span class="badge bg-light text-dark">Ctrl+Alt+0</span> - Resetar
+              Fonte
+            </li>
+          </ul>
+        </div>
       </div>
     </div>
+
+    <!-- Link de Acessibilidade para Pular para o Conteúdo Principal -->
+    <a href="#main-content" class="skip-link"
+      >Pular para o conteúdo principal</a
+    >
 
     <!-- Scripts -->
     <script
@@ -1046,7 +1146,7 @@
     <!-- Script principal da aplicação (Tipo módulo) -->
     <script type="module" src="/assets/js/script.js"></script>
     <script type="module" src="/assets/js/translations.js"></script>
-    
+
     <!-- Service Worker -->
     <script>
       if ('serviceWorker' in navigator) {

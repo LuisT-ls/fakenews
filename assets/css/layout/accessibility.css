@@ -1,0 +1,586 @@
+/* Variáveis adicionais para acessibilidade */
+:root {
+  /* Cores para modos de contraste adicionais */
+  --black-color: #000000;
+  --white-color: #ffffff;
+  --yellow-color: #ffff00;
+  --blue-color: #0000ff;
+
+  /* Cores para destaque de foco */
+  --focus-color: #2563eb;
+  --focus-width: 3px;
+
+  /* Variáveis para animações */
+  --transition-reduced: 0.01s;
+}
+
+/* ===================
+   MODOS DE CONTRASTE 
+   =================== */
+
+/* Alto Contraste (Branco sobre Preto) */
+body.high-contrast {
+  --primary-color: #4d8eff;
+  --primary-dark: #80afff;
+  --secondary-color: #ffffff;
+  --danger-color: #ff6b6b;
+  --warning-color: #ffd166;
+  --light-color: #000000;
+  --dark-color: #ffffff;
+  --body-bg: #000000;
+  --text-muted: #ffffff;
+  --dark-bg: #000000;
+  --dark-surface: #000000;
+  --dark-border: #ffffff;
+
+  background-color: var(--body-bg) !important;
+  color: var(--dark-color) !important;
+}
+
+/* Contraste Preto sobre Amarelo */
+body.black-yellow-contrast {
+  --primary-color: #000000;
+  --primary-dark: #000000;
+  --secondary-color: #000000;
+  --danger-color: #000000;
+  --warning-color: #000000;
+  --light-color: #000000;
+  --dark-color: #000000;
+  --body-bg: #ffff00;
+  --text-muted: #000000;
+  --dark-bg: #ffff00;
+  --dark-surface: #ffff00;
+  --dark-border: #000000;
+
+  background-color: var(--body-bg) !important;
+  color: var(--primary-color) !important;
+}
+
+/* Contraste Amarelo sobre Preto */
+body.yellow-black-contrast {
+  --primary-color: #ffff00;
+  --primary-dark: #ffff00;
+  --secondary-color: #ffff00;
+  --danger-color: #ffff00;
+  --warning-color: #ffff00;
+  --light-color: #ffff00;
+  --dark-color: #ffff00;
+  --body-bg: #000000;
+  --text-muted: #ffff00;
+  --dark-bg: #000000;
+  --dark-surface: #000000;
+  --dark-border: #ffff00;
+
+  background-color: var(--body-bg) !important;
+  color: var(--primary-color) !important;
+}
+
+/* Elementos específicos em alto contraste */
+body.high-contrast .bg-primary {
+  background-color: var(--primary-color) !important;
+  color: #000000 !important;
+}
+
+body.high-contrast .bg-white,
+body.high-contrast .bg-light {
+  background-color: #000000 !important;
+  color: #ffffff !important;
+}
+
+body.high-contrast .navbar {
+  background-color: #000000 !important;
+  border-bottom: 2px solid var(--primary-color);
+}
+
+body.high-contrast .card,
+body.high-contrast .modal-content {
+  background-color: #000000 !important;
+  border: 2px solid var(--primary-color) !important;
+}
+
+body.high-contrast .text-muted {
+  color: #ffffff !important;
+  opacity: 0.9;
+}
+
+body.high-contrast .btn-outline-primary {
+  border-color: var(--primary-color);
+  color: var(--primary-color);
+}
+
+body.high-contrast .btn-outline-primary:hover {
+  background-color: var(--primary-color);
+  color: #000000;
+}
+
+body.high-contrast .btn-primary {
+  background-color: var(--primary-color);
+  border-color: var(--primary-color);
+  color: #000000;
+}
+
+body.high-contrast .header-gradient {
+  background: var(--primary-color) !important;
+  color: #000000 !important;
+}
+
+/* Estilizações para contraste preto sobre amarelo */
+body.black-yellow-contrast .btn-primary,
+body.black-yellow-contrast .bg-primary,
+body.black-yellow-contrast .header-gradient,
+body.black-yellow-contrast .navbar {
+  background-color: #000000 !important;
+  color: #ffff00 !important;
+  border-color: #000000 !important;
+}
+
+body.black-yellow-contrast .card,
+body.black-yellow-contrast .modal-content,
+body.black-yellow-contrast .accordion,
+body.black-yellow-contrast .accordion-button {
+  background-color: #ffff00 !important;
+  color: #000000 !important;
+  border-color: #000000 !important;
+}
+
+body.black-yellow-contrast a {
+  color: #000000 !important;
+  text-decoration: underline !important;
+}
+
+body.black-yellow-contrast .form-control {
+  background-color: #ffff00 !important;
+  color: #000000 !important;
+  border: 2px solid #000000 !important;
+}
+
+/* Estilizações para contraste amarelo sobre preto */
+body.yellow-black-contrast .btn-primary,
+body.yellow-black-contrast .bg-primary,
+body.yellow-black-contrast .header-gradient,
+body.yellow-black-contrast .navbar {
+  background-color: #ffff00 !important;
+  color: #000000 !important;
+  border-color: #ffff00 !important;
+}
+
+body.yellow-black-contrast .card,
+body.yellow-black-contrast .modal-content,
+body.yellow-black-contrast .accordion,
+body.yellow-black-contrast .accordion-button {
+  background-color: #000000 !important;
+  color: #ffff00 !important;
+  border-color: #ffff00 !important;
+}
+
+body.yellow-black-contrast a {
+  color: #ffff00 !important;
+  text-decoration: underline !important;
+}
+
+body.yellow-black-contrast .form-control {
+  background-color: #000000 !important;
+  color: #ffff00 !important;
+  border: 2px solid #ffff00 !important;
+}
+
+/* ===================
+   FONTES E TEXTO 
+   =================== */
+
+/* Espaçamento de Texto */
+body.large-spacing {
+  line-height: 1.8 !important;
+  letter-spacing: 0.05em !important;
+  word-spacing: 0.1em !important;
+}
+
+body.larger-spacing {
+  line-height: 2.2 !important;
+  letter-spacing: 0.12em !important;
+  word-spacing: 0.16em !important;
+}
+
+/* Suporte a Fonte para Dislexia */
+@font-face {
+  font-family: 'OpenDyslexic';
+  src: url('https://cdn.jsdelivr.net/npm/open-dyslexic@1.0.3/openDyslexic-Regular.otf')
+    format('opentype');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'OpenDyslexic';
+  src: url('https://cdn.jsdelivr.net/npm/open-dyslexic@1.0.3/openDyslexic-Bold.otf')
+    format('opentype');
+  font-weight: bold;
+  font-style: normal;
+  font-display: swap;
+}
+
+body.dyslexic-font {
+  font-family: 'OpenDyslexic', Arial, sans-serif !important;
+}
+
+body.dyslexic-font h1,
+body.dyslexic-font h2,
+body.dyslexic-font h3,
+body.dyslexic-font h4,
+body.dyslexic-font h5,
+body.dyslexic-font h6,
+body.dyslexic-font p,
+body.dyslexic-font a,
+body.dyslexic-font span,
+body.dyslexic-font div,
+body.dyslexic-font button,
+body.dyslexic-font input,
+body.dyslexic-font select,
+body.dyslexic-font textarea {
+  font-family: 'OpenDyslexic', Arial, sans-serif !important;
+}
+
+/* ===================
+   FOCO E NAVEGAÇÃO
+   =================== */
+
+/* Estilos para Links Destacados */
+body.highlight-links a {
+  text-decoration: underline !important;
+  font-weight: bold !important;
+  transition: all 0.2s ease;
+  position: relative;
+}
+
+body.highlight-links a:hover {
+  text-decoration: underline !important;
+  text-decoration-thickness: 2px !important;
+}
+
+body.highlight-links a:focus {
+  outline: 3px solid var(--focus-color) !important;
+  outline-offset: 2px;
+}
+
+/* Melhorias para Navegação por Teclado */
+:focus {
+  outline: var(--focus-width) solid var(--focus-color) !important;
+  outline-offset: 2px !important;
+}
+
+button:focus,
+a:focus,
+input:focus,
+select:focus,
+textarea:focus {
+  box-shadow: 0 0 0 var(--focus-width) var(--focus-color) !important;
+}
+
+/* Indicadores visíveis para foco em todos os modos de contraste */
+body.high-contrast :focus {
+  outline-color: #ffff00 !important;
+}
+
+body.black-yellow-contrast :focus {
+  outline-color: #0000ff !important;
+}
+
+body.yellow-black-contrast :focus {
+  outline-color: #ffffff !important;
+}
+
+/* ===================
+   ANIMAÇÕES REDUZIDAS
+   =================== */
+
+body.reduced-motion *,
+body.reduced-motion *::before,
+body.reduced-motion *::after {
+  animation-duration: 0.001s !important;
+  transition-duration: 0.001s !important;
+  animation-iteration-count: 1 !important;
+  scroll-behavior: auto !important;
+}
+
+/* ===================
+   CURSOR AMPLIADO
+   =================== */
+
+body.large-cursor {
+  cursor: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32"><circle cx="12" cy="12" r="12" fill="black" stroke="white" stroke-width="2"/></svg>')
+      12 12,
+    auto !important;
+}
+
+body.large-cursor a,
+body.large-cursor button,
+body.large-cursor input[type='submit'],
+body.large-cursor input[type='button'],
+body.large-cursor .btn {
+  cursor: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32"><circle cx="12" cy="12" r="12" fill="black" stroke="white" stroke-width="2"/><path d="M12,6 L12,18 M6,12 L18,12" stroke="white" stroke-width="2"/></svg>')
+      12 12,
+    pointer !important;
+}
+
+/* ===================
+   FORMULÁRIOS ACESSÍVEIS
+   =================== */
+
+/* Melhorias para a legibilidade de campos de formulário */
+.form-control:focus {
+  box-shadow: 0 0 0 var(--focus-width) var(--focus-color) !important;
+  border-color: var(--focus-color) !important;
+}
+
+/* Realce em formulários para contraste */
+body.high-contrast .form-control {
+  background-color: #000000;
+  border-color: var(--primary-color);
+  color: #ffffff;
+}
+
+/* ===================
+   ESTADOS DE BOTÕES 
+   =================== */
+
+/* Botões ativos no menu de acessibilidade */
+button.active {
+  background-color: var(--primary-color) !important;
+  color: white !important;
+  border-color: var(--primary-color) !important;
+}
+
+body.high-contrast button.active,
+body.black-yellow-contrast button.active,
+body.yellow-black-contrast button.active {
+  border-width: 2px !important;
+}
+
+/* ===================
+   ELEMENTOS ESPECÍFICOS
+   =================== */
+
+/* Acordeões em diferentes modos de contraste */
+body.high-contrast .accordion-button {
+  background-color: #000000;
+  color: #ffffff;
+  border: 1px solid var(--primary-color);
+}
+
+body.high-contrast .accordion-button:not(.collapsed) {
+  background-color: var(--primary-color);
+  color: #000000;
+}
+
+/* Tooltip em modos de contraste */
+body.high-contrast .tooltip-inner {
+  background-color: var(--primary-color);
+  color: #000000;
+}
+
+/* Toast em alto contraste */
+body.high-contrast .toast {
+  background-color: #000000;
+  border: 1px solid var(--primary-color);
+}
+
+body.high-contrast .toast-header {
+  background-color: var(--primary-color);
+  color: #000000;
+}
+
+/* Footer em alto contraste */
+body.high-contrast footer {
+  background-color: var(--dark-bg) !important;
+  border-top: 2px solid var(--primary-color);
+}
+
+body.high-contrast footer .text-white-50 {
+  color: #ffffff !important;
+  opacity: 0.9;
+}
+
+/* Elementos de formulário em alto contraste */
+body.high-contrast .form-check-input:checked {
+  background-color: var(--primary-color);
+  border-color: var(--primary-color);
+}
+
+body.high-contrast .form-check-input:focus {
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 0.25rem rgba(77, 142, 255, 0.25);
+}
+
+/* Dropdown em alto contraste */
+body.high-contrast .dropdown-menu {
+  background-color: #000000;
+  border: 1px solid var(--primary-color);
+}
+
+body.high-contrast .dropdown-item {
+  color: #ffffff;
+}
+
+body.high-contrast .dropdown-item:hover,
+body.high-contrast .dropdown-item:focus {
+  background-color: var(--primary-color);
+  color: #000000;
+}
+
+/* ===================
+   MELHORIAS DE VISIBILIDADE
+   =================== */
+
+/* Melhorar visibilidade dos cabeçalhos */
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  margin-top: 1em;
+  margin-bottom: 0.5em;
+}
+
+body.high-contrast h1,
+body.high-contrast h2,
+body.high-contrast h3,
+body.high-contrast h4,
+body.high-contrast h5,
+body.high-contrast h6 {
+  color: #ffffff !important;
+}
+
+body.black-yellow-contrast h1,
+body.black-yellow-contrast h2,
+body.black-yellow-contrast h3,
+body.black-yellow-contrast h4,
+body.black-yellow-contrast h5,
+body.black-yellow-contrast h6 {
+  color: #000000 !important;
+}
+
+body.yellow-black-contrast h1,
+body.yellow-black-contrast h2,
+body.yellow-black-contrast h3,
+body.yellow-black-contrast h4,
+body.yellow-black-contrast h5,
+body.yellow-black-contrast h6 {
+  color: #ffff00 !important;
+}
+
+/* Melhorar a visualização de tabelas */
+table {
+  border-collapse: collapse;
+  width: 100%;
+  margin-bottom: 1rem;
+}
+
+th,
+td {
+  padding: 0.75rem;
+  text-align: left;
+}
+
+body.high-contrast table,
+body.high-contrast th,
+body.high-contrast td {
+  border: 1px solid #ffffff;
+}
+
+body.black-yellow-contrast table,
+body.black-yellow-contrast th,
+body.black-yellow-contrast td {
+  border: 1px solid #000000;
+}
+
+body.yellow-black-contrast table,
+body.yellow-black-contrast th,
+body.yellow-black-contrast td {
+  border: 1px solid #ffff00;
+}
+
+/* ===================
+   AJUSTES PARA MOBILE
+   =================== */
+
+@media (max-width: 768px) {
+  /* Aumentar tamanho de toque para elementos interativos em mobile */
+  button,
+  .btn,
+  a.nav-link,
+  input[type='checkbox'],
+  input[type='radio'] {
+    min-height: 44px;
+    min-width: 44px;
+  }
+
+  /* Ajustar espaçamento para leitura em telas menores */
+  body.large-spacing,
+  body.larger-spacing {
+    line-height: 1.6 !important;
+  }
+
+  /* Garantir que elementos do menu de acessibilidade sejam visíveis */
+  .offcanvas-body button,
+  .offcanvas-body .form-check {
+    margin-bottom: 1rem;
+  }
+}
+
+/* ===================
+   SUPORTE A LEITORES DE TELA
+   =================== */
+
+/* Melhorias para leitores de tela - esconder elementos visualmente mas manter para leitores */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}
+
+/* Tornar skip-links visíveis quando recebem foco */
+.skip-link {
+  position: absolute;
+  top: -40px;
+  left: 0;
+  background: var(--primary-color);
+  color: white;
+  padding: 8px;
+  z-index: 9999;
+  transition: top 0.3s;
+}
+
+.skip-link:focus {
+  top: 0;
+}
+
+/* ===================
+   ESTADOS DE BOTÕES NO MODO NOTURNO
+   =================== */
+
+body.dark-mode button.active {
+  background-color: var(--primary-color) !important;
+  color: var(--dark-bg) !important;
+}
+
+/* Ajustes para o menu de acessibilidade no modo escuro */
+body.dark-mode .offcanvas {
+  background-color: var(--dark-surface);
+  color: var(--light-color);
+}
+
+body.dark-mode .offcanvas-header {
+  border-bottom: 1px solid var(--dark-border);
+}
+
+body.dark-mode .offcanvas-title {
+  color: var(--light-color);
+}

@@ -23,7 +23,11 @@ import {
   setContrast,
   changeFontSize,
   changeLineSpacing,
-  toggleHighlightLinks
+  toggleHighlightLinks,
+  toggleDyslexicFont,
+  toggleReducedMotion,
+  toggleLargeCursor,
+  resetAllAccessibilitySettings
 } from './modules/accessibility.js'
 
 /**
@@ -115,6 +119,10 @@ function exposeGlobalFunctions() {
   window.changeFontSize = changeFontSize
   window.changeLineSpacing = changeLineSpacing
   window.toggleHighlightLinks = toggleHighlightLinks
+  window.toggleDyslexicFont = toggleDyslexicFont
+  window.toggleReducedMotion = toggleReducedMotion
+  window.toggleLargeCursor = toggleLargeCursor
+  window.resetAllAccessibilitySettings = resetAllAccessibilitySettings
 }
 
 // Iniciar observadores de performance
