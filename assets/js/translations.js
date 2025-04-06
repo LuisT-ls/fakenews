@@ -1,3 +1,4 @@
+// Definição de traduções
 const translations = {
   en: {
     // Navigation
@@ -32,7 +33,7 @@ const translations = {
     'Verificar Conteúdo': 'Verify Content',
     'Digite ou cole aqui o texto que deseja verificar...':
       'Type or paste here the text you want to verify...',
-      'Digite ou cole aqui o texto que deseja verificar:':
+    'Digite ou cole aqui o texto que deseja verificar:':
       'Type or paste here the text you want to verify:',
     'Verificar Agora': 'Verify Now',
     'Verificando...': 'Verifying...',
@@ -170,94 +171,14 @@ const translations = {
   pt: {}
 }
 
-function addLanguageSwitcher() {
-  const navbarNav = document.querySelector('#navbarNav .navbar-nav')
-  const langSwitcher = document.createElement('li')
-  langSwitcher.className = 'nav-item'
-  langSwitcher.innerHTML = `
-    <button class="nav-link btn btn-link" id="languageSwitcher">
-      <i class="fas fa-globe me-1"></i>
-      <span class="language-text">EN</span>
-    </button>
-  `
-  navbarNav.appendChild(langSwitcher)
+// Função para traduzir conteúdo dinâmico
+export function translateDynamicContent(text, targetLang) {
+  if (!text) return ''
+  if (targetLang === 'pt') return text
+  return translations[targetLang]?.[text] || text
 }
 
-function initializeLanguageSwitcher() {
-  const currentLang = localStorage.getItem('language') || 'pt'
-  document.documentElement.lang = currentLang
-
-  const switcher = document.getElementById('languageSwitcher')
-  if (switcher) {
-    switcher.addEventListener('click', toggleLanguage)
-    updateLanguageButton(currentLang)
-  }
-
-  translatePage(currentLang)
-}
-
-function toggleLanguage() {
-  const currentLang = document.documentElement.lang
-  const newLang = currentLang === 'pt' ? 'en' : 'pt'
-
-  document.documentElement.lang = newLang
-  localStorage.setItem('language', newLang)
-
-  translatePage(newLang)
-  updateLanguageButton(newLang)
-  updateDynamicPlaceholders(newLang)
-
-  // Retranslate any visible results
-  const resultSection = document.getElementById('result-section')
-  if (!resultSection.classList.contains('d-none')) {
-    // Re-display the last result with new language
-    const lastVerification = verificationHistory[0]
-    if (lastVerification) {
-      displayResults(lastVerification)
-    }
-  }
-}
-
-function updateLanguageButton(lang) {
-  const langText = document.querySelector('.language-text')
-  if (langText) {
-    langText.textContent = lang === 'pt' ? 'EN' : 'PT'
-  }
-}
-
-function translatePage(targetLang) {
-  addTranslateAttributes(document.body)
-
-  document.querySelectorAll('[data-translate]').forEach(element => {
-    const key = element.getAttribute('data-translate')
-    const translation = translations[targetLang]?.[key] || key
-
-    if (translation) {
-      if (element.tagName === 'INPUT' || element.tagName === 'TEXTAREA') {
-        element.placeholder = translation
-      } else {
-        element.textContent = translation
-      }
-    }
-  })
-
-  updateMetaTags(targetLang)
-}
-
-function observeDynamicContent() {
-  const observer = new MutationObserver(() => {
-    addTranslateAttributes(document.body)
-    translatePage(document.documentElement.lang || 'pt')
-  })
-
-  observer.observe(document.body, { childList: true, subtree: true })
-}
-
-// Ative o observador ao inicializar a página
-document.addEventListener('DOMContentLoaded', () => {
-  observeDynamicContent()
-})
-
+// Função para adicionar atributos de tradução
 function addTranslateAttributes(rootElement) {
   // Processa todos os nós de texto, incluindo os ocultos
   const walker = document.createTreeWalker(
@@ -291,21 +212,27 @@ function addTranslateAttributes(rootElement) {
   }
 }
 
-// Function to translate dynamic content
-function translateDynamicContent(text, targetLang) {
-  if (targetLang === 'pt') return text
-  return translations[targetLang]?.[text] || text
+// Função para traduzir a página
+function translatePage(targetLang) {
+  addTranslateAttributes(document.body)
+
+  document.querySelectorAll('[data-translate]').forEach(element => {
+    const key = element.getAttribute('data-translate')
+    const translation = translations[targetLang]?.[key] || key
+
+    if (translation) {
+      if (element.tagName === 'INPUT' || element.tagName === 'TEXTAREA') {
+        element.placeholder = translation
+      } else {
+        element.textContent = translation
+      }
+    }
+  })
+
+  updateMetaTags(targetLang)
 }
 
-function updateDynamicPlaceholders(targetLang) {
-  const userInput = document.getElementById('userInput')
-  const defaultText = translateDynamicContent(
-    'Digite ou cole aqui o texto que deseja verificar...',
-    targetLang
-  )
-  userInput.placeholder = defaultText
-}
-
+// Função para atualizar os metadados da página
 function updateMetaTags(lang) {
   const metaTags = {
     en: {
@@ -325,15 +252,121 @@ function updateMetaTags(lang) {
   }
 
   const meta = metaTags[lang] || metaTags.pt
-  document.querySelector('meta[name="description"]').content = meta.description
-  document.querySelector('meta[property="og:title"]').content = meta.ogTitle
-  document.querySelector('meta[property="og:description"]').content =
-    meta.ogDescription
+
+  const descriptionMeta = document.querySelector('meta[name="description"]')
+  const ogTitleMeta = document.querySelector('meta[property="og:title"]')
+  const ogDescriptionMeta = document.querySelector(
+    'meta[property="og:description"]'
+  )
+
+  if (descriptionMeta) descriptionMeta.content = meta.description
+  if (ogTitleMeta) ogTitleMeta.content = meta.ogTitle
+  if (ogDescriptionMeta) ogDescriptionMeta.content = meta.ogDescription
 }
 
+// Função para alternar o idioma
+function toggleLanguage() {
+  const currentLang = document.documentElement.lang
+  const newLang = currentLang === 'pt' ? 'en' : 'pt'
+
+  document.documentElement.lang = newLang
+  localStorage.setItem('language', newLang)
+
+  translatePage(newLang)
+  updateLanguageButton(newLang)
+  updateDynamicPlaceholders(newLang)
+
+  // Disparando um evento de mudança de idioma para que outros módulos possam reagir
+  window.dispatchEvent(
+    new CustomEvent('languageChanged', { detail: { lang: newLang } })
+  )
+}
+
+// Função para atualizar botão de idioma
+function updateLanguageButton(lang) {
+  const langText = document.querySelector('.language-text')
+  if (langText) {
+    langText.textContent = lang === 'pt' ? 'EN' : 'PT'
+  }
+}
+
+// Função para atualizar placeholders dinâmicos
+function updateDynamicPlaceholders(targetLang) {
+  const userInput = document.getElementById('userInput')
+  if (userInput) {
+    const defaultText = translateDynamicContent(
+      'Digite ou cole aqui o texto que deseja verificar...',
+      targetLang
+    )
+    userInput.placeholder = defaultText
+  }
+}
+
+// Função para adicionar o botão de alternar idioma
+function addLanguageSwitcher() {
+  const navbarNav = document.querySelector('#navbarNav .navbar-nav')
+  if (!navbarNav) return
+
+  // Verificar se o switcher já existe
+  if (document.getElementById('languageSwitcher')) return
+
+  const langSwitcher = document.createElement('li')
+  langSwitcher.className = 'nav-item'
+  langSwitcher.innerHTML = `
+    <button class="nav-link btn btn-link" id="languageSwitcher">
+      <i class="fas fa-globe me-1"></i>
+      <span class="language-text">EN</span>
+    </button>
+  `
+  navbarNav.appendChild(langSwitcher)
+}
+
+// Função para inicializar o botão de alternar idioma
+function initializeLanguageSwitcher() {
+  const currentLang = localStorage.getItem('language') || 'pt'
+  document.documentElement.lang = currentLang
+
+  const switcher = document.getElementById('languageSwitcher')
+  if (switcher) {
+    switcher.addEventListener('click', toggleLanguage)
+    updateLanguageButton(currentLang)
+  }
+
+  translatePage(currentLang)
+}
+
+// Função para observar conteúdo dinâmico
+function observeDynamicContent() {
+  const observer = new MutationObserver(() => {
+    addTranslateAttributes(document.body)
+    translatePage(document.documentElement.lang || 'pt')
+  })
+
+  observer.observe(document.body, { childList: true, subtree: true })
+}
+
+// Inicialização
 document.addEventListener('DOMContentLoaded', () => {
   addLanguageSwitcher()
   initializeLanguageSwitcher()
+  observeDynamicContent()
+
   const currentLang = localStorage.getItem('language') || 'pt'
   updateDynamicPlaceholders(currentLang)
 })
+
+// Exportar o objeto translations e outras funções úteis
+export {
+  translations,
+  translatePage,
+  toggleLanguage,
+  addTranslateAttributes,
+  updateDynamicPlaceholders
+}
+
+// Exportação padrão
+export default {
+  translateDynamicContent,
+  translatePage,
+  toggleLanguage
+}

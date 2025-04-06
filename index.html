@@ -982,16 +982,10 @@
         <div class="mb-4">
           <h6 class="mb-3">Contraste</h6>
           <div class="d-flex gap-2">
-            <button
-              class="btn btn-outline-primary"
-              onclick="setContrast('normal')"
-            >
+            <button class="btn btn-outline-primary" data-contrast="normal">
               Normal
             </button>
-            <button
-              class="btn btn-outline-primary"
-              onclick="setContrast('high')"
-            >
+            <button class="btn btn-outline-primary" data-contrast="high">
               Alto Contraste
             </button>
           </div>
@@ -1001,22 +995,13 @@
         <div class="mb-4">
           <h6 class="mb-3">Tamanho da Fonte</h6>
           <div class="d-flex gap-2">
-            <button
-              class="btn btn-outline-primary"
-              onclick="changeFontSize('decrease')"
-            >
+            <button class="btn btn-outline-primary" data-font-action="decrease">
               <i class="fas fa-minus"></i> A-
             </button>
-            <button
-              class="btn btn-outline-primary"
-              onclick="changeFontSize('reset')"
-            >
+            <button class="btn btn-outline-primary" data-font-action="reset">
               A
             </button>
-            <button
-              class="btn btn-outline-primary"
-              onclick="changeFontSize('increase')"
-            >
+            <button class="btn btn-outline-primary" data-font-action="increase">
               <i class="fas fa-plus"></i> A+
             </button>
           </div>
@@ -1026,16 +1011,10 @@
         <div class="mb-4">
           <h6 class="mb-3">Espaçamento de Texto</h6>
           <div class="d-flex gap-2">
-            <button
-              class="btn btn-outline-primary"
-              onclick="changeLineSpacing('normal')"
-            >
+            <button class="btn btn-outline-primary" data-spacing="normal">
               Normal
             </button>
-            <button
-              class="btn btn-outline-primary"
-              onclick="changeLineSpacing('large')"
-            >
+            <button class="btn btn-outline-primary" data-spacing="large">
               Ampliado
             </button>
           </div>
@@ -1049,7 +1028,6 @@
               class="form-check-input"
               type="checkbox"
               id="highlightLinksToggle"
-              onchange="toggleHighlightLinks(this.checked)"
             />
             <label class="form-check-label" for="highlightLinksToggle">
               Destacar Links
@@ -1064,6 +1042,10 @@
       src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"
       defer
     ></script>
+
+    <!-- Script principal da aplicação (Tipo módulo) -->
+    <script type="module" src="/assets/js/script.js"></script>
+    <script src="/assets/js/translations.js"></script>
 
     <!-- Service Worker -->
     <script>
@@ -1104,10 +1086,6 @@
         })
       })
     </script>
-
-    <!-- Script principal da aplicação -->
-    <script src="/assets/js/script.js"></script>
-    <script src="/assets/js/translations.js"></script>
 
     <!-- Script de Analytics -->
     <script
