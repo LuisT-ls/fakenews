@@ -1,8 +1,3 @@
-/**
- * translations.js - Sistema de tradução da aplicação
- * Este arquivo é compatível com carregamento como módulo ES ou como script normal
- */
-
 // Definição de traduções
 const translations = {
   en: {
@@ -177,7 +172,7 @@ const translations = {
 }
 
 // Função para traduzir conteúdo dinâmico
-function translateDynamicContent(text, targetLang) {
+export function translateDynamicContent(text, targetLang) {
   if (!text) return ''
   if (targetLang === 'pt') return text
   return translations[targetLang]?.[text] || text
@@ -360,26 +355,18 @@ document.addEventListener('DOMContentLoaded', () => {
   updateDynamicPlaceholders(currentLang)
 })
 
-// Expor funções globalmente para scripts que precisam delas
-window.translations = translations
-window.translateDynamicContent = translateDynamicContent
-window.translatePage = translatePage
-window.toggleLanguage = toggleLanguage
-
-// Suporte a módulos ES6 quando disponível
-if (typeof exports !== 'undefined') {
-  exports.translations = translations
-  exports.translateDynamicContent = translateDynamicContent
-  exports.translatePage = translatePage
-  exports.toggleLanguage = toggleLanguage
+// Exportar o objeto translations e outras funções úteis
+export {
+  translations,
+  translatePage,
+  toggleLanguage,
+  addTranslateAttributes,
+  updateDynamicPlaceholders
 }
 
-// Suporte a importação como módulo ES
-if (typeof module !== 'undefined' && module.exports) {
-  module.exports = {
-    translations,
-    translateDynamicContent,
-    translatePage,
-    toggleLanguage
-  }
+// Exportação padrão
+export default {
+  translateDynamicContent,
+  translatePage,
+  toggleLanguage
 }
