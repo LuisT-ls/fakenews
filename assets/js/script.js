@@ -167,6 +167,7 @@ async function checkWithGemini(text) {
     }
 
     const { apiKey } = await keyResponse.json()
+    console.log('API Key obtida com sucesso') // Não exibir a chave no console
 
     // Linguagem atual
     const currentLang = document.documentElement.lang || 'pt'
@@ -174,7 +175,6 @@ async function checkWithGemini(text) {
 
     // Data atual para comparação
     const currentDate = new Date()
-    const analysisDate = new Date(2022, 11, 31) // Fim de 2022
 
     // Prompt atualizado com consciência temporal
     const prompt = `Analise detalhadamente o seguinte texto para verificar sua veracidade. 
@@ -205,51 +205,55 @@ Return only a valid JSON object with this exact structure, without any additiona
   }
 }`
 
+    const requestBody = {
+      contents: [{ parts: [{ text: prompt }] }],
+      generationConfig: {
+        temperature: 0.1,
+        topP: 0.1,
+        topK: 16,
+        maxOutputTokens: 2048
+      }
+    }
+
+    // Log do corpo da requisição para debug (sem expor a chave)
+    console.log('Enviando requisição para a API Gemini')
+
     // Fazer requisição para a API
     const response = await fetch(
       `https://generativelanguage.googleapis.com/v1/models/gemini-pro:generateContent?key=${apiKey}`,
       {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          contents: [{ parts: [{ text: prompt }] }],
-          generationConfig: {
-            temperature: 0.1,
-            topP: 0.1,
-            topK: 16,
-            maxOutputTokens: 2048
-          }
-        })
+        body: JSON.stringify(requestBody)
       }
     )
 
-    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`)
+    if (!response.ok) {
+      const errorText = await response.text()
+      console.error('Erro detalhado da API:', errorText)
+      throw new Error(`HTTP error! status: ${response.status}`)
+    }
 
     const data = await response.json()
+    console.log('Resposta da API recebida com sucesso')
+
     const rawText = data.candidates?.[0]?.content?.parts?.[0]?.text?.trim()
 
     if (!rawText) {
+      console.error('Estrutura da resposta:', JSON.stringify(data))
       throw new Error('Resposta inválida da API')
     }
 
     const cleanText = rawText.replace(/```json|```/g, '').trim()
-    const result = JSON.parse(cleanText)
 
-    // Ajustar score e classificação baseado na limitação temporal
-    if (result.limitacao_temporal?.afeta_analise) {
-      // Se houver limitação temporal significativa, ajustar para "Não Verificável"
-      // apenas se a limitação for o fator principal
-      if (
-        result.elementos_nao_verificaveis?.length >
-        result.elementos_verdadeiros?.length
-      ) {
-        result.classificacao = 'Não Verificável'
-        result.score = 0.5
-        result.confiabilidade = 0.5
-      }
+    try {
+      const result = JSON.parse(cleanText)
+      return result
+    } catch (parseError) {
+      console.error('Erro ao fazer parse do JSON:', parseError)
+      console.error('Texto recebido:', cleanText)
+      throw new Error('Formato de resposta inválido')
     }
-
-    return result
   } catch (error) {
     console.error('Erro na análise:', error)
     throw error
