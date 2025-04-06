@@ -1,4 +1,4 @@
-const CACHE_NAME = 'fake-news-checker-v2'
+const CACHE_NAME = 'fake-news-checker-v3'
 const OFFLINE_URL = '/pages/offline.html'
 
 const CRITICAL_ASSETS = [
@@ -11,9 +11,7 @@ const CRITICAL_ASSETS = [
 ]
 
 const SECONDARY_ASSETS = [
-  '/assets/js/script.js',
-  'https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css',
-  'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css'
+  '/assets/js/script.js'
 ]
 
 const DEFERRED_ASSETS = [
@@ -43,8 +41,9 @@ self.addEventListener('install', event => {
 
 self.addEventListener('activate', event => {
   event.waitUntil(
-    Promise.all([
-      caches.keys().then(cacheNames => {
+    caches
+      .keys()
+      .then(cacheNames => {
         return Promise.all(
           cacheNames.map(cacheName => {
             if (!cacheName.startsWith(CACHE_NAME)) {
@@ -53,16 +52,30 @@ self.addEventListener('activate', event => {
             }
           })
         )
-      }),
-      self.clients.claim(),
-      fetch('/assets/js/script.js'),
-      fetch('/assets/css/styles.css')
-    ])
+      })
+      .then(() => {
+        return self.clients.claim()
+      })
   )
 })
 
 self.addEventListener('fetch', event => {
   const url = new URL(event.request.url)
+
+  // Ignorar solicitações de extensão do Chrome
+  if (url.protocol === 'chrome-extension:') {
+    return
+  }
+
+  // Tratamento especial para arquivos CSS
+  if (url.href.endsWith('.css')) {
+    event.respondWith(
+      fetch(event.request).catch(() => {
+        return caches.match(event.request)
+      })
+    )
+    return
+  }
 
   // Handle navigation requests
   if (event.request.mode === 'navigate') {
@@ -115,10 +128,15 @@ self.addEventListener('fetch', event => {
             return response
           }
 
-          const responseToCache = response.clone()
-          caches
-            .open(`${CACHE_NAME}-deferred`)
-            .then(cache => cache.put(event.request, responseToCache))
+          // Apenas armazenar em cache recursos válidos e seguros
+          const url = new URL(response.url)
+          if (url.protocol === 'http:' || url.protocol === 'https:') {
+            const responseToCache = response.clone()
+            caches
+              .open(`${CACHE_NAME}-deferred`)
+              .then(cache => cache.put(event.request, responseToCache))
+              .catch(err => console.warn('Erro ao cachear:', err))
+          }
 
           return response
         })
@@ -133,12 +151,19 @@ self.addEventListener('fetch', event => {
 
 function fetchAndCache(request, cacheName) {
   return fetch(request).then(response => {
-    if (!response || response.status !== 200 || response.type !== 'basic') {
+    if (!response || response.status !== 200) {
       return response
     }
 
-    const responseToCache = response.clone()
-    caches.open(cacheName).then(cache => cache.put(request, responseToCache))
+    // Verificar se a URL é válida para cache
+    const url = new URL(request.url)
+    if (url.protocol === 'http:' || url.protocol === 'https:') {
+      const responseToCache = response.clone()
+      caches
+        .open(cacheName)
+        .then(cache => cache.put(request, responseToCache))
+        .catch(err => console.warn('Erro ao cachear:', err))
+    }
 
     return response
   })
