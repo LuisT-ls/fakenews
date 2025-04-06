@@ -297,7 +297,6 @@ async function handleVerification() {
       overallScore: geminiResult.score
     }
 
-    displayResults(verification)
     saveVerification(verification)
   } catch (error) {
     console.error('Erro durante a verificação:', error)
@@ -485,6 +484,9 @@ function handleFeedback(button, feedbackSection) {
   const verificationId = feedbackSection.dataset.verificationId
   const feedbackType = button.dataset.feedback
 
+  // Usar verificationId para rastrear qual verificação recebeu feedback
+  console.log(`Feedback para verificação ${verificationId}: ${feedbackType}`)
+
   // Desabilitar os botões após o clique
   feedbackSection.querySelectorAll('.btn-feedback').forEach(btn => {
     btn.disabled = true
@@ -634,13 +636,45 @@ function loadVerificationHistory() {
 }
 
 /**
- * Atualiza a exibição do histórico na interface
+ * Atualiza a exibição do histórico na interface com animação
+ * Exibe uma mensagem quando não há histórico ou lista as verificações realizadas
  */
 function updateHistoryDisplay() {
-  elements.verificationsHistory.innerHTML = verificationHistory.length
-    ? verificationHistory
-        .map(
-          verification => `
+  // Se não houver histórico
+  if (verificationHistory.length === 0) {
+    // Animação de fade-out
+    elements.verificationsHistory.style.opacity = '0'
+    setTimeout(() => {
+      elements.verificationsHistory.innerHTML =
+        '<p class="text-center text-muted">Nenhuma verificação realizada</p>'
+      // Animação de fade-in
+      elements.verificationsHistory.style.opacity = '1'
+    }, 300)
+  }
+  // Se houver histórico
+  else {
+    // Se a lista já estiver visível, não precisa de animação
+    if (elements.verificationsHistory.style.opacity !== '0') {
+      elements.verificationsHistory.innerHTML = generateHistoryHTML()
+    }
+    // Se estiver invisível (após limpeza por exemplo), usa animação
+    else {
+      setTimeout(() => {
+        elements.verificationsHistory.innerHTML = generateHistoryHTML()
+        elements.verificationsHistory.style.opacity = '1'
+      }, 300)
+    }
+  }
+}
+
+/**
+ * Gera o HTML para a lista de histórico
+ * @returns {string} HTML da lista de histórico
+ */
+function generateHistoryHTML() {
+  return verificationHistory
+    .map(
+      verification => `
       <div class="list-group-item">
         <div class="d-flex justify-content-between align-items-center">
           <small class="text-muted">${new Date(
@@ -653,9 +687,8 @@ function updateHistoryDisplay() {
         <p class="mb-1 text-truncate">${verification.text}</p>
       </div>
     `
-        )
-        .join('')
-    : '<p class="text-center text-muted">Nenhuma verificação realizada</p>'
+    )
+    .join('')
 }
 
 /**
@@ -727,35 +760,6 @@ function handleClearHistory() {
     document.getElementById('clearHistoryModal')
   )
   modal.show()
-}
-
-function updateHistoryDisplay() {
-  if (verificationHistory.length === 0) {
-    elements.verificationsHistory.style.opacity = '0'
-    setTimeout(() => {
-      elements.verificationsHistory.innerHTML =
-        '<p class="text-center text-muted">Nenhuma verificação realizada</p>'
-      elements.verificationsHistory.style.opacity = '1'
-    }, 300)
-  } else {
-    elements.verificationsHistory.innerHTML = verificationHistory
-      .map(
-        verification => `
-        <div class="list-group-item">
-          <div class="d-flex justify-content-between align-items-center">
-            <small class="text-muted">${new Date(
-              verification.timestamp
-            ).toLocaleString()}</small>
-            <span class="badge bg-${getScoreClass(verification.overallScore)}">
-              ${Math.round(verification.overallScore * 100)}%
-            </span>
-          </div>
-          <p class="mb-1 text-truncate">${verification.text}</p>
-        </div>
-      `
-      )
-      .join('')
-  }
 }
 
 // Adicionar este CSS ao seu arquivo de estilos
@@ -882,6 +886,10 @@ function toggleHighlightLinks(enabled) {
 
 // Carregar preferências salvas
 document.addEventListener('DOMContentLoaded', () => {
+  // Verificar se já inicializamos antes
+  if (window.appInitialized) return
+  window.appInitialized = true
+
   // Carregar contraste
   const savedContrast = localStorage.getItem('contrast')
   if (savedContrast === 'high') {
@@ -906,5 +914,44 @@ document.addEventListener('DOMContentLoaded', () => {
   if (savedHighlightLinks === 'true') {
     document.getElementById('highlightLinksToggle').checked = true
     toggleHighlightLinks(true)
+  }
+
+  // Verificar se os estilos já foram adicionados
+  if (!document.getElementById('dynamic-styles')) {
+    const styles = `
+        #verificationsHistory {
+          transition: opacity 0.3s ease-in-out;
+        }
+        
+        .modal.fade .modal-dialog {
+          transition: transform 0.3s ease-out;
+        }
+        
+        .modal.fade.show .modal-dialog {
+          transform: none;
+        }
+        
+        .fa-stack {
+          transition: transform 0.3s ease;
+        }
+        
+        #clearHistoryModal:hover .fa-stack,
+        #emptyHistoryModal:hover .fa-stack {
+          transform: scale(1.1);
+        }
+        
+        #userInput::placeholder {
+          color: #6c757d;
+        }
+        
+        #userInput:focus::placeholder {
+          opacity: 0.5;
+        }
+      `
+
+    const styleEl = document.createElement('style')
+    styleEl.id = 'dynamic-styles'
+    styleEl.textContent = styles
+    document.head.appendChild(styleEl)
   }
 })
